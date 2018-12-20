@@ -1,0 +1,11 @@
+# compiled stuff
+build*/
+# other stuff
+*.kdev4
+*~
+.ipynb_checkpoints
+__pycache__
+*.pch
+*.tags*
+*TAGS*
+*tags*
