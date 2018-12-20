@@ -123,6 +123,7 @@ struct Face {
     // derived material-space data that only changes with remeshing
     double a, m; // area, mass
     Mat2x2 Dm, invDm; // finite element matrix
+    Vec2 t0,t1,t2;
     // plasticity data
     Mat2x2 S_plastic; // plastic strain
     double damage; // accumulated norm of S_plastic/S_yield

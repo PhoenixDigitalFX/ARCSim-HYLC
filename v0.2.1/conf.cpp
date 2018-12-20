@@ -36,6 +36,7 @@
 #include <fstream>
 //#include <png.h>
 #include "sstream"
+#include "hylc/hylc_conf.hpp"
 using namespace std;
 
 void parse (bool&, const Json::Value&);
@@ -76,6 +77,14 @@ void parse_morphs (vector<Morph>&, const Json::Value&, const vector<Cloth> &);
 void parse (Wind&, const Json::Value&);
 void parse (Magic&, const Json::Value&);
 
+void parse(hylc::Material & material, const Json::Value& json) {
+  parse(material.enabled, json["enabled"], material.enabled);
+  parse(material.a0, json["a0"], material.a0);
+  parse(material.a1, json["a1"], material.a1);
+  parse(material.b0, json["b0"], material.b0);
+  parse(material.b1, json["b1"], material.b1);
+}
+
 void load_json (const string &configFilename, Simulation &sim) {
     Json::Value json;
     Json::Reader reader;
@@ -102,6 +111,7 @@ void load_json (const string &configFilename, Simulation &sim) {
         sim.end_frame = infinity;
     }
     sim.time = 0;
+    parse(hylc::material, json["hylc"]);
     parse(sim.cloths, json["cloths"]);
     parse_motions(sim.motions, json["motions"]);
     parse_handles(sim.handles, json["handles"], sim.cloths, sim.motions);

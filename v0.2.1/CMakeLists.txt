@@ -98,6 +98,10 @@ set(SOURCES
     vectors.cpp
 )
 
+#HYLC sources
+file(GLOB_RECURSE HYLC_SRCS hylc/*.cpp)
+file(GLOB_RECURSE HYLC_HDRS hylc/*.hpp hylc/*.h)
+
 # Boost library.
 set(Boost_USE_STATIC_LIBS ON)               # Use static libs.
 add_definitions(-DBOOST_ALL_NO_LIB)         # Disable auto-linking in MSVC.
@@ -152,7 +156,9 @@ endif(WIN32)
 
 add_executable(arcsim_0.2.1
     ${HEADERS}
+    ${HYLC_HDRS}
     ${SOURCES}
+    ${HYLC_SRCS}
 )
 
 if (WIN32)

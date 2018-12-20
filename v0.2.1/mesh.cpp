@@ -136,6 +136,15 @@ void compute_ms_data (Face* face) {
     face->a = det(face->Dm)/2;
     if (face->a == 0)
         face->invDm = Mat2x2(0);
+    // hylc: compute material space edge-crossing vectors t_i
+    // since we assume a flat material space, the average normal is (0,0,1)
+    // thus (e_i x n_avg) is just (e_i.y, -e_i.x)
+    Vec2 e0 = face->v[1]->u - face->v[0]->u;
+    Vec2 e1 = face->v[2]->u - face->v[1]->u;
+    Vec2 e2 = face->v[0]->u - face->v[2]->u;
+    face->t0 = Vec2(e0[1],-e0[0]);
+    face->t1 = Vec2(e1[1],-e1[0]);
+    face->t2 = Vec2(e2[1],-e2[0]);
 }
 
 void compute_ms_data (Edge* edge) {
