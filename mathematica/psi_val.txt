@@ -1,0 +1,1 @@
+out(0) = a1*(Power(-1 + ek1,2) + 2*ek2*ek2 + Power(-1 + ek3,2)) + a0*Power(-2 + ek1 + ek3,2) + b0*Power(ek4 + ek6,2) + b1*Power(ek5*ek5 - ek4*ek6,2);
