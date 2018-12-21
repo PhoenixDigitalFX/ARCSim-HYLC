@@ -161,24 +161,24 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   t1 *= (double) nn1;
   t2 *= (double) nn2;
 
-  // 1. mmcpp compute epsilon, kappa as vec6 ek
-  // TODO could also compute at the same time as derivatives and avoid some
-  // double computation
-  Vec6 ek = mm::ek(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
+  // 1. mmcpp compute epsilon, kappa as vec6 ek, and simulatenous grad and hess
+  std::tuple<std::vector<Mat18x18>, Mat6x18, Vec6> ek_hgv=
+  mm::ek_valdrv(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
+  Vec6 &ek = std::get<2>(ek_hgv);
+  Mat6x18 &ek_grad = std::get<1>(ek_hgv);
+  std::vector<Mat18x18> &ek_hess = std::get<0>(ek_hgv);
+
   // 2. mmcpp compute dpsidek(ek),d2psidekdek(ek) at the same time
   std::pair<Mat6x6, Vec6> psidrv =
       mm::psi_drv(ek, material.a0, material.a1, material.b0, material.b1);
-  // 3. mmcpp compute dekdx and d2ekdxdx at the same time
-  std::pair<std::vector<Mat18x18>, Mat6x18> ekdrv =
-      mm::ek_drv(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
   // 4. assemble local grad: dekdx.T dpsidek
-  Vec18 g = transpose(ekdrv.second) * psidrv.second;
+  Vec18 g = transpose(ek_grad) * psidrv.second;
   // 5. assemble local hess: dpsidek.T d2ekdxdx + dekdx.T d2psidekdek dekdx
   // second part 18x6 * 6x6 * 6x18
-  Mat18x18 H = transpose(ekdrv.second) * psidrv.first * ekdrv.second;
+  Mat18x18 H = transpose(ek_grad) * psidrv.first * ek_grad;
   // first part 1x6 * 6x18x18
   for (int i = 0; i < 6; ++i)
-    H += psidrv.second[i] * ekdrv.first[i];
+    H += psidrv.second[i] * ek_hess[i];
 
   return std::make_pair(H, g);
 }
