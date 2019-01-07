@@ -11,8 +11,9 @@
 // -> "disable": ["remeshing"] in config files
 
 #include "hylc_conf.hpp"
-#include "strain/strain.hpp"
 #include "materials/AnalyticMaterial.hpp"
+#include "materials/TestMaterial.hpp"
+#include "strain/strain.hpp"
 
 #include <iostream>
 
@@ -23,9 +24,12 @@ namespace hylc {
 bool hylc_enabled() { return config.enabled; }
 
 std::shared_ptr<BaseMaterial> get_material() {
-  return std::make_shared<AnalyticMaterial>(
-      config.a0, config.a1, config.b0,
-      config.b1);
+  // TODO instantiate once only
+  if (config.material_type == 0)
+    return std::make_shared<AnalyticMaterial>(config.a0, config.a1, config.b0,
+                                              config.b1);
+  else
+    return std::make_shared<TestMaterial>();
 }
 
 Node *find_across(const Edge *edge, const Node *oppv1) {
@@ -148,6 +152,7 @@ template <Space s> double hylc_internal_energy(const Cloth &cloth) {
   for (size_t i = 0; i < local_E.size(); i++) {
     E += local_E[i];
   }
+
   return E;
 }
 
@@ -188,7 +193,7 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   for (int i = 0; i < 6; ++i)
     H += psidrv.second[i] * ek_hess[i];
 
-  return std::make_pair(H, g);
+  return std::make_pair(A*H, A*g);
 }
 
 // Vec<3, int> indices(const Node *n0, const Node *n1, const Node *n2) {

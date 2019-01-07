@@ -8,10 +8,11 @@ namespace hylc {
 // default values will be used if not replaced through config file
 struct Config {
   bool enabled = false;
-  double a0 = 5 * 5e-2;
-  double a1 = 5 * 5e-2;
-  double b0 = 1 * 1e-2;
-  double b1 = 1 * 1e-2;
+  double a0 = 10;
+  double a1 = 10;
+  double b0 = 1 * 1e-0;
+  double b1 = 0 * 1e-2;
+  int material_type = 0;
 };
 
 extern Config config; // global struct, defined in cpp
