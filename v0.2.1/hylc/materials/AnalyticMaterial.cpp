@@ -1,12 +1,9 @@
-#include "hylc_mm.hpp"
+#include "AnalyticMaterial.hpp"
 
 using namespace hylc;
 using namespace hylc::mathematica;
 
-// (ek)(\d+) -> $1($2)
-
-Real hylc::mathematica::psi(const Vec6 &_ek, double a0, double a1, double b0,
-                            double b1) {
+double AnalyticMaterial::psi(const Vec6 &_ek) {
   // define input
   auto ek = [&](int i) -> const Real & { return _ek[i - 1]; };
   return a1 *
@@ -15,9 +12,7 @@ Real hylc::mathematica::psi(const Vec6 &_ek, double a0, double a1, double b0,
          b1 * Power(ek(5) * ek(5) - ek(4) * ek(6), 2);
 }
 
-std::pair<Mat6x6, Vec6> hylc::mathematica::psi_drv(const Vec6 &_ek, double a0,
-                                                   double a1, double b0,
-                                                   double b1) {
+std::pair<Mat6x6, Vec6> AnalyticMaterial::psi_drv(const Vec6 &_ek) {
   // define input
   auto ek = [&](int i) -> const Real & { return _ek[i - 1]; };
 

@@ -30,6 +30,8 @@ inline Real Sin(const Real &A) { return std::sin(A); }
 inline Real Cos(const Real &A) { return std::cos(A); }
 inline Real ArcCos(const Real &A) { return std::acos(A); }
 inline Real ArcTan(const Real &X, const Real &Y) { return std::atan2(Y, X); }
+inline Real Tan(const Real &X) { return std::tan(X); }
+inline Real Sec(const Real &X) { return 1.0/std::cos(X); }
 
 } // namespace Mathematica
 } // namespace HYLC

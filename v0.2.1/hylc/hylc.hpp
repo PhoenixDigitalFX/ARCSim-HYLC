@@ -11,7 +11,8 @@
 // -> "disable": ["remeshing"] in config files
 
 #include "hylc_conf.hpp"
-#include "hylc_mm.hpp"
+#include "strain/strain.hpp"
+#include "materials/AnalyticMaterial.hpp"
 
 #include <iostream>
 
@@ -19,8 +20,12 @@
 
 namespace hylc {
 
-bool hylc_enabled() {
-  return material.enabled;
+bool hylc_enabled() { return config.enabled; }
+
+std::shared_ptr<BaseMaterial> get_material() {
+  return std::make_shared<AnalyticMaterial>(
+      config.a0, config.a1, config.b0,
+      config.b1);
 }
 
 Node *find_across(const Edge *edge, const Node *oppv1) {
@@ -37,7 +42,9 @@ Node *find_across(const Edge *edge, const Node *oppv1) {
 template <Space s>
 void compute_local_information(const Face *face, Vec18 &xlocal, double &l0,
                                double &l1, double &l2, double &theta_rest0,
-                               double &theta_rest1, double &theta_rest2, bool &nn0_exists, bool& nn1_exists, bool&nn2_exists) {
+                               double &theta_rest1, double &theta_rest2,
+                               bool &nn0_exists, bool &nn1_exists,
+                               bool &nn2_exists) {
   xlocal = Vec18(0);
   const Node *n0 = face->v[0]->node, *n1 = face->v[1]->node,
              *n2 = face->v[2]->node;
@@ -86,9 +93,9 @@ void compute_local_information(const Face *face, Vec18 &xlocal, double &l0,
     theta_rest2 = e->theta_ideal;
   }
 
-  nn0_exists = nn0 ? true:false;
-  nn1_exists = nn1 ? true:false;
-  nn2_exists = nn2 ? true:false;
+  nn0_exists = nn0 ? true : false;
+  nn1_exists = nn1 ? true : false;
+  nn2_exists = nn2 ? true : false;
 }
 
 template <Space s> double hylc_local_energy(const Face *face) {
@@ -97,17 +104,17 @@ template <Space s> double hylc_local_energy(const Face *face) {
   Vec18 xlocal;
   double l0, l1, l2;
   double theta_rest0, theta_rest1, theta_rest2;
-  bool nn0,nn1,nn2;
+  bool nn0, nn1, nn2;
   compute_local_information<s>(face, xlocal, l0, l1, l2, theta_rest0,
-                               theta_rest1, theta_rest2, nn0,nn1,nn2);
+                               theta_rest1, theta_rest2, nn0, nn1, nn2);
 
   double A = face->a;         // material space / reference config area
   Mat2x2 invDm = face->invDm; // shape matrix
   Vec2 t0 = face->t0, t1 = face->t1, t2 = face->t2;
 
-  t0 *= (double) nn0;
-  t1 *= (double) nn1;
-  t2 *= (double) nn2;
+  t0 *= (double)nn0;
+  t1 *= (double)nn1;
+  t2 *= (double)nn2;
 
   // 1. mmcpp compute epsilon(x),kappa(x) as vec6
   // NOTE not using theta_ideal, TODO
@@ -117,7 +124,9 @@ template <Space s> double hylc_local_energy(const Face *face) {
   // std::cout<<"l\n"<<l0<<"\n"<<l1<<"\n"<<l2<<"\n\n";
   // std::cout<<"A\n"<<A<<"\n";
   // 2. mmcpp compute psi(epskappa)
-  double E = mm::psi(ek, material.a0, material.a1, material.b0, material.b1);
+  double E = get_material()->psi(ek);
+  // psi is energy density, constant over triangle
+  E *= A;
   return E;
 
   // NOTE: not optimal recomputing normals within mmcpp of strains
@@ -150,27 +159,26 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   Vec18 xlocal;
   double l0, l1, l2;
   double theta_rest0, theta_rest1, theta_rest2;
-  bool nn0,nn1,nn2;
+  bool nn0, nn1, nn2;
   compute_local_information<s>(face, xlocal, l0, l1, l2, theta_rest0,
-                               theta_rest1, theta_rest2,  nn0,nn1,nn2);
+                               theta_rest1, theta_rest2, nn0, nn1, nn2);
 
   double A = face->a;         // material space / reference config area
   Mat2x2 invDm = face->invDm; // shape matrix
   Vec2 t0 = face->t0, t1 = face->t1, t2 = face->t2;
-  t0 *= (double) nn0;
-  t1 *= (double) nn1;
-  t2 *= (double) nn2;
+  t0 *= (double)nn0;
+  t1 *= (double)nn1;
+  t2 *= (double)nn2;
 
   // 1. mmcpp compute epsilon, kappa as vec6 ek, and simulatenous grad and hess
-  std::tuple<std::vector<Mat18x18>, Mat6x18, Vec6> ek_hgv=
-  mm::ek_valdrv(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
+  std::tuple<std::vector<Mat18x18>, Mat6x18, Vec6> ek_hgv =
+      mm::ek_valdrv(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
   Vec6 &ek = std::get<2>(ek_hgv);
   Mat6x18 &ek_grad = std::get<1>(ek_hgv);
   std::vector<Mat18x18> &ek_hess = std::get<0>(ek_hgv);
 
   // 2. mmcpp compute dpsidek(ek),d2psidekdek(ek) at the same time
-  std::pair<Mat6x6, Vec6> psidrv =
-      mm::psi_drv(ek, material.a0, material.a1, material.b0, material.b1);
+  std::pair<Mat6x6, Vec6> psidrv = get_material()->psi_drv(ek);
   // 4. assemble local grad: dekdx.T dpsidek
   Vec18 g = transpose(ek_grad) * psidrv.second;
   // 5. assemble local hess: dpsidek.T d2ekdxdx + dekdx.T d2psidekdek dekdx
