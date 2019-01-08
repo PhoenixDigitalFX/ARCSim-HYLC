@@ -121,7 +121,7 @@ find_package(OpenGL QUIET REQUIRED)
 
 # Set include directories.
 if (WIN32)
-include_directories(
+include_directories( SYSTEM # system to avoid warnings in libraries
     ../dependencies/alglib/cpp/src
     ../dependencies/jsoncpp/include
     ../dependencies/eigen
@@ -131,7 +131,7 @@ include_directories(
     ${OPENGL_INCLUDE_DIR}
 )
 else(WIN32)
-include_directories(
+include_directories( SYSTEM # system to avoid warnings in libraries
     ../dependencies/alglib/cpp/src
     ../dependencies/jsoncpp/include
     ../dependencies/eigen

@@ -122,7 +122,11 @@ template <Space s> double hylc_local_energy(const Face *face) {
 
   // 1. mmcpp compute epsilon(x),kappa(x) as vec6
   // NOTE not using theta_ideal, TODO
-  Vec6 ek = mm::ek(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
+  Vec6 ek;
+  if (config.eklinear) // linear angle in curvature tensor
+    ek = mm::eklinear(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
+  else  // 2tan(theta/2) in curvature tensor
+    ek = mm::ek(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
   // std::cout<<"ek\n"<<ek<<"\n\n";
   // std::cout<<"t\n"<<t0<<"\n"<<t1<<"\n"<<t2<<"\n\n";
   // std::cout<<"l\n"<<l0<<"\n"<<l1<<"\n"<<l2<<"\n\n";
@@ -176,8 +180,12 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   t2 *= (double)nn2;
 
   // 1. mmcpp compute epsilon, kappa as vec6 ek, and simulatenous grad and hess
-  std::tuple<std::vector<Mat18x18>, Mat6x18, Vec6> ek_hgv =
-      mm::ek_valdrv(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
+  std::tuple<std::vector<Mat18x18>, Mat6x18, Vec6> ek_hgv;
+  if (config.eklinear) // linear angle in curvature tensor
+    ek_hgv = mm::eklinear_valdrv(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
+  else  // 2tan(theta/2) in curvature tensor
+    ek_hgv = mm::ek_valdrv(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
+
   Vec6 &ek = std::get<2>(ek_hgv);
   Mat6x18 &ek_grad = std::get<1>(ek_hgv);
   std::vector<Mat18x18> &ek_hess = std::get<0>(ek_hgv);
@@ -193,7 +201,7 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   for (int i = 0; i < 6; ++i)
     H += psidrv.second[i] * ek_hess[i];
 
-  return std::make_pair(A*H, A*g);
+  return std::make_pair(A * H, A * g);
 }
 
 // Vec<3, int> indices(const Node *n0, const Node *n1, const Node *n2) {
