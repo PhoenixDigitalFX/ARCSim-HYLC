@@ -188,7 +188,7 @@ double unsigned_ee_distance (const Vec3 &x0, const Vec3 &x1,
 }
 
 Vec3 get_barycentric_coords(const Vec2& point, const Face* f) {
-    // Compute vectors        
+    // Compute vectors
     Vec2 v0 = f->v[0]->u - f->v[2]->u;
     Vec2 v1 = f->v[1]->u - f->v[2]->u;
     Vec2 v2 = point - f->v[2]->u;
@@ -266,7 +266,7 @@ template double dihedral_angle<WS> (const Edge *edge);
 template <Space s> Mat2x2 curvature (const Face *face) {
     Mat2x2 S;
     for (int e = 0; e < 3; e++) {
-        const Edge *edge = face->adje[e];
+        // const Edge *edge = face->adje[e];
         Vec2 e_mat = face->v[PREV(e)]->u - face->v[NEXT(e)]->u,
              t_mat = perp(normalize(e_mat));
         double theta = dihedral_angle<s>(face->adje[e]);

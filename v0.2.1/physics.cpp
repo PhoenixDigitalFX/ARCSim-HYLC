@@ -447,7 +447,7 @@ void add_morph_forces(const Cloth &cloth, const Morph &morph, double t,
     const Vert *vert = mesh.verts[v];
     Vec3 x = morph.pos(t, vert->u);
     double stiffness = exp(morph.log_stiffness.pos(t));
-    Vec3 n = vert->node->n;
+    // Vec3 n = vert->node->n;
     double s = stiffness * vert->a;
     // // lower stiffness in tangential direction
     // Mat3x3 k = s*outer(n,n) + (s/10)*(Mat3x3(1) - outer(n,n));

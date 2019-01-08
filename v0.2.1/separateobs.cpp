@@ -50,7 +50,7 @@ struct Ixn {// intersection
     Vec3 n;
     Ixn () {}
     Ixn (const Face *f0, const Bary &b0, const Face *f1, const Bary &b1,
-         const Vec3 &n): f0((Face*)f0), b0(b0), f1((Face*)f1), b1(b1), n(n) {}
+         const Vec3 &n): f0((Face*)f0), f1((Face*)f1), b0(b0), b1(b1), n(n) {}
 };
 
 ostream &operator<< (ostream &out, const Ixn &ixn) {out << ixn.f0 << "@" << ixn.b0 << " " << ixn.f1 << "@" << ixn.b1 << " " << ixn.n; return out;}

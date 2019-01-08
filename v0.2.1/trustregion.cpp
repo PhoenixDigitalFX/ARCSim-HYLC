@@ -92,7 +92,7 @@ double line_circle_intersection (double n1, double n2, double d, double r);
 
 bool minimize_in_ball (const vector<double> &g, const SpMat<double> &H,
                        double radius, vector<double> &p) {
-    int n = g.size();
+    // int n = g.size();
     static vector<double> p1, p2;
     scalar_mult(p1, -dot(g, g)/dot(g, H, g), g);
     p2 = eigen_linear_solve(H, g);

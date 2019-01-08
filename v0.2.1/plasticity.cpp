@@ -140,7 +140,7 @@ double EmbedOpt::objective (const double *x) const {
 
 void EmbedOpt::gradient (const double *x, double *g) const {
     for (int n = 0; n < mesh.nodes.size(); n++) {
-        const Node *node = mesh.nodes[n];
+        // const Node *node = mesh.nodes[n];
         set_subvec(g, n, -f[n]);
     }
 }
@@ -199,7 +199,7 @@ void restore_stretching_stiffnesses (vector<Cloth::Material*> &materials) {
 Mat2x2 edges_to_face (const Vec3 &theta, const Face *face) {
     Mat2x2 S;
     for (int e = 0; e < 3; e++) {
-        const Edge *edge = face->adje[e];
+        // const Edge *edge = face->adje[e];
         Vec2 e_mat = face->v[PREV(e)]->u - face->v[NEXT(e)]->u,
              t_mat = perp(normalize(e_mat));
         S -= 1/2.*theta[e]*norm(e_mat)*outer(t_mat, t_mat);
@@ -212,7 +212,7 @@ Vec3 face_to_edges (const Mat2x2 &S, const Face *face) {
     Vec3 s = face->a*Vec3(S(0,0), S(1,1), S(0,1));
     Mat3x3 A;
     for (int e = 0; e < 3; e++) {
-        const Edge *edge = face->adje[e];
+        // const Edge *edge = face->adje[e];
         Vec2 e_mat = face->v[PREV(e)]->u - face->v[NEXT(e)]->u,
              t_mat = perp(normalize(e_mat));
         Mat2x2 Se = -1/2.*norm(e_mat)*outer(t_mat, t_mat);

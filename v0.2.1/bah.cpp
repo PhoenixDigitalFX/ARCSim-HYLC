@@ -92,7 +92,7 @@ BahNode *new_bah_tree (const Mesh &mesh) {
 	Aap pln(total);
 	Face **face_buffer = new Face*[count];
 	unsigned int left_idx = 0, right_idx = count;
-	unsigned int tri_idx = 0;
+	// unsigned int tri_idx = 0;
 	for (unsigned int i=0; i<num_tri; i++) {
 		Vec2 &p1 = mesh.faces[i]->v[0]->u;
 		Vec2 &p2 = mesh.faces[i]->v[1]->u;
@@ -126,7 +126,7 @@ BahNode *new_bah_tree (const Mesh &mesh) {
 }
 
 BahNode::BahNode ():
-    face(NULL), left(NULL), right(NULL), parent(NULL) {
+    face(NULL), parent(NULL), left(NULL), right(NULL) {
 }
 
 BahNode::~BahNode () {
@@ -135,12 +135,12 @@ BahNode::~BahNode () {
 }
 
 BahNode::BahNode (BahNode *parent, Face *face, const Box &box):
-    left(NULL), right(NULL), parent(parent), face(face), box(box) {
+    box(box), face(face), parent(parent), left(NULL), right(NULL)  {
 }
 
 BahNode::BahNode (BahNode *parent, Face **lst, unsigned int lst_num,
                   Box *tri_boxes, Vec2 *tri_centers) {
-    BahNode *node = new BahNode;
+    // BahNode *node = new BahNode;
 	assert(lst_num > 0);
 	left = right = NULL;
 	parent = parent;

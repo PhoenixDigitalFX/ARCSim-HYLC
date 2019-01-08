@@ -228,7 +228,7 @@ void SLOpt::finalize (const double *x) const {
 void debug (const vector<string> &args) {
     Mesh mesh;
     load_obj(mesh, "meshes/square35785.obj");
-    Mat3x3 M = diag(Vec3(2., 0.5, 1.));
+    // Mat3x3 M = diag(Vec3(2., 0.5, 1.));
     for (int n = 0; n < mesh.nodes.size(); n++) {
         mesh.nodes[n]->x[0] *= 2;
         mesh.nodes[n]->x[1] *= 0.5;
