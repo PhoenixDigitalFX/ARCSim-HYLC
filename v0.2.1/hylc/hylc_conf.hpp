@@ -12,7 +12,7 @@ struct Config {
   double a1 = 10;
   double b0 = 1 * 1e-0;
   double b1 = 0 * 1e-2;
-  int material_type = 0;
+  int material_type = 1;
 };
 
 extern Config config; // global struct, defined in cpp

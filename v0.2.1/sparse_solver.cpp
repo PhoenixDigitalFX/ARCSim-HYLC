@@ -1,5 +1,5 @@
 /*
-  Copyright ©2013 The Regents of the University of California
+  Copyright ï¿½2013 The Regents of the University of California
   (Regents). All Rights Reserved. Permission to use, copy, modify, and
   distribute this software and its documentation for educational,
   research, and not-for-profit purposes, without fee and without a
@@ -44,7 +44,7 @@ namespace
 struct Comparator
 {
     Comparator(std::vector<int> const& vec_) : vec(&vec_) {}
-    bool operator()(int a, int b) { return (*vec)[a] < (*vec)[b]; }   
+    bool operator()(int a, int b) { return (*vec)[a] < (*vec)[b]; }
     std::vector<int> const* vec;
 };
 
@@ -197,15 +197,15 @@ vector<double> alglib_linear_solve(const SpMat<double>& A, const vector<double>&
             M(i,j) = row.entries[jj];
         }
     }
-    
+
     ae_int_t info;
-    densesolverreport rep;    
+    densesolverreport rep;
     rmatrixsolve(M,n,c,info,rep,x);
-    
+
     vector<double> ret(n);
     for (int i=0; i<n; i++)
         ret[i] = x[i];
-    
+
     return ret;
 }
 
@@ -230,14 +230,36 @@ vector<Vec<C> > alglib_linear_solve_vec(const SpMat<Mat<C,C> >& A, const vector<
     }
 
     ae_int_t info;
-    densesolverreport rep;    
+    densesolverreport rep;
     rmatrixsolve(M,n,c,info,rep,x);
-    
+
     vector<Vec<C> > ret(n);
     for (int i=0; i<n; i++)
         ret[i/C][i%C] = x[i];
-    
+
     return ret;
+}
+
+void hylc_hackery(SparseMatrix<double> & A, Map<VectorXd const> &b, Map<VectorXd> &x) {
+
+  // regularize ?? backward euler standard reg?
+  SparseMatrix<double> I(A.rows(),A.cols());
+  I.setIdentity();
+  double alpha = 0;//1e-2;
+  A += alpha*I; // TODO THIS DOESNT WORK, WHAT EXACTLY IS THE SYSTEM
+  // system is (ignoring friction and constraint forces)
+  // A := M - dt^2 Jext + (dt^2 +dt damp) H
+  // b := dt fext - dt gradE - (dt^2 + dt damp) H v
+  SimplicialLDLT<SparseMatrix<double>, Lower> solver(A);
+
+
+
+  // std::cout<<solver.vectorD().transpose()<<"\n\n";
+  VectorXd D = solver.vectorD();
+  double lmin = D.cwiseAbs().minCoeff();
+  double lmax = D.cwiseAbs().maxCoeff();
+  printf("lmin: %.2e, lmax: %.2e,\n cond: %.2e, det: %.2e\n\n",lmin,lmax,lmax/lmin,D.prod());
+  x = solver.solve(b);
 }
 
 vector<double> eigen_linear_solve (const SpMat<double> &A, const vector<double> &b) {
@@ -249,9 +271,10 @@ vector<double> eigen_linear_solve (const SpMat<double> &A, const vector<double> 
     vector<double> x(b.size());
     Map<VectorXd> x_(x.data(), x.size());
 
-    SimplicialLLT<SparseMatrix<double>, Lower> solver(Aeigen);
-    //ConjugateGradient<SparseMatrix<double>, Lower> solver(Aeigen);
-    x_ = solver.solve(b_);
+    // SimplicialLLT<SparseMatrix<double>, Lower> solver(Aeigen);
+    // //ConjugateGradient<SparseMatrix<double>, Lower> solver(Aeigen);
+    // x_ = solver.solve(b_);
+    hylc_hackery(Aeigen,b_,x_);
 
     return x;
 }
@@ -266,9 +289,10 @@ template <int m> vector< Vec<m> > eigen_linear_solve
     vector<Vec<m> > x(b.size());
     Map<VectorXd> x_(&x[0][0], m * x.size());
 
-    SimplicialLLT<SparseMatrix<double>, Lower> solver(Aeigen);
-    //ConjugateGradient<SparseMatrix<double>, Lower> solver(Aeigen);
-    x_ = solver.solve(b_);
+    // SimplicialLLT<SparseMatrix<double>, Lower> solver(Aeigen);
+    // //ConjugateGradient<SparseMatrix<double>, Lower> solver(Aeigen);
+    // x_ = solver.solve(b_);
+    hylc_hackery(Aeigen,b_,x_);
 
     return x;
 }
