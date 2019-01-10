@@ -13,7 +13,7 @@ struct Config {
   double b0 = 1 * 1e-0; // mean curvature energy
   double b1 = 1 * 1e-2; // gaussian curvature energy
   int material_type = 0; // 0 .. analytic material, 1 .. fitted data
-  bool eklinear = true; // toggle between linear theta vs. 2 tan(theta/2)
+  bool eklinear = false; // toggle between linear theta vs. 2 tan(theta/2)
   // NOTE: ek is my shorthand notitation for epsilonkappa
   // which i use to describe the combined vector of the 6 dof of the
   // stretching tensor epsilon and the shape operator/curvature tensor kappa
