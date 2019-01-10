@@ -7,6 +7,7 @@
 
 #include "../sparse.hpp"
 
+// NOTE
 // to turn off remeshing
 // -> "disable": ["remeshing"] in config files
 
@@ -108,24 +109,25 @@ template <Space s> double hylc_local_energy(const Face *face) {
   Vec18 xlocal;
   double l0, l1, l2;
   double theta_rest0, theta_rest1, theta_rest2;
-  bool nn0, nn1, nn2;
+  bool nn0_exists, nn1_exists, nn2_exists;
   compute_local_information<s>(face, xlocal, l0, l1, l2, theta_rest0,
-                               theta_rest1, theta_rest2, nn0, nn1, nn2);
+                               theta_rest1, theta_rest2, nn0_exists, nn1_exists,
+                               nn2_exists);
 
   double A = face->a;         // material space / reference config area
   Mat2x2 invDm = face->invDm; // shape matrix
   Vec2 t0 = face->t0, t1 = face->t1, t2 = face->t2;
 
-  t0 *= (double)nn0;
-  t1 *= (double)nn1;
-  t2 *= (double)nn2;
+  t0 *= (double)nn0_exists;
+  t1 *= (double)nn1_exists;
+  t2 *= (double)nn2_exists;
 
   // 1. mmcpp compute epsilon(x),kappa(x) as vec6
   // NOTE not using theta_ideal, TODO
   Vec6 ek;
   if (config.eklinear) // linear angle in curvature tensor
     ek = mm::eklinear(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
-  else  // 2tan(theta/2) in curvature tensor
+  else // 2tan(theta/2) in curvature tensor
     ek = mm::ek(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
   // std::cout<<"ek\n"<<ek<<"\n\n";
   // std::cout<<"t\n"<<t0<<"\n"<<t1<<"\n"<<t2<<"\n\n";
@@ -137,7 +139,7 @@ template <Space s> double hylc_local_energy(const Face *face) {
   E *= A;
   return E;
 
-  // NOTE: not optimal recomputing normals within mmcpp of strains
+  // NOTE: probably not optimal recomputing normals within mmcpp of strains
   // same goes for dihedral angle theta
 }
 
@@ -168,22 +170,23 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   Vec18 xlocal;
   double l0, l1, l2;
   double theta_rest0, theta_rest1, theta_rest2;
-  bool nn0, nn1, nn2;
+  bool nn0_exists, nn1_exists, nn2_exists;
   compute_local_information<s>(face, xlocal, l0, l1, l2, theta_rest0,
-                               theta_rest1, theta_rest2, nn0, nn1, nn2);
+                               theta_rest1, theta_rest2, nn0_exists, nn1_exists,
+                               nn2_exists);
 
   double A = face->a;         // material space / reference config area
   Mat2x2 invDm = face->invDm; // shape matrix
   Vec2 t0 = face->t0, t1 = face->t1, t2 = face->t2;
-  t0 *= (double)nn0;
-  t1 *= (double)nn1;
-  t2 *= (double)nn2;
+  t0 *= (double)nn0_exists;
+  t1 *= (double)nn1_exists;
+  t2 *= (double)nn2_exists;
 
   // 1. mmcpp compute epsilon, kappa as vec6 ek, and simulatenous grad and hess
   std::tuple<std::vector<Mat18x18>, Mat6x18, Vec6> ek_hgv;
   if (config.eklinear) // linear angle in curvature tensor
     ek_hgv = mm::eklinear_valdrv(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
-  else  // 2tan(theta/2) in curvature tensor
+  else // 2tan(theta/2) in curvature tensor
     ek_hgv = mm::ek_valdrv(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
 
   Vec6 &ek = std::get<2>(ek_hgv);
@@ -203,14 +206,6 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
 
   return std::make_pair(A * H, A * g);
 }
-
-// Vec<3, int> indices(const Node *n0, const Node *n1, const Node *n2) {
-//   Vec<3, int> ix;
-//   ix[0] = n0->index;
-//   ix[1] = n1->index;
-//   ix[2] = n2->index;
-//   return ix;
-// }
 
 template <int m>
 void add_submat(const Mat<m * 3, m * 3> &Asub, const Vec<m, int> &ix,

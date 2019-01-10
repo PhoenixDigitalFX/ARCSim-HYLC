@@ -235,7 +235,7 @@ vector<Vec<C>> alglib_linear_solve_vec(const SpMat<Mat<C, C>> &A,
   return ret;
 }
 
-#include <unsupported/Eigen/IterativeSolvers>
+#include <unsupported/Eigen/IterativeSolvers> // for minres
 void hylc_hackery(SparseMatrix<double> &A, Map<VectorXd const> &b,
                   Map<VectorXd> &x) {
 

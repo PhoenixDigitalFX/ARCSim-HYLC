@@ -21,6 +21,7 @@ void parse(hylc::Config &params, const Json::Value &json) {
   parse_optional(params.b0, json["b0"]);
   parse_optional(params.b1, json["b1"]);
   parse_optional(params.material_type, json["type"]);
+  parse_optional(params.eklinear, json["eklinear"]);
 }
 
 void hylc::parse_hylc(const Json::Value &json) { parse(hylc::config, json); }
