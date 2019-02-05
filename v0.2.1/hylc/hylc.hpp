@@ -1,6 +1,10 @@
 #ifndef _HYLC_H_
 #define _HYLC_H_
 
+#include <Eigen/Dense>
+#include <Eigen/SVD>
+#include <chrono> // DEBUG timing
+
 #include "../cloth.hpp"
 #include <utility>
 #include <vector>
@@ -204,6 +208,49 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   for (int i = 0; i < 6; ++i)
     H += psidrv.second[i] * ek_hess[i];
 
+  // DEBUG SPDify 18x18 matrix
+  // TODO maybe deal with the boundary triangles with < 18 dof
+  // make Eigen map to H.. cant, need to copy...
+  typedef Eigen::Matrix<double, 18, 18> emat18;
+  typedef Eigen::Matrix<double, 18, 1> evec18;
+  emat18 eH;
+  for (int i = 0; i < 18; ++i) {
+    for (int j = 0; j < 18; ++j) {
+      eH(i, j) = H(i, j);
+    }
+  }
+
+  // construct SVD
+  // compare time eigendecomp
+  // BDCSVD "one of the fastest SVD algorithms"
+  // Eigen::BDCSVD	<emat18> svd(eH, Eigen::ComputeThinU |
+  // Eigen::ComputeThinV); JacobiSVD "slow but fast for small matrices" "<16"
+  // Eigen::JacobiSVD<emat18, Eigen::NoQRPreconditioner> svd(
+  //     eH, Eigen::ComputeThinU | Eigen::ComputeThinV);
+  // SelfAdjointEigenSolver is much faster apparently, robustness idk
+  Eigen::SelfAdjointEigenSolver<emat18> slv;
+  slv.compute(eH); // 2x2 and 3x3 use computeDirect()
+
+  // compute V and D
+  double emax = slv.eigenvalues().cwiseAbs().maxCoeff();
+  double emin = slv.eigenvalues().cwiseAbs().minCoeff();
+  // printf("%.2e %.2e\n", emin, emax);
+  double mineig = 1e-10;
+  if (slv.eigenvalues()(0) < mineig) {
+    // printf("   %.2e  %.2e\n", slv.eigenvalues()(0), slv.eigenvalues()(17));
+    double shift = mineig - slv.eigenvalues()(0);
+    evec18 D = slv.eigenvalues().array() + shift;
+
+    eH = slv.eigenvectors() * D.asDiagonal() * slv.eigenvectors().transpose();
+
+    for (int i = 0; i < 18; ++i) {
+      for (int j = 0; j < 18; ++j) {
+        H(i, j) = eH(i, j);
+      }
+    }
+  }
+  // END DEBUG
+
   return std::make_pair(A * H, A * g);
 }
 
@@ -244,10 +291,20 @@ void hylc_add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
   const Mesh &mesh = cloth.mesh;
   int n_triangles = mesh.faces.size();
   std::vector<std::pair<Mat18x18, Vec18>> local_Hg(n_triangles);
+
+  std::chrono::high_resolution_clock::time_point t0 =
+      std::chrono::high_resolution_clock::now();
+
 #pragma omp parallel for
   for (int i = 0; i < n_triangles; ++i) {
     local_Hg[i] = hylc_local_forces<s>(mesh.faces[i]);
   }
+
+  int nt = std::chrono::duration_cast<std::chrono::milliseconds>(
+               std::chrono::high_resolution_clock::now() - t0)
+               .count();
+  printf("Time (ms): %d\n", nt);
+
   // global sequential assembly
   // sum force and hess with correct indexing
   for (int i = 0; i < n_triangles; ++i) {
