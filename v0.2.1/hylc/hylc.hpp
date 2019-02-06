@@ -237,9 +237,7 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   // printf("%.2e %.2e\n", emin, emax);
   double mineig = 1e-10;
   if (slv.eigenvalues()(0) < mineig) {
-    // printf("   %.2e  %.2e\n", slv.eigenvalues()(0), slv.eigenvalues()(17));
-    double shift = mineig - slv.eigenvalues()(0);
-    evec18 D = slv.eigenvalues().array() + shift;
+    evec18 D = slv.eigenvalues().cwiseMax(mineig);
 
     eH = slv.eigenvectors() * D.asDiagonal() * slv.eigenvectors().transpose();
 
