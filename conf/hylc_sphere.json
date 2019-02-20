@@ -16,13 +16,14 @@
         "transform": {"translate": [-0.5, -1, 0.5]},
         // "transform": {"translate": [0.5, 0, 0.5]},
         "materials": [{"data": "materials/gray-interlock.json",
-                       "thicken": 2}],
+                       "thicken": 2,
+		       "damping": 0.01}],
         "remeshing": {
             "refine_angle": 0.3,
             "refine_compression": 0.005,
             "refine_velocity": 0.5,
             //"size": [10e-3, 200e-3],
-            "size": [50e-3, 200e-3],
+            "size": [100e-3, 100e-3],
             "aspect_min": 0.2
         }
     }],
@@ -41,6 +42,7 @@
         "mesh": "meshes/sphere.obj",
         "motion": 0
     }],
+    "wind": {"density": 0},
     "gravity": [0, 0, -9.8],
     "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6}
 }

@@ -291,10 +291,12 @@ vector<double> eigen_linear_solve(const SpMat<double> &A,
   vector<double> x(b.size());
   Map<VectorXd> x_(x.data(), x.size());
 
-  // SimplicialLLT<SparseMatrix<double>, Lower> solver(Aeigen);
-  // //ConjugateGradient<SparseMatrix<double>, Lower> solver(Aeigen);
-  // x_ = solver.solve(b_);
-  hylc_hackery(Aeigen, b_, x_);
+  SimplicialLDLT<SparseMatrix<double>, Lower|Upper> solver(Aeigen);
+  // ConjugateGradient<SparseMatrix<double>, Lower> solver(Aeigen);
+  // SparseLU< SparseMatrix<double> > solver(Aeigen);
+  // SparseQR< SparseMatrix<double>, COLAMDOrdering<int> > solver(Aeigen);
+  x_ = solver.solve(b_);
+  // hylc_hackery(Aeigen, b_, x_);
 
   return x;
 }
@@ -310,10 +312,12 @@ vector<Vec<m>> eigen_linear_solve(const SpMat<Mat<m, m>> &A,
   vector<Vec<m>> x(b.size());
   Map<VectorXd> x_(&x[0][0], m * x.size());
 
-  // SimplicialLLT<SparseMatrix<double>, Lower> solver(Aeigen);
-  // //ConjugateGradient<SparseMatrix<double>, Lower> solver(Aeigen);
-  // x_ = solver.solve(b_);
-  hylc_hackery(Aeigen, b_, x_);
+  SimplicialLDLT<SparseMatrix<double>, Lower|Upper> solver(Aeigen);
+  // ConjugateGradient<SparseMatrix<double>, Lower> solver(Aeigen);
+  // SparseLU< SparseMatrix<double> > solver(Aeigen);
+  // SparseQR< SparseMatrix<double>, COLAMDOrdering<int> > solver(Aeigen);
+  x_ = solver.solve(b_);
+  // hylc_hackery(Aeigen, b_, x_);
 
   return x;
 }
