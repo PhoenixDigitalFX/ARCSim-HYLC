@@ -1,5 +1,7 @@
 #called from within build dir
 testcase=${1:-0} # get argument, defaulting to "0"
+op=${2:-simulate} # get argument, defaulting to "0"
+
 
 if [[ $testcase = *.json ]]
 then # select by filename ending with json
@@ -13,8 +15,9 @@ else # select by id
   fi
 fi
 
+
 cmake .. -DCMAKE_BUILD_TYPE=Release \
   && make -j arcsim_0.2.1 \
   && pushd .. \
-  && ./build-Release/bin/arcsim_0.2.1 simulate $configfile \
+  && ./build-Release/bin/arcsim_0.2.1 $op $configfile ${3}\
   && popd

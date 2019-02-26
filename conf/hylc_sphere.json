@@ -1,13 +1,14 @@
 {
     "hylc": {
-        "enabled": true
-        //"type": 0,
+        "enabled": true,
+        "type": 1
         //"a0": 0,
         //"a1": 0,
         //"b0": 0,
         //"b1": 0
     },
     "disable": [],
+    /* "disable": ["remeshing"], */
     "frame_time": 0.04,
     "frame_steps": 8,
     "end_time": 10,
@@ -23,7 +24,7 @@
             "refine_compression": 0.005,
             "refine_velocity": 0.5,
             //"size": [10e-3, 200e-3],
-            "size": [100e-3, 100e-3],
+            "size": [80e-3, 80e-3],
             "aspect_min": 0.2
         }
     }],

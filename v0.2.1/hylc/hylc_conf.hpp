@@ -10,8 +10,8 @@ struct Config {
   bool enabled = false; // false .. use arcsim material, true .. use hylc
   double a0 = 10; // neo-hookean style stretching energy
   double a1 = 10; // neo-hookean style stretching energy
-  double b0 = 1 * 1e-0; // mean curvature energy
-  double b1 = 1 * 1e-2; // gaussian curvature energy
+  double b0 = 1 * 1e-1; // mean curvature energy
+  double b1 = 1 * 1e-1; // gaussian curvature energy
   int material_type = 0; // 0 .. analytic material, 1 .. fitted data
   bool eklinear = false; // toggle between linear theta vs. 2 tan(theta/2)
   // NOTE: ek is my shorthand notitation for epsilonkappa

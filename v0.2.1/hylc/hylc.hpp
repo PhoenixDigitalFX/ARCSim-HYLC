@@ -232,8 +232,8 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   slv.compute(eH); // 2x2 and 3x3 use computeDirect()
 
   // compute V and D
-  double emax = slv.eigenvalues().cwiseAbs().maxCoeff();
-  double emin = slv.eigenvalues().cwiseAbs().minCoeff();
+  // double emax = slv.eigenvalues().cwiseAbs().maxCoeff();
+  // double emin = slv.eigenvalues().cwiseAbs().minCoeff();
   // printf("%.2e %.2e\n", emin, emax);
   double mineig = 1e-10;
   if (slv.eigenvalues()(0) < mineig) {
@@ -290,18 +290,18 @@ void hylc_add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
   int n_triangles = mesh.faces.size();
   std::vector<std::pair<Mat18x18, Vec18>> local_Hg(n_triangles);
 
-  std::chrono::high_resolution_clock::time_point t0 =
-      std::chrono::high_resolution_clock::now();
+  // std::chrono::high_resolution_clock::time_point t0 =
+  //     std::chrono::high_resolution_clock::now();
 
 #pragma omp parallel for
   for (int i = 0; i < n_triangles; ++i) {
     local_Hg[i] = hylc_local_forces<s>(mesh.faces[i]);
   }
 
-  int nt = std::chrono::duration_cast<std::chrono::milliseconds>(
-               std::chrono::high_resolution_clock::now() - t0)
-               .count();
-  printf("Time (ms): %d\n", nt);
+  // int nt = std::chrono::duration_cast<std::chrono::milliseconds>(
+  //              std::chrono::high_resolution_clock::now() - t0)
+  //              .count();
+  // printf("Time (ms): %d\n", nt);
 
   // global sequential assembly
   // sum force and hess with correct indexing

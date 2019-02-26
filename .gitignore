@@ -1,3 +1,5 @@
+# offline simulation data
+offline_sims/
 # compiled stuff
 build*/
 # other stuff
