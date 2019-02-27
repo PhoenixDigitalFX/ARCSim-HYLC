@@ -1,7 +1,7 @@
 {
     "hylc": {
-        "enabled": true
-        //"type": 0,
+        "enabled": true,
+        "type": 1
         //"a0": 0,
         //"a1": 0,
         //"b0": 0,

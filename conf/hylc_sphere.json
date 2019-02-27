@@ -24,7 +24,7 @@
             "refine_compression": 0.005,
             "refine_velocity": 0.5,
             //"size": [10e-3, 200e-3],
-            "size": [80e-3, 80e-3],
+            "size": [100e-3, 100e-3],
             "aspect_min": 0.2
         }
     }],
