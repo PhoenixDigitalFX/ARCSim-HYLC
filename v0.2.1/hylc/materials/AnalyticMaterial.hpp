@@ -10,6 +10,7 @@ public:
     this->a1 = a1;
     this->b0 = b0;
     this->b1 = b1;
+    this->density = 0.187; // copied from gray-interlock
   }
   virtual double psi(const Vec6 &ek);
   virtual std::pair<Mat6x6, Vec6> psi_drv(const Vec6 &ek);

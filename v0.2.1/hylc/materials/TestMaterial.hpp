@@ -50,6 +50,8 @@ public:
     m_ekstd = {0.43736469869565,      0.408207051975081,
                0.437364698392629,     sk * 291.111346991829,
                sk * 162.453284671786, sk * 290.987334018003};
+
+    density = 0.893948789;
   }
   virtual double psi(const Vec6 &ek);
   virtual std::pair<Mat6x6, Vec6> psi_drv(const Vec6 &ek);
