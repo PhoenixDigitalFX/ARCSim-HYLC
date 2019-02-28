@@ -231,7 +231,7 @@ Vec<4, int> indices(const Node *n0, const Node *n1, const Node *n2,
 #define USE_SPARSE3
 
 template <Space s> double internal_energy(const Cloth &cloth) {
-  if (hylc::hylc_enabled() || true)
+  if (hylc::hylc_enabled())
     return hylc::hylc_internal_energy<s>(cloth);
   else {
     const Mesh &mesh = cloth.mesh;
