@@ -128,7 +128,7 @@ template <Space s> double hylc_local_energy(const Face *face) {
   // same goes for dihedral angle theta
 }
 
-bool debug_print_ek_range = false;
+bool debug_print_ek_range = true; // DEBUG print out running min max strains
 double ek0a = 10, ek0b = 0, ek1a = 10, ek1b = -10, ek2a = 10, ek2b = 0;
 double ek3a = 1e5, ek3b = -1e5, ek4a = 1e5, ek4b = -1e5, ek5a = 1e5,
        ek5b = -1e5;
@@ -317,13 +317,10 @@ void hylc::hylc_add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
   }
 
   if (debug_print_ek_range) {
-    std::cout << ek0a << " " << ek0b << "\n";
-    std::cout << ek1a << " " << ek1b << "\n";
-    std::cout << ek2a << " " << ek2b << "\n";
-    std::cout << ek3a << " " << ek3b << "\n";
-    std::cout << ek4a << " " << ek4b << "\n";
-    std::cout << ek5a << " " << ek5b << "\n";
-    std::cout << "\n";
+    printf("min: %.2f %.2f %.2f %.2f %.2f %.2f\n", ek0a, ek1a, ek2a, ek3a, ek4a,
+           ek5a);
+    printf("max: %.2f %.2f %.2f %.2f %.2f %.2f\n", ek0b, ek1b, ek2b, ek3b, ek4b,
+           ek5b);
   }
   // int nt = std::chrono::duration_cast<std::chrono::milliseconds>(
   //              std::chrono::high_resolution_clock::now() - t0)

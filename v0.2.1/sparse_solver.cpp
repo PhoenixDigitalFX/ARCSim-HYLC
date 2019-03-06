@@ -236,21 +236,11 @@ vector<Vec<C>> alglib_linear_solve_vec(const SpMat<Mat<C, C>> &A,
 }
 
 #include <unsupported/Eigen/IterativeSolvers> // for minres
-void hylc_hackery(SparseMatrix<double> &A, Map<VectorXd const> &b,
-                  Map<VectorXd> &x) {
+// NOTE: unified solver function
+void eigen_linear_solve(SparseMatrix<double> &A, const Map<VectorXd const> &b,
+                        Map<VectorXd> &x) {
 
-  // regularize ?? backward euler standard reg?
-  // SparseMatrix<double> I(A.rows(),A.cols());
-  // I.setIdentity();
-  // double alpha = 0;//1e-2;
-  // A += alpha*I; // TODO THIS DOESNT WORK, WHAT EXACTLY IS THE SYSTEM
-  // system is (ignoring friction and constraint forces)
-  // A := M - dt^2 Jext + (dt^2 +dt damp) H
-  // b := dt fext - dt gradE - (dt^2 + dt damp) H v
-
-  // TODO try, LU / MINRES / BICGSTAB
-
-  // SimplicialLDLT<SparseMatrix<double>, Lower> solver(A); // no bc not SPD
+  // SimplicialLDLT<SparseMatrix<double>, Lower> solver(A);
   // VectorXd D = solver.vectorD();
   // double lnegcheck = D.minCoeff();
   // double lmin = D.cwiseAbs().minCoeff();
@@ -263,22 +253,34 @@ void hylc_hackery(SparseMatrix<double> &A, Map<VectorXd const> &b,
   // printf("\n");
   // x = solver.solve(b);
 
-  // SparseLU<SparseMatrix<double> > solver(A); // no, determinant always <= 0?
-  // if (solver.determinant() <= 0)
-  //   printf("  determinant <= 0!\n");
-  // x = solver.solve(b);
+  SimplicialLDLT<SparseMatrix<double>, Lower | Upper> solver(A);
+  // VectorXd D = solver.vectorD();
+  // double lnegcheck = D.minCoeff();
+  // double lmin = D.cwiseAbs().minCoeff();
+  // double lmax = D.cwiseAbs().maxCoeff();
+  // printf("lmin: %.2e, lmax: %.2e,\n cond: %.2e\n",lmin,lmax,lmax/lmin);
+  // if (lnegcheck < 0)
+  //   printf("  matrix is not positive definite!\n");
+  // if (lnegcheck == 0)
+  //   printf("  matrix is only positive semi-definite!\n");
 
-  // MINRES<SparseMatrix<double>, Lower | Upper> solver(A); // worse than bicg
-  // x = solver.solve(b);
-  // std::cout << "  #iterations:     " << solver.iterations() << std::endl;
-  // std::cout << "  estimated error: " << solver.error() << std::endl
-  //           << std::endl;
+  // SparseLU< SparseMatrix<double> > solver(A);
+  // SparseQR< SparseMatrix<double>, COLAMDOrdering<int> > solver(A);
+  // BiCGSTAB<SparseMatrix<double>/*, IncompleteLUT<double>*/> solver(A);
+  // LeastSquaresConjugateGradient<SparseMatrix<double>> solver(A);
+  // solver.setMaxIterations(10000);
 
-  BiCGSTAB<SparseMatrix<double>/*, IncompleteLUT<double>*/> solver(A);
+  if (solver.info() != Success) {
+    printf("Eigen: Factorization failed\n");
+  }
+
   x = solver.solve(b);
-  std::cout << "  #iterations:     " << solver.iterations() << std::endl;
-  std::cout << "  estimated error: " << solver.error() << std::endl
-            << std::endl;
+
+  if (solver.info() != Success) {
+    printf("Eigen: Solve failed\n");
+  }
+
+  printf("xTb=xTAx=%.2e,  res=%.2e\n", x.dot(b), (A * x - b).norm() / b.norm());
 }
 
 vector<double> eigen_linear_solve(const SpMat<double> &A,
@@ -291,12 +293,7 @@ vector<double> eigen_linear_solve(const SpMat<double> &A,
   vector<double> x(b.size());
   Map<VectorXd> x_(x.data(), x.size());
 
-  SimplicialLDLT<SparseMatrix<double>, Lower|Upper> solver(Aeigen);
-  // ConjugateGradient<SparseMatrix<double>, Lower> solver(Aeigen);
-  // SparseLU< SparseMatrix<double> > solver(Aeigen);
-  // SparseQR< SparseMatrix<double>, COLAMDOrdering<int> > solver(Aeigen);
-  x_ = solver.solve(b_);
-  // hylc_hackery(Aeigen, b_, x_);
+  eigen_linear_solve(Aeigen, b_, x_);
 
   return x;
 }
@@ -312,12 +309,7 @@ vector<Vec<m>> eigen_linear_solve(const SpMat<Mat<m, m>> &A,
   vector<Vec<m>> x(b.size());
   Map<VectorXd> x_(&x[0][0], m * x.size());
 
-  SimplicialLDLT<SparseMatrix<double>, Lower|Upper> solver(Aeigen);
-  // ConjugateGradient<SparseMatrix<double>, Lower> solver(Aeigen);
-  // SparseLU< SparseMatrix<double> > solver(Aeigen);
-  // SparseQR< SparseMatrix<double>, COLAMDOrdering<int> > solver(Aeigen);
-  x_ = solver.solve(b_);
-  // hylc_hackery(Aeigen, b_, x_);
+  eigen_linear_solve(Aeigen, b_, x_);
 
   return x;
 }

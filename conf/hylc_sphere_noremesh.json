@@ -41,5 +41,6 @@
         "motion": 0
     }],
     "gravity": [0, 0, -9.8],
-    "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6}
+    "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6,
+              "fixed_high_res_mesh": true}
 }
