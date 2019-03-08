@@ -8,7 +8,9 @@
         //"b1": 0
     },
     "disable": ["remeshing"],
-    "frame_time": 0.04,
+    "implicit": false,
+    "explicit_damping": 0,//1e-1,
+    "frame_time": 0.004,
     "frame_steps": 8,
     "end_time": 10,
     "cloths": [{

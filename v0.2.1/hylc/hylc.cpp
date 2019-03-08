@@ -317,9 +317,9 @@ void hylc::hylc_add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
   }
 
   if (debug_print_ek_range) {
-    printf("min: %.2f %.2f %.2f %.2f %.2f %.2f\n", ek0a, ek1a, ek2a, ek3a, ek4a,
-           ek5a);
-    printf("max: %.2f %.2f %.2f %.2f %.2f %.2f\n", ek0b, ek1b, ek2b, ek3b, ek4b,
+    printf("ek: [%.2f, %.2f] [%.2f, %.2f] [%.2f, %.2f] [%.2f, %.2f] [%.2f, "
+           "%.2f] [%.2f, %.2f]\n",
+           ek0a, ek0b, ek1a, ek1b, ek2a, ek2b, ek3a, ek3b, ek4a, ek4b, ek5a,
            ek5b);
   }
   // int nt = std::chrono::duration_cast<std::chrono::milliseconds>(

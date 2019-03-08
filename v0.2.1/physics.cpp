@@ -359,6 +359,35 @@ void add_constraint_forces(const Cloth &cloth, const vector<Constraint *> &cons,
   }
 }
 
+void add_constraint_forces(const Cloth &cloth, const vector<Constraint *> &cons,
+                           vector<Vec3> &b, double dt) {
+  const Mesh &mesh = cloth.mesh;
+  for (int c = 0; c < cons.size(); c++) {
+    double value = cons[c]->value();
+    double g = cons[c]->energy_grad(value);
+    double h = cons[c]->energy_hess(value);
+    MeshGrad grad = cons[c]->gradient();
+    // f = -g*grad
+    // J = -h*outer(grad,grad)
+    double v_dot_grad = 0;
+    if (dt != 0)
+      for (MeshGrad::iterator it = grad.begin(); it != grad.end(); it++) {
+        const Node *node = it->first;
+        v_dot_grad += dot(it->second, node->v);
+      }
+    for (MeshGrad::iterator it = grad.begin(); it != grad.end(); it++) {
+      const Node *nodei = it->first;
+      if (!contains(mesh, nodei))
+        continue;
+      int ni = nodei->index;
+      if (dt == 0)
+        b[ni] -= g * it->second;
+      else
+        b[ni] -= dt * (g + dt * h * v_dot_grad) * it->second;
+    }
+  }
+}
+
 void add_friction_forces(const Cloth &cloth, const vector<Constraint *> cons,
                          SpMat<Mat3x3> &A, vector<Vec3> &b, double dt) {
   const Mesh &mesh = cloth.mesh;
@@ -411,6 +440,44 @@ void implicit_update(Cloth &cloth, const vector<Vec3> &fext,
     if (update_positions)
       node->x += node->v * dt;
     node->acceleration = dv[n] / dt;
+  }
+  project_outside(cloth.mesh, cons);
+  compute_ws_data(mesh);
+}
+
+void explicit_update(Cloth &cloth, const std::vector<Vec3> &fext,
+                     const std::vector<Constraint *> &cons, double dt,
+                     double damping, bool update_positions) {
+  Mesh &mesh = cloth.mesh;
+  vector<Vert *>::iterator vert_it;
+  vector<Face *>::iterator face_it;
+  int nn = mesh.nodes.size();
+
+  // M dv/dt = F --> v += dt/m f
+  vector<Vec3> b(nn, Vec3(0)); // b = dt * f
+  for (int n = 0; n < mesh.nodes.size(); n++) {
+    b[n] += dt * fext[n];
+  }
+
+  // DEBUG SLOW VERSION THAT ACTUALLY COMPUTES UNNECESSARY A
+  // I DONT KNOW WHAT TO DO ABOUT CONSTRAINT FORCES AND HOW TO BEST NOT COMPUTE
+  // A THERE, SAME FOR FRICTION FORCES. bc its somehow within iterators
+  // internal_forces is also slightly annoying because of how it returns pairs
+  // from bending_forces etc. so would need to make copy called
+  // bending_forcehess or so
+  SpMat<Mat3x3> A(nn, nn);
+  add_internal_forces<WS>(cloth, A, b, dt);   // !! unneccesarily computing A!
+  add_constraint_forces(cloth, cons, b, dt);  // already removed A
+  add_friction_forces(cloth, cons, A, b, dt); // !! unneccesarily computing A!
+
+  for (int n = 0; n < mesh.nodes.size(); n++) {
+    Node *node = mesh.nodes[n];
+    // v += dt/m f
+    Vec3 dv = 1.0 / node->m * b[n] - dt * damping * node->v;
+    node->v += dv;
+    if (update_positions)
+      node->x += node->v * dt;
+    node->acceleration = dv / dt;
   }
   project_outside(cloth.mesh, cons);
   compute_ws_data(mesh);

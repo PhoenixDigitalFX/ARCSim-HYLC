@@ -32,36 +32,43 @@
 #include "simulation.hpp"
 #include <vector>
 
-template <Space s>
-double internal_energy (const Cloth &cloth);
+template <Space s> double internal_energy(const Cloth &cloth);
 
-double constraint_energy (const std::vector<Constraint*> &cons);
+double constraint_energy(const std::vector<Constraint *> &cons);
 
-double external_energy (const Cloth &cloth, const Vec3 &gravity,
-                        const Wind &wind);
+double external_energy(const Cloth &cloth, const Vec3 &gravity,
+                       const Wind &wind);
 
 // A += dt^2 dF/dx; b += dt F + dt^2 dF/dx v
 // also adds damping terms
 // if dt == 0, just does A += dF/dx; b += F instead, no damping
 template <Space s>
-void add_internal_forces (const Cloth &cloth, SpMat<Mat3x3> &A,
-                          std::vector<Vec3> &b, double dt);
+void add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
+                         std::vector<Vec3> &b, double dt);
 
-void add_constraint_forces (const Cloth &cloth,
-                            const std::vector<Constraint*> &cons,
-                            SpMat<Mat3x3> &A, std::vector<Vec3> &b, double dt);
+void add_constraint_forces(const Cloth &cloth,
+                           const std::vector<Constraint *> &cons,
+                           SpMat<Mat3x3> &A, std::vector<Vec3> &b, double dt);
 
-void add_external_forces (const Cloth &cloth, const Vec3 &gravity,
-                          const Wind &wind, std::vector<Vec3> &fext,
-                          std::vector<Mat3x3> &Jext);
+void add_constraint_forces(const Cloth &cloth,
+                           const std::vector<Constraint *> &cons,
+                           std::vector<Vec3> &b, double dt);
 
-void add_morph_forces (const Cloth &cloth, const Morph &morph, double t,
-                       double dt,
-                       std::vector<Vec3> &fext, std::vector<Mat3x3> &Jext);
+void add_external_forces(const Cloth &cloth, const Vec3 &gravity,
+                         const Wind &wind, std::vector<Vec3> &fext,
+                         std::vector<Mat3x3> &Jext);
 
-void implicit_update (Cloth &cloth, const std::vector<Vec3> &fext,
-                      const std::vector<Mat3x3> &Jext,
-                      const std::vector<Constraint*> &cons, double dt,
-                      bool update_positions=true);
+void add_morph_forces(const Cloth &cloth, const Morph &morph, double t,
+                      double dt, std::vector<Vec3> &fext,
+                      std::vector<Mat3x3> &Jext);
+
+void implicit_update(Cloth &cloth, const std::vector<Vec3> &fext,
+                     const std::vector<Mat3x3> &Jext,
+                     const std::vector<Constraint *> &cons, double dt,
+                     bool update_positions = true);
+
+void explicit_update(Cloth &cloth, const std::vector<Vec3> &fext,
+                     const std::vector<Constraint *> &cons, double dt,
+                     double damping, bool update_positions = true);
 
 #endif

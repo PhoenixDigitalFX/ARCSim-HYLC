@@ -9,6 +9,8 @@
     },
     "disable": [],
     // "disable": ["remeshing"],
+    "implicit": true,
+    "explicit_damping": 1e0,//1e-1,
     "frame_time": 0.04,
     "frame_steps": 8,
     "end_time": 10,
@@ -23,7 +25,7 @@
             "refine_compression": 0.005,
             "refine_velocity": 0.5,
             //"size": [10e-3, 200e-3],
-            "size": [100e-3, 100e-3],
+            "size": [50e-3, 200e-3],
             "aspect_min": 0.2
         }
     }],
@@ -43,6 +45,7 @@
         "motion": 0
     }],
     "gravity": [0, 0, -9.8],
-    "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6,
-	      "fixed_high_res_mesh": true}
+    "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6
+	     // ,"fixed_high_res_mesh": true
+      }
 }
