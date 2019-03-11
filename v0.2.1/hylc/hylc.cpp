@@ -107,12 +107,13 @@ template <Space s> double hylc_local_energy(const Face *face) {
   t2 *= (double)nn2_exists;
 
   // 1. mmcpp compute epsilon(x),kappa(x) as vec6
-  // NOTE not using theta_ideal, TODO
   Vec6 ek;
   if (config.eklinear) // linear angle in curvature tensor
-    ek = mm::eklinear(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
+    ek = mm::eklinear(xlocal, invDm, A, theta_rest0, theta_rest1, theta_rest2,
+                      l0, l1, l2, t0, t1, t2);
   else // 2tan(theta/2) in curvature tensor
-    ek = mm::ek(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
+    ek = mm::ek(xlocal, invDm, A, theta_rest0, theta_rest1, theta_rest2, l0, l1,
+                l2, t0, t1, t2);
 
   // std::cout<<"ek\n"<<ek<<"\n\n";
   // std::cout<<"t\n"<<t0<<"\n"<<t1<<"\n"<<t2<<"\n\n";
@@ -155,9 +156,11 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   // 1. mmcpp compute epsilon, kappa as vec6 ek, and simulatenous grad and hess
   std::tuple<std::vector<Mat18x18>, Mat6x18, Vec6> ek_hgv;
   if (config.eklinear) // linear angle in curvature tensor
-    ek_hgv = mm::eklinear_valdrv(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
+    ek_hgv = mm::eklinear_valdrv(xlocal, invDm, A, theta_rest0, theta_rest1,
+                                 theta_rest2, l0, l1, l2, t0, t1, t2);
   else // 2tan(theta/2) in curvature tensor
-    ek_hgv = mm::ek_valdrv(xlocal, invDm, A, l0, l1, l2, t0, t1, t2);
+    ek_hgv = mm::ek_valdrv(xlocal, invDm, A, theta_rest0, theta_rest1,
+                           theta_rest2, l0, l1, l2, t0, t1, t2);
 
   Vec6 &ek = std::get<2>(ek_hgv);
   Mat6x18 &ek_grad = std::get<1>(ek_hgv);
@@ -232,6 +235,60 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   // END DEBUG
 
   return std::make_pair(A * H, A * g);
+}
+
+template <Space s>
+Vec18 hylc_local_forces_nojac(const Face *face) {
+  namespace mm = hylc::mathematica;
+  using namespace hylc::mathematica;
+  // 0. compute local primitive values
+  Vec18 xlocal;
+  double l0, l1, l2;
+  double theta_rest0, theta_rest1, theta_rest2;
+  bool nn0_exists, nn1_exists, nn2_exists;
+  compute_local_information<s>(face, xlocal, l0, l1, l2, theta_rest0,
+                               theta_rest1, theta_rest2, nn0_exists, nn1_exists,
+                               nn2_exists);
+
+  double A = face->a;         // material space / reference config area
+  Mat2x2 invDm = face->invDm; // shape matrix
+  Vec2 t0 = face->t0, t1 = face->t1, t2 = face->t2;
+  t0 *= (double)nn0_exists;
+  t1 *= (double)nn1_exists;
+  t2 *= (double)nn2_exists;
+
+  // 1. mmcpp compute epsilon, kappa as vec6 ek, and simulatenous grad and hess
+  std::tuple<Mat6x18, Vec6> ek_gv;
+  if (config.eklinear) // linear angle in curvature tensor
+    ek_gv = mm::eklinear_valgrad(xlocal, invDm, A, theta_rest0, theta_rest1,
+                                 theta_rest2, l0, l1, l2, t0, t1, t2);
+  else // 2tan(theta/2) in curvature tensor
+    ek_gv = mm::ek_valgrad(xlocal, invDm, A, theta_rest0, theta_rest1,
+                           theta_rest2, l0, l1, l2, t0, t1, t2);
+
+  Vec6 &ek = std::get<1>(ek_gv);
+  Mat6x18 &ek_grad = std::get<0>(ek_gv);
+
+  // DEBUG not threadsafe but good enough for testing
+  // if (debug_print_ek_range) {
+  // ek0a = std::min(ek0a, ek[0]);
+  // ek0b = std::max(ek0b, ek[0]);
+  // ek1a = std::min(ek1a, ek[1]);
+  // ek1b = std::max(ek1b, ek[1]);
+  // ek2a = std::min(ek2a, ek[2]);
+  // ek2b = std::max(ek2b, ek[2]);
+  // ek3a = std::min(ek3a, ek[3]);
+  // ek3b = std::max(ek3b, ek[3]);
+  // ek4a = std::min(ek4a, ek[4]);
+  // ek4b = std::max(ek4b, ek[4]);
+  // ek5a = std::min(ek5a, ek[5]);
+  // ek5b = std::max(ek5b, ek[5]);
+  // }
+
+  Vec6 psi_grad = get_material()->psi_grad(ek);
+  Vec18 g = transpose(ek_grad) * psi_grad;
+
+  return A * g;
 }
 
 template <int m, int n> Mat<3, 3> submat3(const Mat<m, n> &A, int i, int j) {
@@ -381,13 +438,58 @@ void hylc::hylc_add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
   }
 }
 
-template double hylc::hylc_internal_energy<WS>(const Cloth &cloth);
-template double hylc::hylc_internal_energy<PS>(const Cloth &cloth);
-template void hylc::hylc_add_internal_forces<WS>(const Cloth &cloth,
-                                                 SpMat<Mat3x3> &A,
-                                                 std::vector<Vec3> &b,
-                                                 double dt);
-template void hylc::hylc_add_internal_forces<PS>(const Cloth &cloth,
-                                                 SpMat<Mat3x3> &A,
-                                                 std::vector<Vec3> &b,
-                                                 double dt);
+template <Space s>
+void hylc::hylc_add_internal_forces(const Cloth &cloth, std::vector<Vec3> &b,
+                                    double dt) {
+  // local, parallel per triangle
+  const Mesh &mesh = cloth.mesh;
+  int n_triangles = mesh.faces.size();
+  std::vector<Vec18> local_g(n_triangles);
+
+#pragma omp parallel for
+  for (int i = 0; i < n_triangles; ++i) {
+    local_g[i] = hylc_local_forces_nojac<s>(mesh.faces[i]);
+  }
+
+  // if (debug_print_ek_range) {
+  //   printf("ek: [%.2f, %.2f] [%.2f, %.2f] [%.2f, %.2f] [%.2f, %.2f] [%.2f, "
+  //          "%.2f] [%.2f, %.2f]\n",
+  //          ek0a, ek0b, ek1a, ek1b, ek2a, ek2b, ek3a, ek3b, ek4a, ek4b, ek5a,
+  //          ek5b);
+  // }
+
+  // global sequential assembly
+  // sum force and hess with correct indexing
+  for (int i = 0; i < n_triangles; ++i) {
+    Vec18 &g = local_g[i];
+
+    const Face *face = mesh.faces[i];
+    const Node *n0 = face->v[0]->node, *n1 = face->v[1]->node,
+               *n2 = face->v[2]->node;
+
+    // try finding neighbors
+    const Node *nn0 = find_across(get_edge(n0, n1), n2),
+               *nn1 = find_across(get_edge(n1, n2), n0),
+               *nn2 = find_across(get_edge(n2, n0), n1);
+
+    // get indices (missing neighbors set to -1)
+    auto ixs = hylc::indices(n0, n1, n2, nn0, nn1, nn2);
+    // add to global matrix (missing neighbors with ix -1 ignored)
+    if (dt == 0) {
+      hylc::add_subvec(-g, ixs, b); // F
+    } else {
+      hylc::add_subvec(-dt * g, ixs, b); // dt * F
+    }
+  }
+}
+
+template double hylc::hylc_internal_energy<WS>(const Cloth &);
+template double hylc::hylc_internal_energy<PS>(const Cloth &);
+template void hylc::hylc_add_internal_forces<WS>(const Cloth &, SpMat<Mat3x3> &,
+                                                 std::vector<Vec3> &, double);
+template void hylc::hylc_add_internal_forces<PS>(const Cloth &, SpMat<Mat3x3> &,
+                                                 std::vector<Vec3> &, double);
+template void hylc::hylc_add_internal_forces<WS>(const Cloth &,
+                                                 std::vector<Vec3> &, double);
+template void hylc::hylc_add_internal_forces<PS>(const Cloth &,
+                                                 std::vector<Vec3> &, double);

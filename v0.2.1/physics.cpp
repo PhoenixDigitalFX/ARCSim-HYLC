@@ -118,6 +118,27 @@ template <Space s> pair<Mat9x9, Vec9> stretching_force(const Face *face) {
   return make_pair(-face->a * hess_e, -face->a * grad_e);
 }
 
+template <Space s> Vec9 stretching_force_nojac(const Face *face) {
+  Mat3x2 F = derivative(pos<s>(face->v[0]->node), pos<s>(face->v[1]->node),
+                        pos<s>(face->v[2]->node), face);
+  Mat2x2 G = (F.t() * F - Mat2x2(1)) / 2.;
+  Vec4 k = stretching_stiffness(G, (*::materials)[face->label]->stretching);
+  double weakening = (*::materials)[face->label]->weakening;
+  k *= 1 / (1 + weakening * face->damage);
+
+  Mat2x3 D = derivative(face);
+  Vec3 du = D.row(0), dv = D.row(1);
+  Mat<3, 9> Du = kronecker(rowmat(du), Mat3x3(1)),
+            Dv = kronecker(rowmat(dv), Mat3x3(1));
+  const Vec3 &xu = F.col(0), &xv = F.col(1); // should equal Du*mat_to_vec(X)
+  Vec9 fuu = Du.t() * xu, fvv = Dv.t() * xv,
+       fuv = (Du.t() * xv + Dv.t() * xu) / 2.;
+  Vec9 grad_e = k[0] * G(0, 0) * fuu + k[2] * G(1, 1) * fvv +
+                k[1] * (G(0, 0) * fvv + G(1, 1) * fuu) +
+                2 * k[3] * G(0, 1) * fuv;
+  return -face->a * grad_e;
+}
+
 typedef Mat<12, 12> Mat12x12;
 typedef Vec<12> Vec12;
 
@@ -177,6 +198,33 @@ template <Space s> pair<Mat12x12, Vec12> bending_force(const Edge *edge) {
   double shape = sq(edge->l) / (2 * a);
   return make_pair(-ke * shape * outer(dtheta, dtheta) / 2.,
                    -ke * shape * (theta - edge->theta_ideal) * dtheta / 2.);
+}
+
+template <Space s> Vec12 bending_force_nojac(const Edge *edge) {
+  const Face *face0 = edge->adjf[0], *face1 = edge->adjf[1];
+  if (!face0 || !face1)
+    return Vec12(0);
+  double theta = dihedral_angle<s>(edge);
+  double a = face0->a + face1->a;
+  Vec3 x0 = pos<s>(edge->n[0]), x1 = pos<s>(edge->n[1]),
+       x2 = pos<s>(edge_opp_vert(edge, 0)->node),
+       x3 = pos<s>(edge_opp_vert(edge, 1)->node);
+  double h0 = distance(x2, x0, x1), h1 = distance(x3, x0, x1);
+  Vec3 n0 = nor<s>(face0), n1 = nor<s>(face1);
+  Vec2 w_f0 = barycentric_weights(x2, x0, x1),
+       w_f1 = barycentric_weights(x3, x0, x1);
+  Vec12 dtheta = mat_to_vec(Mat3x4(-(w_f0[0] * n0 / h0 + w_f1[0] * n1 / h1),
+                                   -(w_f0[1] * n0 / h0 + w_f1[1] * n1 / h1),
+                                   n0 / h0, n1 / h1));
+  const BendingData &bend0 = (*::materials)[face0->label]->bending,
+                    &bend1 = (*::materials)[face1->label]->bending;
+  double ke =
+      min(bending_stiffness(edge, 0, bend0), bending_stiffness(edge, 1, bend1));
+  double weakening = max((*::materials)[face0->label]->weakening,
+                         (*::materials)[face1->label]->weakening);
+  ke *= 1 / (1 + weakening * edge->damage);
+  double shape = sq(edge->l) / (2 * a);
+  return -ke * shape * (theta - edge->theta_ideal) * dtheta / 2.;
 }
 
 template <int m, int n> Mat<3, 3> submat3(const Mat<m, n> &A, int i, int j) {
@@ -306,6 +354,45 @@ template void add_internal_forces<PS>(const Cloth &, SpMat<Mat3x3> &,
                                       vector<Vec3> &, double);
 template void add_internal_forces<WS>(const Cloth &, SpMat<Mat3x3> &,
                                       vector<Vec3> &, double);
+
+template <Space s>
+void add_internal_forces(const Cloth &cloth, vector<Vec3> &b, double dt) {
+  if (hylc::hylc_enabled()) {
+    hylc::hylc_add_internal_forces<s>(cloth, b, dt);
+    return;
+  } else {
+    const Mesh &mesh = cloth.mesh;
+    ::materials = &cloth.materials;
+    for (int f = 0; f < mesh.faces.size(); f++) {
+      const Face *face = mesh.faces[f];
+      const Node *n0 = face->v[0]->node, *n1 = face->v[1]->node,
+                 *n2 = face->v[2]->node;
+      Vec9 F = stretching_force_nojac<s>(face);
+      if (dt == 0) {
+        add_subvec(F, indices(n0, n1, n2), b);
+      } else {
+        // double damping = (*::materials)[face->label]->damping;
+        add_subvec(dt * F, indices(n0, n1, n2), b);
+      }
+    }
+    for (int e = 0; e < mesh.edges.size(); e++) {
+      const Edge *edge = mesh.edges[e];
+      if (!edge->adjf[0] || !edge->adjf[1])
+        continue;
+      const Node *n0 = edge->n[0], *n1 = edge->n[1],
+                 *n2 = edge_opp_vert(edge, 0)->node,
+                 *n3 = edge_opp_vert(edge, 1)->node;
+      Vec12 F = bending_force_nojac<s>(edge);
+      if (dt == 0) {
+        add_subvec(F, indices(n0, n1, n2, n3), b);
+      } else {
+        add_subvec(dt * F, indices(n0, n1, n2, n3), b);
+      }
+    }
+  }
+}
+template void add_internal_forces<PS>(const Cloth &, vector<Vec3> &, double);
+template void add_internal_forces<WS>(const Cloth &, vector<Vec3> &, double);
 
 bool contains(const Mesh &mesh, const Node *node) {
   return node->index < mesh.nodes.size() && mesh.nodes[node->index] == node;
@@ -466,9 +553,10 @@ void explicit_update(Cloth &cloth, const std::vector<Vec3> &fext,
   // from bending_forces etc. so would need to make copy called
   // bending_forcehess or so
   SpMat<Mat3x3> A(nn, nn);
-  add_internal_forces<WS>(cloth, A, b, dt);   // !! unneccesarily computing A!
-  add_constraint_forces(cloth, cons, b, dt);  // already removed A
-  add_friction_forces(cloth, cons, A, b, dt); // !! unneccesarily computing A!
+  add_internal_forces<WS>(cloth, b, dt);     // !! unneccesarily computing A!
+  add_constraint_forces(cloth, cons, b, dt); // already removed A
+  // unnecessarily computing A, but assuming minimal cost
+  add_friction_forces(cloth, cons, A, b, dt);
 
   for (int n = 0; n < mesh.nodes.size(); n++) {
     Node *node = mesh.nodes[n];

@@ -17,6 +17,8 @@ public:
   virtual double psi(const Vec6 &ek) = 0;
   // pair<Hessian,Gradient>
   virtual std::pair<Mat6x6, Vec6> psi_drv(const Vec6 &ek) = 0;
+  // gradient
+  virtual Vec6 psi_grad(const Vec6 &ek) = 0;
 
   double density=1;
 };

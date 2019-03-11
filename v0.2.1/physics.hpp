@@ -45,6 +45,9 @@ double external_energy(const Cloth &cloth, const Vec3 &gravity,
 template <Space s>
 void add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
                          std::vector<Vec3> &b, double dt);
+// jacobian-less version for explicit integration
+template <Space s>
+void add_internal_forces(const Cloth &cloth, std::vector<Vec3> &b, double dt);
 
 void add_constraint_forces(const Cloth &cloth,
                            const std::vector<Constraint *> &cons,

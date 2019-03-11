@@ -32,5 +32,8 @@ template <Space s> double hylc_internal_energy(const Cloth &cloth);
 template <Space s>
 void hylc_add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
                               std::vector<Vec3> &b, double dt);
+template <Space s>
+void hylc_add_internal_forces(const Cloth &cloth, std::vector<Vec3> &b,
+                              double dt);
 } // namespace hylc
 #endif /* end of include guard: _HYLC_H_ */

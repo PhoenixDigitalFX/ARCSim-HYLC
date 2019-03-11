@@ -88,6 +88,8 @@ public:
     explicit Vec (T x, T y, T z, T w) {static_assert(n==4); c[0] = x; c[1] = y; c[2] = z; c[3] = w;}
     T &operator[] (int i) {return c[i];}
     const T &operator[] (int i) const {return c[i];}
+    T &operator() (int i) {return c[i];}
+    const T &operator() (int i) const {return c[i];}
 };
 tpl VecnT operator+ (const VecnT &u) {return u;}
 tpl VecnT operator+ (const VecnT &u, const VecnT &v) {VecnT w; for (int i = 0; i < n; i++) w[i] = u[i] + v[i]; return w;}
@@ -243,20 +245,20 @@ template <int m, int n, typename T> class MatTransposed : protected Mat<m,n,T> {
 	template <int m1, int n1, int o, typename T1>  friend Mat<m1,o,T1> operator* (const Mat<m1,n1,T1> &A, const MatTransposed<o,n1,T1> &B);
 	template <int m1, int n1, int o, typename T1> friend Mat<m1,o,T1> operator* (const MatTransposed<n1,m1,T1> &A, const Mat<n1,o,T1> &B);
 public:
-    
+
     const Mat<m,n,T>& t () const {return static_cast<const Mat<m, n, T>&>(*this);}
 };
 
-template <int m, int n, typename T> Vec<n, T> operator* (const MatTransposed<m,n,T> &A, const Vec<m, T> &u) 
+template <int m, int n, typename T> Vec<n, T> operator* (const MatTransposed<m,n,T> &A, const Vec<m, T> &u)
 {
-	Vec<n,T> v; 
-	for (int j = 0; j < n; j++) v[j] = dot(A.col(j), u); 
+	Vec<n,T> v;
+	for (int j = 0; j < n; j++) v[j] = dot(A.col(j), u);
 	return v;
 }
 
-template <int m, int n, int o, typename T> Mat<m,o,T> operator* (const Mat<m,n,T> &A, const MatTransposed<o,n,T> &B) 
+template <int m, int n, int o, typename T> Mat<m,o,T> operator* (const Mat<m,n,T> &A, const MatTransposed<o,n,T> &B)
 {
-	Mat<m,o,T> C; 
+	Mat<m,o,T> C;
 	for (int k = 0; k < o; k++) {
 		//C.col(k) = 0; //!!!
 		C.col(k) = A.col(0)*B.col(0)[k];
@@ -267,9 +269,9 @@ template <int m, int n, int o, typename T> Mat<m,o,T> operator* (const Mat<m,n,T
 	return C;
 }
 
-template <int m, int n, int o, typename T> Mat<m,o,T> operator* (const MatTransposed<n,m,T> &A, const Mat<n,o,T> &B) 
+template <int m, int n, int o, typename T> Mat<m,o,T> operator* (const MatTransposed<n,m,T> &A, const Mat<n,o,T> &B)
 {
-	Mat<m,o,T> C; 
+	Mat<m,o,T> C;
 	for (int k = 0; k < o; k++) {
 		for(int j = 0; j < m; j++)
 			C.col(k)[j] = dot(A.col(j), B.col(k)); //!!!
@@ -278,9 +280,9 @@ template <int m, int n, int o, typename T> Mat<m,o,T> operator* (const MatTransp
 }
 
 /*
-template <int m, int n, int o, typename T> Mat<m,o,T> operator* (const MatTransposed<n,m,T> &A, const MatTransposed<o,n,T> &B) 
+template <int m, int n, int o, typename T> Mat<m,o,T> operator* (const MatTransposed<n,m,T> &A, const MatTransposed<o,n,T> &B)
 {
-	Mat<m,o,T> C; 
+	Mat<m,o,T> C;
 	for (int k = 0; k < o; k++) {
 		for(int j = 0; j < m; j++) {
 			C.col(k)[j] = 0; //!!!

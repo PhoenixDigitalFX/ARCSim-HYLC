@@ -9,9 +9,9 @@
     },
     "disable": ["remeshing"],
     "implicit": false,
-    "explicit_damping": 0,//1e-1,
-    "frame_time": 0.004,
-    "frame_steps": 8,
+    "explicit_damping": 1e-1,//1e-1,
+    "frame_time": 0.04,
+    "frame_steps": 80,
     "end_time": 10,
     "cloths": [{
         "mesh": "meshes/square.obj",

@@ -14,6 +14,7 @@ public:
   }
   virtual double psi(const Vec6 &ek);
   virtual std::pair<Mat6x6, Vec6> psi_drv(const Vec6 &ek);
+  virtual Vec6 psi_grad(const Vec6 &ek);
 
 private:
   double a0, a1, b0, b1;
