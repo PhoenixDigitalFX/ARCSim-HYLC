@@ -107,11 +107,12 @@ void save (const Simulation &sim, int frame) {
 
 void sim_step() {
     fps.tick();
-    advance_step(sim);
-    if (sim.step % sim.frame_steps == 0) {
+    advance_frame(sim);
+    // advance_step(sim);
+    // if (sim.step % sim.frame_steps == 0) {
         save(sim, sim.frame);
         save_timings();
-    }
+    // }
     fps.tock();
     if (sim.time >= sim.end_time || sim.frame >= sim.end_frame)
         exit(EXIT_SUCCESS);
