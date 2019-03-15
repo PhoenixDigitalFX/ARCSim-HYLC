@@ -1,7 +1,7 @@
 {
     "hylc": {
         "enabled": true,
-        "type": 0
+        "type": 1
         //"a0": 0,
         //"a1": 0,
         //"b0": 0,
@@ -11,8 +11,8 @@
     // "disable": ["remeshing"],
     "implicit": false,
     "explicit_damping": 1e-1,//1e-1,
-    "frame_time": 0.01,
-    "frame_steps": 20,
+    "frame_time": 0.04,
+    "frame_steps": 80,
     "end_time": 10,
     "cloths": [{
         "mesh": "meshes/square4.obj",
