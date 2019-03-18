@@ -111,7 +111,8 @@ void load_json (const string &configFilename, Simulation &sim) {
     parse_morphs(sim.morphs, json["morphs"], sim.cloths);
     parse(sim.gravity, json["gravity"], Vec3(0));
     parse(sim.implicit_integration, json["implicit"], true);
-    parse(sim.explicit_damping, json["explicit_damping"], 0.0);
+    parse(sim.explicit_massdamping, json["explicit_massdamping"], 0.0);
+    parse(sim.explicit_stretchdamping, json["explicit_stretchdamping"], 0.0);
     parse(sim.wind, json["wind"]);
     parse(sim.friction, json["friction"], 0.6);
     parse(sim.obs_friction, json["obs_friction"], 0.3);

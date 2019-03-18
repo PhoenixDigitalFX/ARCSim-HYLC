@@ -183,7 +183,8 @@ void physics_step(Simulation &sim, const vector<Constraint *> &cons) {
       implicit_update(sim.cloths[c], fext, Jext, cons, sim.step_time, false);
     else // explicit integration
       explicit_update(sim.cloths[c], fext, cons, sim.step_time,
-                      sim.explicit_damping, false);
+                      sim.explicit_massdamping, sim.explicit_stretchdamping,
+                      false);
   }
 
   for (int c = 0; c < sim.cloth_meshes.size(); c++)

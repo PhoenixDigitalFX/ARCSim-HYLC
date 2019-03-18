@@ -47,7 +47,8 @@ void add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
                          std::vector<Vec3> &b, double dt);
 // jacobian-less version for explicit integration
 template <Space s>
-void add_internal_forces(const Cloth &cloth, std::vector<Vec3> &b, double dt);
+void add_internal_forces(const Cloth &cloth, std::vector<Vec3> &b, double dt,
+                         double stretchdamping);
 
 void add_constraint_forces(const Cloth &cloth,
                            const std::vector<Constraint *> &cons,
@@ -72,6 +73,7 @@ void implicit_update(Cloth &cloth, const std::vector<Vec3> &fext,
 
 void explicit_update(Cloth &cloth, const std::vector<Vec3> &fext,
                      const std::vector<Constraint *> &cons, double dt,
-                     double damping, bool update_positions = true);
+                     double massdamping, double stretchdamping,
+                     bool update_positions = true);
 
 #endif

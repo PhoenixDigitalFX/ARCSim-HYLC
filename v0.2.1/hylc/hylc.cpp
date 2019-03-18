@@ -1,5 +1,6 @@
 
 
+#include "../blockvectors.hpp"
 #include "hylc.hpp"
 
 namespace hylc {
@@ -237,8 +238,7 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   return std::make_pair(A * H, A * g);
 }
 
-template <Space s>
-Vec18 hylc_local_forces_nojac(const Face *face) {
+template <Space s> Vec18 hylc_local_forces_nojac(const Face *face) {
   namespace mm = hylc::mathematica;
   using namespace hylc::mathematica;
   // 0. compute local primitive values
@@ -324,6 +324,24 @@ void add_subvec(const Vec<m * 3> &bsub, const Vec<m, int> &ix,
       b[ix[i]] += subvec3(bsub, i);
 }
 
+template <int n> Mat<1, n> rowmat(const Vec<n> &v) {
+  Mat<1, n> A;
+  for (int i = 0; i < n; i++)
+    A(0, i) = v[i];
+  return A;
+}
+
+template <int m, int n, int p, int q>
+Mat<m * p, n * q> kronecker(const Mat<m, n> &A, const Mat<p, q> &B) {
+  Mat<m * p, n * q> C;
+  for (int i = 0; i < m; i++)
+    for (int j = 0; j < n; j++)
+      for (int k = 0; k < p; k++)
+        for (int l = 0; l < q; l++)
+          C(i * p + k, j * q + l) = A(i, j) * B(k, l);
+  return C;
+}
+
 Vec<6, int> indices(const Node *n0, const Node *n1, const Node *n2,
                     const Node *nn0, const Node *nn1, const Node *nn2) {
   Vec<6, int> ix;
@@ -333,6 +351,14 @@ Vec<6, int> indices(const Node *n0, const Node *n1, const Node *n2,
   ix[3] = (nn0) ? nn0->index : -1;
   ix[4] = (nn1) ? nn1->index : -1;
   ix[5] = (nn2) ? nn2->index : -1;
+  return ix;
+}
+
+Vec<3, int> indices(const Node *n0, const Node *n1, const Node *n2) {
+  Vec<3, int> ix;
+  ix[0] = n0->index;
+  ix[1] = n1->index;
+  ix[2] = n2->index;
   return ix;
 }
 
@@ -392,17 +418,6 @@ void hylc::hylc_add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
     Mat18x18 &H = Hg.first;
     Vec18 &g = Hg.second;
 
-    // H = H * 0.0;
-    // g = g * 0.0;
-
-    // std::cout<<"H\n"<<H<<"\n\n";
-    // std::cout<<"g\n"<<g<<"\n\n";
-    // TODO ASK RAHUL
-    // which damping to use, face or some adjf stuff
-    // can i assume that e0 goes from x0 to x1 etc. ? <- give him localprimcode
-    // should i ignore dihedral and normal already in arcsim, or take it out,
-    // bc mm recomputes it
-    // why physics static materials pointer..? do i need that?
     const Face *face = mesh.faces[i];
     const Node *n0 = face->v[0]->node, *n1 = face->v[1]->node,
                *n2 = face->v[2]->node;
@@ -440,15 +455,50 @@ void hylc::hylc_add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
 
 template <Space s>
 void hylc::hylc_add_internal_forces(const Cloth &cloth, std::vector<Vec3> &b,
-                                    double dt) {
+                                    double dt, double stretchdamping) {
+
+  typedef Mat<9, 9> Mat9x9;
+  typedef Vec<9> Vec9;
+
   // local, parallel per triangle
   const Mesh &mesh = cloth.mesh;
   int n_triangles = mesh.faces.size();
   std::vector<Vec18> local_g(n_triangles);
+  std::vector<Vec9> local_Jfake_vs(n_triangles);
 
 #pragma omp parallel for
   for (int i = 0; i < n_triangles; ++i) {
     local_g[i] = hylc_local_forces_nojac<s>(mesh.faces[i]);
+  }
+
+#pragma omp parallel for
+  for (int i = 0; i < n_triangles; ++i) {
+    auto &face = mesh.faces[i];
+    Mat3x2 F = derivative(pos<s>(face->v[0]->node), pos<s>(face->v[1]->node),
+                          pos<s>(face->v[2]->node), face);
+    Mat2x2 G = (F.t() * F - Mat2x2(1)) / 2.;
+    // NOTE dependency on non-hylc material params removed!
+    // Vec4 k = stretching_stiffness(G,
+    // (*::materials)[face->label]->stretching); double weakening =
+    // (*::materials)[face->label]->weakening; k *= 1 / (1 + weakening *
+    // face->damage);
+    Mat2x3 D = derivative(face);
+    Vec3 du = D.row(0), dv = D.row(1);
+    Mat<3, 9> Du = kronecker(rowmat(du), Mat3x3(1)),
+              Dv = kronecker(rowmat(dv), Mat3x3(1));
+    const Vec3 &xu = F.col(0), &xv = F.col(1); // should equal Du*mat_to_vec(X)
+    Vec9 fuu = Du.t() * xu, fvv = Dv.t() * xv,
+         fuv = (Du.t() * xv + Dv.t() * xu) / 2.;
+    Mat9x9 hess_e = (outer(fuu, fuu) + std::max(G(0, 0), 0.) * Du.t() * Du) +
+                    (outer(fvv, fvv) + std::max(G(1, 1), 0.) * Dv.t() * Dv) +
+                    (outer(fuu, fvv) + std::max(G(0, 0), 0.) * Dv.t() * Dv +
+                     outer(fvv, fuu) + std::max(G(1, 1), 0.) * Du.t() * Du) +
+                    2. * (outer(fuv, fuv));
+
+    const Node *n0 = face->v[0]->node, *n1 = face->v[1]->node,
+               *n2 = face->v[2]->node;
+    Vec9 vs = mat_to_vec(Mat3x3(n0->v, n1->v, n2->v));
+    local_Jfake_vs[i] = -face->a * hess_e * vs;
   }
 
   // if (debug_print_ek_range) {
@@ -479,6 +529,9 @@ void hylc::hylc_add_internal_forces(const Cloth &cloth, std::vector<Vec3> &b,
       hylc::add_subvec(-g, ixs, b); // F
     } else {
       hylc::add_subvec(-dt * g, ixs, b); // dt * F
+      // dt*(dt+damp)*J*vs, only with "fake" stretching J (from default arcsim)
+      hylc::add_subvec(dt * ((dt + stretchdamping) * local_Jfake_vs[i]),
+                       hylc::indices(n0, n1, n2), b);
     }
   }
 }
@@ -490,6 +543,8 @@ template void hylc::hylc_add_internal_forces<WS>(const Cloth &, SpMat<Mat3x3> &,
 template void hylc::hylc_add_internal_forces<PS>(const Cloth &, SpMat<Mat3x3> &,
                                                  std::vector<Vec3> &, double);
 template void hylc::hylc_add_internal_forces<WS>(const Cloth &,
-                                                 std::vector<Vec3> &, double);
+                                                 std::vector<Vec3> &, double,
+                                                 double);
 template void hylc::hylc_add_internal_forces<PS>(const Cloth &,
-                                                 std::vector<Vec3> &, double);
+                                                 std::vector<Vec3> &, double,
+                                                 double);

@@ -9,7 +9,8 @@
     },
     "disable": ["remeshing"],
     "implicit": false,
-    "explicit_damping": 1e-1,//1e-1,
+    "explicit_massdamping": 1e-1, // maybe even lower
+    "explicit_stretchdamping": 1e1, // different for arscim(1e-3) vs hylc!
     "frame_time": 0.04,
     "frame_steps": 80,
     "end_time": 10,
@@ -18,14 +19,7 @@
         "transform": {"translate": [-0.5, -1, 0.5]},
         // "transform": {"translate": [0.5, 0, 0.5]},
         "materials": [{"data": "materials/gray-interlock.json",
-                       "thicken": 2}],
-        "remeshing": {
-            "refine_angle": 0.3,
-            "refine_compression": 0.005,
-            "refine_velocity": 0.5,
-            "size": [10e-3, 200e-3],
-            "aspect_min": 0.2
-        }
+                       "thicken": 2}]
     }],
     "handles": [{"nodes": [2,3], "end_time": 7}],
     "motions": [[

@@ -58,7 +58,8 @@ struct Simulation {
     std::vector<Morph> morphs;
     Vec3 gravity;
     bool implicit_integration;
-    double explicit_damping;
+    double explicit_massdamping;
+    double explicit_stretchdamping;
     Wind wind;
     double friction, obs_friction;
     enum {Proximity, Physics, StrainLimiting, Collision, Remeshing, Separation,

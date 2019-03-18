@@ -302,51 +302,46 @@ template double internal_energy<WS>(const Cloth &);
 template <Space s>
 void add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A, vector<Vec3> &b,
                          double dt) {
-  if (hylc::hylc_enabled()) {
-    hylc::hylc_add_internal_forces<s>(cloth, A, b, dt);
-    return;
-  } else {
-    const Mesh &mesh = cloth.mesh;
-    ::materials = &cloth.materials;
-    for (int f = 0; f < mesh.faces.size(); f++) {
-      const Face *face = mesh.faces[f];
-      const Node *n0 = face->v[0]->node, *n1 = face->v[1]->node,
-                 *n2 = face->v[2]->node;
-      Vec9 vs = mat_to_vec(Mat3x3(n0->v, n1->v, n2->v));
-      pair<Mat9x9, Vec9> membF = stretching_force<s>(face);
-      Mat9x9 J = membF.first;
-      Vec9 F = membF.second;
-      if (dt == 0) {
-        add_submat(-J, indices(n0, n1, n2), A);
-        add_subvec(F, indices(n0, n1, n2), b);
-      } else {
-        double damping = (*::materials)[face->label]->damping;
-        add_submat(-dt * (dt + damping) * J, indices(n0, n1, n2), A);
-        add_subvec(dt * (F + (dt + damping) * J * vs), indices(n0, n1, n2), b);
-      }
+  const Mesh &mesh = cloth.mesh;
+  ::materials = &cloth.materials;
+  for (int f = 0; f < mesh.faces.size(); f++) {
+    const Face *face = mesh.faces[f];
+    const Node *n0 = face->v[0]->node, *n1 = face->v[1]->node,
+               *n2 = face->v[2]->node;
+    Vec9 vs = mat_to_vec(Mat3x3(n0->v, n1->v, n2->v));
+    pair<Mat9x9, Vec9> membF = stretching_force<s>(face);
+    Mat9x9 J = membF.first;
+    Vec9 F = membF.second;
+    if (dt == 0) {
+      add_submat(-J, indices(n0, n1, n2), A);
+      add_subvec(F, indices(n0, n1, n2), b);
+    } else {
+      double damping = (*::materials)[face->label]->damping;
+      add_submat(-dt * (dt + damping) * J, indices(n0, n1, n2), A);
+      add_subvec(dt * (F + (dt + damping) * J * vs), indices(n0, n1, n2), b);
     }
-    for (int e = 0; e < mesh.edges.size(); e++) {
-      const Edge *edge = mesh.edges[e];
-      if (!edge->adjf[0] || !edge->adjf[1])
-        continue;
-      pair<Mat12x12, Vec12> bendF = bending_force<s>(edge);
-      const Node *n0 = edge->n[0], *n1 = edge->n[1],
-                 *n2 = edge_opp_vert(edge, 0)->node,
-                 *n3 = edge_opp_vert(edge, 1)->node;
-      Vec12 vs = mat_to_vec(Mat3x4(n0->v, n1->v, n2->v, n3->v));
-      Mat12x12 J = bendF.first;
-      Vec12 F = bendF.second;
-      if (dt == 0) {
-        add_submat(-J, indices(n0, n1, n2, n3), A);
-        add_subvec(F, indices(n0, n1, n2, n3), b);
-      } else {
-        double damping = ((*::materials)[edge->adjf[0]->label]->damping +
-                          (*::materials)[edge->adjf[1]->label]->damping) /
-                         2.;
-        add_submat(-dt * (dt + damping) * J, indices(n0, n1, n2, n3), A);
-        add_subvec(dt * (F + (dt + damping) * J * vs), indices(n0, n1, n2, n3),
-                   b);
-      }
+  }
+  for (int e = 0; e < mesh.edges.size(); e++) {
+    const Edge *edge = mesh.edges[e];
+    if (!edge->adjf[0] || !edge->adjf[1])
+      continue;
+    pair<Mat12x12, Vec12> bendF = bending_force<s>(edge);
+    const Node *n0 = edge->n[0], *n1 = edge->n[1],
+               *n2 = edge_opp_vert(edge, 0)->node,
+               *n3 = edge_opp_vert(edge, 1)->node;
+    Vec12 vs = mat_to_vec(Mat3x4(n0->v, n1->v, n2->v, n3->v));
+    Mat12x12 J = bendF.first;
+    Vec12 F = bendF.second;
+    if (dt == 0) {
+      add_submat(-J, indices(n0, n1, n2, n3), A);
+      add_subvec(F, indices(n0, n1, n2, n3), b);
+    } else {
+      double damping = ((*::materials)[edge->adjf[0]->label]->damping +
+                        (*::materials)[edge->adjf[1]->label]->damping) /
+                       2.;
+      add_submat(-dt * (dt + damping) * J, indices(n0, n1, n2, n3), A);
+      add_subvec(dt * (F + (dt + damping) * J * vs), indices(n0, n1, n2, n3),
+                 b);
     }
   }
 }
@@ -356,43 +351,47 @@ template void add_internal_forces<WS>(const Cloth &, SpMat<Mat3x3> &,
                                       vector<Vec3> &, double);
 
 template <Space s>
-void add_internal_forces(const Cloth &cloth, vector<Vec3> &b, double dt) {
-  if (hylc::hylc_enabled()) {
-    hylc::hylc_add_internal_forces<s>(cloth, b, dt);
-    return;
-  } else {
-    const Mesh &mesh = cloth.mesh;
-    ::materials = &cloth.materials;
-    for (int f = 0; f < mesh.faces.size(); f++) {
-      const Face *face = mesh.faces[f];
-      const Node *n0 = face->v[0]->node, *n1 = face->v[1]->node,
-                 *n2 = face->v[2]->node;
-      Vec9 F = stretching_force_nojac<s>(face);
-      if (dt == 0) {
-        add_subvec(F, indices(n0, n1, n2), b);
-      } else {
-        // double damping = (*::materials)[face->label]->damping;
-        add_subvec(dt * F, indices(n0, n1, n2), b);
-      }
+void add_internal_forces(const Cloth &cloth, vector<Vec3> &b, double dt,
+                         double stretchdamping) {
+  const Mesh &mesh = cloth.mesh;
+  ::materials = &cloth.materials;
+  for (int f = 0; f < mesh.faces.size(); f++) {
+    const Face *face = mesh.faces[f];
+    const Node *n0 = face->v[0]->node, *n1 = face->v[1]->node,
+               *n2 = face->v[2]->node;
+    Vec9 vs = mat_to_vec(Mat3x3(n0->v, n1->v, n2->v));
+    pair<Mat9x9, Vec9> membF = stretching_force<s>(face);
+    Mat9x9 J = membF.first;
+    Vec9 F = membF.second;
+    if (dt == 0) {
+      add_subvec(F, indices(n0, n1, n2), b);
+    } else {
+      // add_subvec(dt * F, indices(n0, n1, n2), b);
+      // double damping = (*::materials)[face->label]->damping;
+      // NOTE only using stretching hessian for damping here!
+      add_subvec(dt * (F + (dt + stretchdamping) * J * vs), indices(n0, n1, n2),
+                 b);
     }
-    for (int e = 0; e < mesh.edges.size(); e++) {
-      const Edge *edge = mesh.edges[e];
-      if (!edge->adjf[0] || !edge->adjf[1])
-        continue;
-      const Node *n0 = edge->n[0], *n1 = edge->n[1],
-                 *n2 = edge_opp_vert(edge, 0)->node,
-                 *n3 = edge_opp_vert(edge, 1)->node;
-      Vec12 F = bending_force_nojac<s>(edge);
-      if (dt == 0) {
-        add_subvec(F, indices(n0, n1, n2, n3), b);
-      } else {
-        add_subvec(dt * F, indices(n0, n1, n2, n3), b);
-      }
+  }
+  for (int e = 0; e < mesh.edges.size(); e++) {
+    const Edge *edge = mesh.edges[e];
+    if (!edge->adjf[0] || !edge->adjf[1])
+      continue;
+    const Node *n0 = edge->n[0], *n1 = edge->n[1],
+               *n2 = edge_opp_vert(edge, 0)->node,
+               *n3 = edge_opp_vert(edge, 1)->node;
+    Vec12 F = bending_force_nojac<s>(edge);
+    if (dt == 0) {
+      add_subvec(F, indices(n0, n1, n2, n3), b);
+    } else {
+      add_subvec(dt * F, indices(n0, n1, n2, n3), b);
     }
   }
 }
-template void add_internal_forces<PS>(const Cloth &, vector<Vec3> &, double);
-template void add_internal_forces<WS>(const Cloth &, vector<Vec3> &, double);
+template void add_internal_forces<PS>(const Cloth &, vector<Vec3> &, double,
+                                      double);
+template void add_internal_forces<WS>(const Cloth &, vector<Vec3> &, double,
+                                      double);
 
 bool contains(const Mesh &mesh, const Node *node) {
   return node->index < mesh.nodes.size() && mesh.nodes[node->index] == node;
@@ -517,7 +516,12 @@ void implicit_update(Cloth &cloth, const vector<Vec3> &fext,
     A(n, n) += Mat3x3(node->m) - dt * dt * Jext[n];
     b[n] += dt * fext[n];
   }
-  add_internal_forces<WS>(cloth, A, b, dt);
+
+  if (hylc::hylc_enabled())
+    hylc::hylc_add_internal_forces<WS>(cloth, A, b, dt);
+  else
+    add_internal_forces<WS>(cloth, A, b, dt);
+
   add_constraint_forces(cloth, cons, A, b, dt);
   add_friction_forces(cloth, cons, A, b, dt);
   vector<Vec3> dv = eigen_linear_solve(A, b);
@@ -534,7 +538,8 @@ void implicit_update(Cloth &cloth, const vector<Vec3> &fext,
 
 void explicit_update(Cloth &cloth, const std::vector<Vec3> &fext,
                      const std::vector<Constraint *> &cons, double dt,
-                     double damping, bool update_positions) {
+                     double massdamping, double stretchdamping,
+                     bool update_positions) {
   Mesh &mesh = cloth.mesh;
   vector<Vert *>::iterator vert_it;
   vector<Face *>::iterator face_it;
@@ -546,22 +551,20 @@ void explicit_update(Cloth &cloth, const std::vector<Vec3> &fext,
     b[n] += dt * fext[n];
   }
 
-  // DEBUG SLOW VERSION THAT ACTUALLY COMPUTES UNNECESSARY A
-  // I DONT KNOW WHAT TO DO ABOUT CONSTRAINT FORCES AND HOW TO BEST NOT COMPUTE
-  // A THERE, SAME FOR FRICTION FORCES. bc its somehow within iterators
-  // internal_forces is also slightly annoying because of how it returns pairs
-  // from bending_forces etc. so would need to make copy called
-  // bending_forcehess or so
-  SpMat<Mat3x3> A(nn, nn);
-  add_internal_forces<WS>(cloth, b, dt);     // !! unneccesarily computing A!
-  add_constraint_forces(cloth, cons, b, dt); // already removed A
+  if (hylc::hylc_enabled())
+    hylc::hylc_add_internal_forces<WS>(cloth, b, dt, stretchdamping);
+  else
+    add_internal_forces<WS>(cloth, b, dt, stretchdamping);
+
+  add_constraint_forces(cloth, cons, b, dt);
   // unnecessarily computing A, but assuming minimal cost
+  SpMat<Mat3x3> A(nn, nn);
   add_friction_forces(cloth, cons, A, b, dt);
 
   for (int n = 0; n < mesh.nodes.size(); n++) {
     Node *node = mesh.nodes[n];
     // v += dt/m f
-    Vec3 dv = 1.0 / node->m * b[n] - dt * damping * node->v;
+    Vec3 dv = 1.0 / node->m * b[n] - dt * massdamping * node->v;
     node->v += dv;
     if (update_positions)
       node->x += node->v * dt;
