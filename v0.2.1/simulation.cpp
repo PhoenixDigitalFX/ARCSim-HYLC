@@ -76,6 +76,8 @@ void prepare(Simulation &sim) {
 }
 
 void relax_initial_state(Simulation &sim) {
+  if (!::magic.relax_initial_state)
+    return;
   validate_handles(sim);
   if (::magic.preserve_creases)
     for (int c = 0; c < sim.cloths.size(); c++)

@@ -548,6 +548,7 @@ void parse (Magic &magic, const Json::Value &json) {
     PARSE_MAGIC(rib_stiffening);
     PARSE_MAGIC(combine_tensors);
     PARSE_MAGIC(preserve_creases);
+    PARSE_MAGIC(relax_initial_state);
 #undef PARSE_MAGIC
 }
 
