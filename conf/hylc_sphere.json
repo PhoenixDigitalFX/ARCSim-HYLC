@@ -1,7 +1,7 @@
 {
     "hylc": {
         "enabled": true,
-        "type": 1
+        "type": 0 // -1 analytic, 0 knit, 1 knit, 2 woven, 3 woven
         //"a0": 0,
         //"a1": 0,
         //"b0": 0,
@@ -11,7 +11,7 @@
     // "disable": ["remeshing"],
     "implicit": false,
     "explicit_massdamping": 1e-1, // maybe even lower
-    "explicit_stretchdamping": 1e0, // different for arscim vs hylc!
+    "explicit_stretchdamping": 1e-3, // stiffest term
     "frame_time": 0.04,
     "frame_steps": 160,
     "end_time": 10,
