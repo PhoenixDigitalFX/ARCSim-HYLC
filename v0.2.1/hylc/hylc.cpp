@@ -15,8 +15,38 @@ std::shared_ptr<BaseMaterial> get_material() {
       global_material = std::make_shared<AnalyticMaterial>(
           config.a0, config.a1, config.b0, config.b1);
     else
-      global_material =
-          std::make_shared<FittedMaterial>(config.material_type);
+      global_material = std::make_shared<FittedMaterial>(config.material_type);
+
+    // TEST PLOT EXTRAPOLATION
+    Vec6 ektst(0);
+    ektst(0) = 1.0;
+    ektst(2) = 1.0;
+
+    std::cout << "\n\n\n\n";
+    for (int i = 0; i < 100; ++i) {
+      Vec6 ekcopy = ektst;
+      double a = i * 1.0 / 100;
+      ekcopy(0) = (1 - a) * 0.1 + a * 3.5;
+      double psi = global_material->psi(ekcopy);
+      std::cout << ekcopy(0) << ", " << psi << ", ";
+    }
+    std::cout << "\n\n\n\n";
+    for (int i = 0; i < 100; ++i) {
+      Vec6 ekcopy = ektst;
+      double a = i * 1.0 / 100;
+      ekcopy(1) = (1 - a) * -10 + a * 10;
+      double psi = global_material->psi(ekcopy);
+      std::cout << ekcopy(1) << ", " << psi << ", ";
+    }
+    std::cout << "\n\n\n\n";
+    for (int i = 0; i < 100; ++i) {
+      Vec6 ekcopy = ektst;
+      double a = i * 1.0 / 100;
+      ekcopy(5) = (1 - a) * -150 + a * 150;
+      double psi = global_material->psi(ekcopy);
+      std::cout << ekcopy(5) << ", " << psi << ", ";
+    }
+    std::cout << "\n\n\n\n";
   }
   return global_material;
 }
@@ -275,20 +305,20 @@ template <Space s> Vec18 hylc_local_forces_nojac(const Face *face) {
   Mat6x18 &ek_grad = std::get<0>(ek_gv);
 
   // DEBUG not threadsafe but good enough for testing
-  // if (debug_print_ek_range) {
-  // ek0a = std::min(ek0a, ek[0]);
-  // ek0b = std::max(ek0b, ek[0]);
-  // ek1a = std::min(ek1a, ek[1]);
-  // ek1b = std::max(ek1b, ek[1]);
-  // ek2a = std::min(ek2a, ek[2]);
-  // ek2b = std::max(ek2b, ek[2]);
-  // ek3a = std::min(ek3a, ek[3]);
-  // ek3b = std::max(ek3b, ek[3]);
-  // ek4a = std::min(ek4a, ek[4]);
-  // ek4b = std::max(ek4b, ek[4]);
-  // ek5a = std::min(ek5a, ek[5]);
-  // ek5b = std::max(ek5b, ek[5]);
-  // }
+  if (debug_print_ek_range) {
+    ek0a = std::min(ek0a, ek[0]);
+    ek0b = std::max(ek0b, ek[0]);
+    ek1a = std::min(ek1a, ek[1]);
+    ek1b = std::max(ek1b, ek[1]);
+    ek2a = std::min(ek2a, ek[2]);
+    ek2b = std::max(ek2b, ek[2]);
+    ek3a = std::min(ek3a, ek[3]);
+    ek3b = std::max(ek3b, ek[3]);
+    ek4a = std::min(ek4a, ek[4]);
+    ek4b = std::max(ek4b, ek[4]);
+    ek5a = std::min(ek5a, ek[5]);
+    ek5b = std::max(ek5b, ek[5]);
+  }
 
   Vec6 psi_grad = get_material()->psi_grad(ek);
   Vec18 g = transpose(ek_grad) * psi_grad;
@@ -474,6 +504,13 @@ void hylc::hylc_add_internal_forces(const Cloth &cloth, std::vector<Vec3> &b,
 #pragma omp parallel for
   for (int i = 0; i < n_triangles; ++i) {
     local_g[i] = hylc_local_forces_nojac<s>(mesh.faces[i]);
+  }
+
+  if (debug_print_ek_range) {
+    printf("ek: [%.2f, %.2f] [%.2f, %.2f] [%.2f, %.2f] [%.2f, %.2f] [%.2f, "
+           "%.2f] [%.2f, %.2f]\n",
+           ek0a, ek0b, ek1a, ek1b, ek2a, ek2b, ek3a, ek3b, ek4a, ek4b, ek5a,
+           ek5b);
   }
 
 #pragma omp parallel for

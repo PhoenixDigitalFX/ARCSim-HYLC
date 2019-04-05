@@ -5,6 +5,10 @@ using namespace hylc::mathematica;
 
 #include <iostream>
 FittedMaterial::FittedMaterial(int type) {
+
+  ek_min = {0.6, -0.5, 0.6, -50, -50, -50};
+  ek_max = {1.5, 0.5, 1.5, 50, 50, 50};
+
   std::cout << "Loading Material " << type << "\n";
   switch (type) {
   default:
@@ -323,662 +327,268 @@ FittedMaterial::FittedMaterial(int type) {
     C52 = 6.465105922760114e-03;
     C53 = 1.052914025462130e-04;
     C54 = 6.536406418436623e-04;
-    C0111 = -2.254874219224598e-02;
-    C0112 = -2.310121775295810e-02;
-    C0121 = 8.607548404323226e-03;
-    C0113 = -5.768223261023183e-04;
-    C0122 = 1.024824029973316e-02;
-    C0131 = 5.563516327910206e-05;
-    C0211 = 3.142690314876349e-03;
-    C0212 = -4.096491913054942e-03;
-    C0221 = -6.204673362879250e-03;
-    C0213 = 1.075620536018410e-03;
-    C0222 = 2.832837636355542e-03;
-    C0231 = 2.683418972962802e-03;
-    C0311 = -6.679629172760059e-03;
-    C0312 = -1.168503417758775e-02;
-    C0321 = -4.805535519913080e-05;
-    C0313 = -3.628075459832539e-04;
-    C0322 = 8.802958970813016e-03;
-    C0331 = 1.429804196835897e-03;
-    C0411 = 3.284998857285002e-03;
-    C0412 = -2.307617623537304e-02;
-    C0421 = 9.031886924799729e-03;
-    C0413 = -3.350731505615294e-04;
-    C0422 = 1.146959562262590e-02;
-    C0431 = -7.211963974210297e-03;
-    C0511 = -4.350064714511139e-04;
-    C0512 = -1.059136659450452e-03;
-    C0521 = 1.536962362801442e-03;
-    C0513 = -3.086386799568480e-06;
-    C0522 = 3.882446378988071e-04;
-    C0531 = -7.359405958152678e-04;
-    C2311 = 7.567681456719473e-04;
-    C2312 = -1.167977982525345e-03;
-    C2321 = -1.753536149961190e-03;
-    C2313 = -9.730340540275789e-05;
-    C2322 = 4.115617432953657e-04;
-    C2331 = 8.095140554433467e-04;
-    C2411 = -1.105087373517883e-03;
-    C2412 = -2.423697642136310e-02;
-    C2421 = -1.009431967437101e-02;
-    C2413 = 4.772927847114199e-04;
-    C2422 = 1.214821835907113e-02;
-    C2431 = 6.934257191553978e-03;
-    C2511 = 6.148958934171084e-03;
-    C2512 = -1.192800223608082e-02;
-    C2521 = 8.746296903741769e-04;
-    C2513 = 1.814765593942021e-04;
-    C2522 = 8.900998138795161e-03;
-    C2531 = -1.540426629010665e-03;
-    C3411 = 1.984752801158255e-03;
-    C3412 = -3.025526226761935e-03;
-    C3421 = 1.615989110069521e-03;
-    C3413 = -1.425893657679279e-03;
-    C3422 = 3.266039287027350e-04;
-    C3431 = 3.316153117377203e-07;
-    C3511 = 3.438836740827667e-04;
-    C3512 = 1.731930338566707e-03;
-    C3521 = -1.878272615507301e-03;
-    C3513 = -7.174514458996061e-03;
-    C3522 = 3.761189462635207e-02;
-    C3531 = -7.080207817827572e-03;
-    break;
+  //   C0111 = -2.254874219224598e-02;
+  //   C0112 = -2.310121775295810e-02;
+  //   C0121 = 8.607548404323226e-03;
+  //   C0113 = -5.768223261023183e-04;
+  //   C0122 = 1.024824029973316e-02;
+  //   C0131 = 5.563516327910206e-05;
+  //   C0211 = 3.142690314876349e-03;
+  //   C0212 = -4.096491913054942e-03;
+  //   C0221 = -6.204673362879250e-03;
+  //   C0213 = 1.075620536018410e-03;
+  //   C0222 = 2.832837636355542e-03;
+  //   C0231 = 2.683418972962802e-03;
+  //   C0311 = -6.679629172760059e-03;
+  //   C0312 = -1.168503417758775e-02;
+  //   C0321 = -4.805535519913080e-05;
+  //   C0313 = -3.628075459832539e-04;
+  //   C0322 = 8.802958970813016e-03;
+  //   C0331 = 1.429804196835897e-03;
+  //   C0411 = 3.284998857285002e-03;
+  //   C0412 = -2.307617623537304e-02;
+  //   C0421 = 9.031886924799729e-03;
+  //   C0413 = -3.350731505615294e-04;
+  //   C0422 = 1.146959562262590e-02;
+  //   C0431 = -7.211963974210297e-03;
+  //   C0511 = -4.350064714511139e-04;
+  //   C0512 = -1.059136659450452e-03;
+  //   C0521 = 1.536962362801442e-03;
+  //   C0513 = -3.086386799568480e-06;
+  //   C0522 = 3.882446378988071e-04;
+  //   C0531 = -7.359405958152678e-04;
+  //   C2311 = 7.567681456719473e-04;
+  //   C2312 = -1.167977982525345e-03;
+  //   C2321 = -1.753536149961190e-03;
+  //   C2313 = -9.730340540275789e-05;
+  //   C2322 = 4.115617432953657e-04;
+  //   C2331 = 8.095140554433467e-04;
+  //   C2411 = -1.105087373517883e-03;
+  //   C2412 = -2.423697642136310e-02;
+  //   C2421 = -1.009431967437101e-02;
+  //   C2413 = 4.772927847114199e-04;
+  //   C2422 = 1.214821835907113e-02;
+  //   C2431 = 6.934257191553978e-03;
+  //   C2511 = 6.148958934171084e-03;
+  //   C2512 = -1.192800223608082e-02;
+  //   C2521 = 8.746296903741769e-04;
+  //   C2513 = 1.814765593942021e-04;
+  //   C2522 = 8.900998138795161e-03;
+  //   C2531 = -1.540426629010665e-03;
+  //   C3411 = 1.984752801158255e-03;
+  //   C3412 = -3.025526226761935e-03;
+  //   C3421 = 1.615989110069521e-03;
+  //   C3413 = -1.425893657679279e-03;
+  //   C3422 = 3.266039287027350e-04;
+  //   C3431 = 3.316153117377203e-07;
+  //   C3511 = 3.438836740827667e-04;
+  //   C3512 = 1.731930338566707e-03;
+  //   C3521 = -1.878272615507301e-03;
+  //   C3513 = -7.174514458996061e-03;
+  //   C3522 = 3.761189462635207e-02;
+  //   C3531 = -7.080207817827572e-03;
+  //   break;
+  // }
+  // C0111 = 0;
+  // C0112 = 0;
+  // C0121 = 0;
+  // C0113 = 0;
+  // C0122 =0;
+  // C0131 =0;
+  // C0211 =0;
+  // C0212 =0;
+  // C0221 = 0;
+  // C0213 = 0;
+  // C0222 =0;
+  // C0231 =0;
+  // C0311 =0;
+  // C0312 = 0;
+  // C0321 =0;
+  // C0313 = 0;
+  // C0322 =0;
+  // C0331 =0;
+  // C0411 =0;
+  // C0412 =0;
+  // C0421 =0;
+  // C0413 =0;
+  // C0422 = 0;
+  // C0431 =0;
+  // C0511 = 0;
+  // C0512 = 0;
+  // C0521 =0;
+  // C0513 = 0;
+  // C0522 = 0;
+  // C0531 =0;
+  // C2311 = 0;
+  // C2312 = 0;
+  // C2321 = 0;
+  // C2313 = 0;
+  // C2322 =0;
+  // C2331 = 0;
+  // C2411 = 0;
+  // C2412 =0;
+  // C2421 =0;
+  // C2413 =0;
+  // C2422 =0;
+  // C2431 =0;
+  // C2511 = 0;
+  // C2512 = 0;
+  // C2521 =0;
+  // C2513 =0;
+  // C2522 = 0;
+  // C2531 = 0;
+  // C3411 = 0;
+  // C3412 =0;
+  // C3421 =0;
+  // C3413 = 0;
+  // C3422 = 0;
+  // C3431 =0;
+  // C3511 =0;
+  // C3512 =0;
+  // C3521 = 0;
+  // C3513 = 0;
+  // C3522 = 0;
+  // C3531 = 0;
+  // density *= 0.1;
+}
+
+void FittedMaterial::clamp_strains(Vec6 &ek, std::vector<int> &clamped_coords,
+                                   std::vector<double> &dek) {
+  // return;
+  for (int i = 0; i < 6; ++i) {
+    if (ek[i] < ek_min[i]) {
+      clamped_coords.push_back(i);
+      dek.push_back(ek[i] - ek_min[i]); // (ek - ekclamped)
+      ek[i] = ek_min[i];
+      // std::cout<<"clamping min "<<i<<" w distance "<<ek[i] - ek_min[i]<<"\n";
+    } else if (ek[i] > ek_max[i]) {
+      clamped_coords.push_back(i);
+      dek.push_back(ek[i] - ek_max[i]); // (ek - ekclamped)
+      ek[i] = ek_max[i];
+      // std::cout<<"clamping max "<<i<<" w distance "<<ek[i] - ek_min[i]<<"\n";
+    }
   }
 }
 
+#include <iostream>
 double FittedMaterial::psi(const Vec6 &ek) {
-  Real c1 = ek(0);
-  Real c2 = -1 + c1;
-  Real c10 = ekscale(0);
-  Real c23 = ek(1);
-  Real c25 = ekscale(1);
-  Real c28 = Power(c23, 3);
-  Real c21 = 1 / c10;
-  Real c29 = Power(c25, -3);
-  Real c17 = Power(c2, 2);
-  Real c32 = Power(c23, 2);
-  Real c18 = Power(c10, -2);
-  Real c33 = Power(c25, -2);
-  Real c14 = Power(c2, 3);
-  Real c15 = Power(c10, -3);
-  Real c37 = 1 / c25;
-  Real c43 = ek(2);
-  Real c44 = -1 + c43;
-  Real c46 = ekscale(2);
-  Real c49 = Power(c44, 3);
-  Real c50 = Power(c46, -3);
-  Real c53 = Power(c44, 2);
-  Real c54 = Power(c46, -2);
-  Real c58 = 1 / c46;
-  Real c63 = ek(3);
-  Real c65 = ekscale(3);
-  Real c68 = Power(c63, 3);
-  Real c69 = Power(c65, -3);
-  Real c73 = Power(c63, 2);
-  Real c74 = Power(c65, -2);
-  Real c80 = 1 / c65;
-  Real c88 = ek(4);
-  Real c90 = ekscale(4);
-  Real c93 = Power(c88, 3);
-  Real c94 = Power(c90, -3);
-  Real c99 = Power(c88, 2);
-  Real c100 = Power(c90, -2);
-  Real c108 = 1 / c90;
-  Real c119 = ek(5);
-  Real c121 = ekscale(5);
-  Real c124 = Power(c119, 3);
-  Real c125 = Power(c121, -3);
-  Real c130 = Power(c119, 2);
-  Real c131 = Power(c121, -2);
-  Real c139 = 1 / c121;
-  return C0 + (C54 * Power(c119, 4)) / Power(c121, 4) + C53 * c124 * c125 +
-         C52 * c130 * c131 + C51 * c119 * c139 + C03 * c14 * c15 +
-         C0531 * c119 * c139 * c14 * c15 + C02 * c17 * c18 +
-         C0522 * c130 * c131 * c17 * c18 + C0521 * c119 * c139 * c17 * c18 +
-         (C04 * Power(c2, 4)) / Power(c10, 4) + C01 * c2 * c21 +
-         C0513 * c124 * c125 * c2 * c21 + C0512 * c130 * c131 * c2 * c21 +
-         C0511 * c119 * c139 * c2 * c21 +
-         (C14 * Power(c23, 4)) / Power(c25, 4) + C13 * c28 * c29 +
-         C0113 * c2 * c21 * c28 * c29 + C12 * c32 * c33 +
-         C0122 * c17 * c18 * c32 * c33 + C0112 * c2 * c21 * c32 * c33 +
-         C11 * c23 * c37 + C0131 * c14 * c15 * c23 * c37 +
-         C0121 * c17 * c18 * c23 * c37 + C0111 * c2 * c21 * c23 * c37 +
-         (C24 * Power(c44, 4)) / Power(c46, 4) + C23 * c49 * c50 +
-         C2531 * c119 * c139 * c49 * c50 + C0213 * c2 * c21 * c49 * c50 +
-         C22 * c53 * c54 + C2522 * c130 * c131 * c53 * c54 +
-         C2521 * c119 * c139 * c53 * c54 + C0222 * c17 * c18 * c53 * c54 +
-         C0212 * c2 * c21 * c53 * c54 + C21 * c44 * c58 +
-         C2513 * c124 * c125 * c44 * c58 + C2512 * c130 * c131 * c44 * c58 +
-         C2511 * c119 * c139 * c44 * c58 + C0231 * c14 * c15 * c44 * c58 +
-         C0221 * c17 * c18 * c44 * c58 + C0211 * c2 * c21 * c44 * c58 +
-         (C34 * Power(c63, 4)) / Power(c65, 4) + C33 * c68 * c69 +
-         C3531 * c119 * c139 * c68 * c69 + C0313 * c2 * c21 * c68 * c69 +
-         C2313 * c44 * c58 * c68 * c69 + C32 * c73 * c74 +
-         C3522 * c130 * c131 * c73 * c74 + C3521 * c119 * c139 * c73 * c74 +
-         C0322 * c17 * c18 * c73 * c74 + C0312 * c2 * c21 * c73 * c74 +
-         C2322 * c53 * c54 * c73 * c74 + C2312 * c44 * c58 * c73 * c74 +
-         C31 * c63 * c80 + C3513 * c124 * c125 * c63 * c80 +
-         C3512 * c130 * c131 * c63 * c80 + C3511 * c119 * c139 * c63 * c80 +
-         C0331 * c14 * c15 * c63 * c80 + C0321 * c17 * c18 * c63 * c80 +
-         C0311 * c2 * c21 * c63 * c80 + C2331 * c49 * c50 * c63 * c80 +
-         C2321 * c53 * c54 * c63 * c80 + C2311 * c44 * c58 * c63 * c80 +
-         C41 * c108 * c88 + C0431 * c108 * c14 * c15 * c88 +
-         C0421 * c108 * c17 * c18 * c88 + C0411 * c108 * c2 * c21 * c88 +
-         C2431 * c108 * c49 * c50 * c88 + C2421 * c108 * c53 * c54 * c88 +
-         C2411 * c108 * c44 * c58 * c88 + C3431 * c108 * c68 * c69 * c88 +
-         C3421 * c108 * c73 * c74 * c88 + C3411 * c108 * c63 * c80 * c88 +
-         (C44 * Power(c88, 4)) / Power(c90, 4) + C43 * c93 * c94 +
-         C0413 * c2 * c21 * c93 * c94 + C2413 * c44 * c58 * c93 * c94 +
-         C3413 * c63 * c80 * c93 * c94 + C42 * c100 * c99 +
-         C0422 * c100 * c17 * c18 * c99 + C0412 * c100 * c2 * c21 * c99 +
-         C2422 * c100 * c53 * c54 * c99 + C2412 * c100 * c44 * c58 * c99 +
-         C3422 * c100 * c73 * c74 * c99 + C3412 * c100 * c63 * c80 * c99;
-}
+  Vec6 ekclamped = ek;
+  std::vector<int> clamped_coords;
+  clamped_coords.reserve(6);
+  std::vector<double> dek; // (ei - clamped(ei)) Taylor distance
+  dek.reserve(6);
+  clamp_strains(ekclamped, clamped_coords, dek);
 
-Vec6 FittedMaterial::psi_grad(const Vec6 &ek) {
-  Vec6 out(0);
+  double out = 0;
 
-  Real c9 = ek(0);
-  Real c10 = -1 + c9;
-  Real c1 = ekscale(0);
-  Real c18 = Power(c1, 3);
-  Real c21 = ek(1);
-  Real c16 = Power(c1, 2);
-  Real c23 = ekscale(1);
-  Real c26 = Power(c21, 2);
-  Real c27 = Power(c23, -2);
-  Real c14 = Power(c10, 2);
-  Real c30 = 1 / c23;
-  Real c34 = ek(2);
-  Real c35 = -1 + c34;
-  Real c37 = ekscale(2);
-  Real c40 = Power(c35, 2);
-  Real c42 = Power(c37, -2);
-  Real c45 = 1 / c37;
-  Real c49 = ek(3);
-  Real c51 = ekscale(3);
-  Real c54 = Power(c49, 2);
-  Real c55 = Power(c51, -2);
-  Real c58 = 1 / c51;
-  Real c62 = ek(4);
-  Real c64 = ekscale(4);
-  Real c67 = Power(c62, 2);
-  Real c68 = Power(c64, -2);
-  Real c71 = 1 / c64;
-  Real c75 = ek(5);
-  Real c77 = ekscale(5);
-  Real c80 = Power(c75, 2);
-  Real c81 = Power(c77, -2);
-  Real c84 = 1 / c77;
-  Real c22 = Power(c21, 3);
-  Real c95 = Power(c23, 2);
-  Real c93 = 1 / c1;
-  Real c11 = Power(c10, 3);
-  Real c100 = Power(c23, 3);
-  Real c97 = Power(c1, -2);
-  Real c36 = Power(c35, 3);
-  Real c112 = Power(c37, 2);
-  Real c102 = Power(c1, -3);
-  Real c116 = Power(c37, 3);
-  Real c50 = Power(c49, 3);
-  Real c52 = Power(c51, -3);
-  Real c63 = Power(c62, 3);
-  Real c65 = Power(c64, -3);
-  Real c76 = Power(c75, 3);
-  Real c78 = Power(c77, -3);
-  Real c146 = Power(c51, 2);
-  Real c152 = Power(c51, 3);
-  Real c38 = Power(c37, -3);
-  Real c180 = Power(c64, 2);
-  Real c188 = Power(c64, 3);
-  Real c207 = Power(c77, 2);
-  Real c215 = Power(c77, 3);
-  out(0) =
-      (4 * C04 * c11 + 3 * C03 * c1 * c14 + 2 * C02 * c10 * c16 + C01 * c18 +
-       (C0113 * c18 * c22) / Power(c23, 3) + 2 * C0122 * c10 * c16 * c26 * c27 +
-       C0112 * c18 * c26 * c27 + 3 * C0131 * c1 * c14 * c21 * c30 +
-       2 * C0121 * c10 * c16 * c21 * c30 + C0111 * c18 * c21 * c30 +
-       C0213 * c18 * c36 * c38 + 2 * C0222 * c10 * c16 * c40 * c42 +
-       C0212 * c18 * c40 * c42 + 3 * C0231 * c1 * c14 * c35 * c45 +
-       2 * C0221 * c10 * c16 * c35 * c45 + C0211 * c18 * c35 * c45 +
-       C0313 * c18 * c50 * c52 + 2 * C0322 * c10 * c16 * c54 * c55 +
-       C0312 * c18 * c54 * c55 + 3 * C0331 * c1 * c14 * c49 * c58 +
-       2 * C0321 * c10 * c16 * c49 * c58 + C0311 * c18 * c49 * c58 +
-       C0413 * c18 * c63 * c65 + 2 * C0422 * c10 * c16 * c67 * c68 +
-       C0412 * c18 * c67 * c68 + 3 * C0431 * c1 * c14 * c62 * c71 +
-       2 * C0421 * c10 * c16 * c62 * c71 + C0411 * c18 * c62 * c71 +
-       C0513 * c18 * c76 * c78 + 2 * C0522 * c10 * c16 * c80 * c81 +
-       C0512 * c18 * c80 * c81 + 3 * C0531 * c1 * c14 * c75 * c84 +
-       2 * C0521 * c10 * c16 * c75 * c84 + C0511 * c18 * c75 * c84) /
-      Power(c1, 4);
-  out(1) = (C11 * c100 + C0131 * c100 * c102 * c11 + 4 * C14 * c22 +
-            3 * C13 * c23 * c26 + C0111 * c10 * c100 * c93 +
-            3 * C0113 * c10 * c23 * c26 * c93 + 2 * C12 * c21 * c95 +
-            2 * C0112 * c10 * c21 * c93 * c95 + C0121 * c100 * c14 * c97 +
-            2 * C0122 * c14 * c21 * c95 * c97) /
-           Power(c23, 4);
-  out(2) =
-      (C21 * c116 + C0231 * c102 * c11 * c116 + 2 * C22 * c112 * c35 +
-       4 * C24 * c36 + 3 * C23 * c37 * c40 + C2313 * c116 * c50 * c52 +
-       C2312 * c116 * c54 * c55 + 2 * C2322 * c112 * c35 * c54 * c55 +
-       C2311 * c116 * c49 * c58 + 2 * C2321 * c112 * c35 * c49 * c58 +
-       3 * C2331 * c37 * c40 * c49 * c58 + C2413 * c116 * c63 * c65 +
-       C2412 * c116 * c67 * c68 + 2 * C2422 * c112 * c35 * c67 * c68 +
-       C2411 * c116 * c62 * c71 + 2 * C2421 * c112 * c35 * c62 * c71 +
-       3 * C2431 * c37 * c40 * c62 * c71 + C2513 * c116 * c76 * c78 +
-       C2512 * c116 * c80 * c81 + 2 * C2522 * c112 * c35 * c80 * c81 +
-       C2511 * c116 * c75 * c84 + 2 * C2521 * c112 * c35 * c75 * c84 +
-       3 * C2531 * c37 * c40 * c75 * c84 + C0211 * c10 * c116 * c93 +
-       2 * C0212 * c10 * c112 * c35 * c93 + 3 * C0213 * c10 * c37 * c40 * c93 +
-       C0221 * c116 * c14 * c97 + 2 * C0222 * c112 * c14 * c35 * c97) /
-      Power(c37, 4);
-  out(3) =
-      (C31 * c152 + C0331 * c102 * c11 * c152 + C2331 * c152 * c36 * c38 +
-       C2321 * c152 * c40 * c42 + C2311 * c152 * c35 * c45 +
-       2 * C32 * c146 * c49 + 2 * C2322 * c146 * c40 * c42 * c49 +
-       2 * C2312 * c146 * c35 * c45 * c49 + 4 * C34 * c50 +
-       3 * C33 * c51 * c54 + 3 * C2313 * c35 * c45 * c51 * c54 +
-       C3413 * c152 * c63 * c65 + C3412 * c152 * c67 * c68 +
-       2 * C3422 * c146 * c49 * c67 * c68 + C3411 * c152 * c62 * c71 +
-       2 * C3421 * c146 * c49 * c62 * c71 + 3 * C3431 * c51 * c54 * c62 * c71 +
-       C3513 * c152 * c76 * c78 + C3512 * c152 * c80 * c81 +
-       2 * C3522 * c146 * c49 * c80 * c81 + C3511 * c152 * c75 * c84 +
-       2 * C3521 * c146 * c49 * c75 * c84 + 3 * C3531 * c51 * c54 * c75 * c84 +
-       C0311 * c10 * c152 * c93 + 2 * C0312 * c10 * c146 * c49 * c93 +
-       3 * C0313 * c10 * c51 * c54 * c93 + C0321 * c14 * c152 * c97 +
-       2 * C0322 * c14 * c146 * c49 * c97) /
-      Power(c51, 4);
-  out(4) =
-      (C41 * c188 + C0431 * c102 * c11 * c188 + C2431 * c188 * c36 * c38 +
-       C2421 * c188 * c40 * c42 + C2411 * c188 * c35 * c45 +
-       C3431 * c188 * c50 * c52 + C3421 * c188 * c54 * c55 +
-       C3411 * c188 * c49 * c58 + 2 * C42 * c180 * c62 +
-       2 * C2422 * c180 * c40 * c42 * c62 + 2 * C2412 * c180 * c35 * c45 * c62 +
-       2 * C3422 * c180 * c54 * c55 * c62 + 2 * C3412 * c180 * c49 * c58 * c62 +
-       4 * C44 * c63 + 3 * C43 * c64 * c67 + 3 * C2413 * c35 * c45 * c64 * c67 +
-       3 * C3413 * c49 * c58 * c64 * c67 + C0411 * c10 * c188 * c93 +
-       2 * C0412 * c10 * c180 * c62 * c93 + 3 * C0413 * c10 * c64 * c67 * c93 +
-       C0421 * c14 * c188 * c97 + 2 * C0422 * c14 * c180 * c62 * c97) /
-      Power(c64, 4);
-  out(5) =
-      (C51 * c215 + C0531 * c102 * c11 * c215 + C2531 * c215 * c36 * c38 +
-       C2521 * c215 * c40 * c42 + C2511 * c215 * c35 * c45 +
-       C3531 * c215 * c50 * c52 + C3521 * c215 * c54 * c55 +
-       C3511 * c215 * c49 * c58 + 2 * C52 * c207 * c75 +
-       2 * C2522 * c207 * c40 * c42 * c75 + 2 * C2512 * c207 * c35 * c45 * c75 +
-       2 * C3522 * c207 * c54 * c55 * c75 + 2 * C3512 * c207 * c49 * c58 * c75 +
-       4 * C54 * c76 + 3 * C53 * c77 * c80 + 3 * C2513 * c35 * c45 * c77 * c80 +
-       3 * C3513 * c49 * c58 * c77 * c80 + C0511 * c10 * c215 * c93 +
-       2 * C0512 * c10 * c207 * c75 * c93 + 3 * C0513 * c10 * c77 * c80 * c93 +
-       C0521 * c14 * c215 * c97 + 2 * C0522 * c14 * c207 * c75 * c97) /
-      Power(c77, 4);
+  // if unclamped dek is 0 and only actual energy remains
+  // psi(ek + dek) = psi(ek) + dpsid_i(ek) * dek_i + 0.5 * dpsidd_i(ek) *
+  // dek_i^2
+  out = psi_taylor_0(
+      ekclamped); //  const taylor part, actual energy if not clamped
+  for (size_t i = 0; i < clamped_coords.size(); i++) {
+    int coord = clamped_coords[i];
+    double d = dek[i];
+
+    //
+    // std::cout<<"clamping "<<i<<" w distance "<<d<<"\n"
+    std::pair<double, double> psi_D = psi_taylor_12_i(ekclamped, coord);
+
+    double tgrad = psi_D.first;
+    if (d < 0)
+      tgrad = std::min(-min_taylor_grad, tgrad);
+    else
+      tgrad = std::max(min_taylor_grad, tgrad);
+    double crv = psi_D.second;
+    crv = std::max(min_taylor_hess, crv);
+    out += tgrad * d + crv * (0.5 * d * d);
+  }
 
   return out;
 }
 
+Vec6 FittedMaterial::psi_grad(const Vec6 &ek) {
+  Vec6 ekclamped = ek;
+  std::vector<int> clamped_coords;
+  clamped_coords.reserve(6);
+  std::vector<double> dek; // (ei - clamped(ei)) Taylor distance
+  dek.reserve(6);
+  clamp_strains(ekclamped, clamped_coords, dek);
+
+  Vec6 out(0);
+  out = grad_taylor_0(
+      ekclamped); //  const taylor part, actual energy if not clamped
+  for (size_t i = 0; i < clamped_coords.size(); i++) {
+    int coord = clamped_coords[i];
+    double d = dek[i];
+
+    std::pair<Vec6, Vec6> grad_D = grad_taylor_12_i(ekclamped, coord);
+
+    Vec6 tgrad = grad_D.first;
+    if (d < 0)
+      for (int i = 0; i < 6; ++i)
+        tgrad(i) = std::min(-min_taylor_grad, tgrad(i));
+    else
+      for (int i = 0; i < 6; ++i)
+        tgrad(i) = std::max(min_taylor_grad, tgrad(i));
+    Vec6 crv = grad_D.second;
+    for (int i = 0; i < 6; ++i)
+      crv(i) = std::max(min_taylor_hess, crv(i));
+    out += tgrad * d + crv * (0.5 * d * d);
+  }
+  return out;
+}
+
 std::pair<Mat6x6, Vec6> FittedMaterial::psi_drv(const Vec6 &ek) {
-  // define output
+
+  Vec6 ekclamped = ek;
+  std::vector<int> clamped_coords;
+  clamped_coords.reserve(6);
+  std::vector<double> dek; // (ei - clamped(ei)) Taylor distance
+  dek.reserve(6);
+  clamp_strains(ekclamped, clamped_coords, dek);
+
   Mat6x6 hess(0);
   Vec6 grad(0);
-  auto out1 = [&](int i) -> Real & { return grad[i]; };
-  auto out2 = [&](int i, int j) -> Real & { return hess(i, j); };
 
-  Real c9 = ek(0);
-  Real c10 = -1 + c9;
-  Real c1 = ekscale(0);
-  Real c18 = Power(c1, 3);
-  Real c21 = ek(1);
-  Real c16 = Power(c1, 2);
-  Real c23 = ekscale(1);
-  Real c26 = Power(c21, 2);
-  Real c27 = Power(c23, -2);
-  Real c14 = Power(c10, 2);
-  Real c30 = 1 / c23;
-  Real c34 = ek(2);
-  Real c35 = -1 + c34;
-  Real c37 = ekscale(2);
-  Real c40 = Power(c35, 2);
-  Real c42 = Power(c37, -2);
-  Real c45 = 1 / c37;
-  Real c49 = ek(3);
-  Real c51 = ekscale(3);
-  Real c54 = Power(c49, 2);
-  Real c55 = Power(c51, -2);
-  Real c58 = 1 / c51;
-  Real c62 = ek(4);
-  Real c64 = ekscale(4);
-  Real c67 = Power(c62, 2);
-  Real c68 = Power(c64, -2);
-  Real c71 = 1 / c64;
-  Real c75 = ek(5);
-  Real c77 = ekscale(5);
-  Real c80 = Power(c75, 2);
-  Real c81 = Power(c77, -2);
-  Real c84 = 1 / c77;
-  Real c22 = Power(c21, 3);
-  Real c95 = Power(c23, 2);
-  Real c93 = 1 / c1;
-  Real c11 = Power(c10, 3);
-  Real c100 = Power(c23, 3);
-  Real c97 = Power(c1, -2);
-  Real c36 = Power(c35, 3);
-  Real c112 = Power(c37, 2);
-  Real c102 = Power(c1, -3);
-  Real c116 = Power(c37, 3);
-  Real c50 = Power(c49, 3);
-  Real c52 = Power(c51, -3);
-  Real c63 = Power(c62, 3);
-  Real c65 = Power(c64, -3);
-  Real c76 = Power(c75, 3);
-  Real c78 = Power(c77, -3);
-  Real c146 = Power(c51, 2);
-  Real c152 = Power(c51, 3);
-  Real c38 = Power(c37, -3);
-  Real c180 = Power(c64, 2);
-  Real c188 = Power(c64, 3);
-  Real c207 = Power(c77, 2);
-  Real c215 = Power(c77, 3);
-  Real c2 = Power(c1, -4);
-  Real c24 = Power(c23, -3);
-  Real c248 = 3 * C0113 * c16 * c26;
-  Real c249 = 4 * C0122 * c1 * c10 * c21;
-  Real c250 = 2 * C0112 * c16 * c21;
-  Real c251 = 3 * C0131 * c14;
-  Real c252 = 2 * C0121 * c10;
-  Real c253 = C0111 * c1;
-  Real c254 = c252 + c253;
-  Real c255 = c1 * c254;
-  Real c256 = c251 + c255;
-  Real c257 = c23 * c256;
-  Real c258 = c249 + c250 + c257;
-  Real c259 = c23 * c258;
-  Real c260 = c248 + c259;
-  Real c261 = c102 * c24 * c260;
-  Real c90 = Power(c23, -4);
-  Real c262 = 3 * C0213 * c16 * c40;
-  Real c263 = 4 * C0222 * c1 * c10 * c35;
-  Real c264 = 2 * C0212 * c16 * c35;
-  Real c265 = 3 * C0231 * c14;
-  Real c266 = 2 * C0221 * c10;
-  Real c267 = C0211 * c1;
-  Real c268 = c266 + c267;
-  Real c269 = c1 * c268;
-  Real c270 = c265 + c269;
-  Real c271 = c270 * c37;
-  Real c272 = c263 + c264 + c271;
-  Real c273 = c272 * c37;
-  Real c274 = c262 + c273;
-  Real c275 = c102 * c274 * c38;
-  Real c108 = Power(c37, -4);
-  Real c276 = 3 * C0313 * c16 * c54;
-  Real c277 = 4 * C0322 * c1 * c10 * c49;
-  Real c278 = 2 * C0312 * c16 * c49;
-  Real c279 = 3 * C0331 * c14;
-  Real c280 = 2 * C0321 * c10;
-  Real c281 = C0311 * c1;
-  Real c282 = c280 + c281;
-  Real c283 = c1 * c282;
-  Real c284 = c279 + c283;
-  Real c285 = c284 * c51;
-  Real c286 = c277 + c278 + c285;
-  Real c287 = c286 * c51;
-  Real c288 = c276 + c287;
-  Real c289 = c102 * c288 * c52;
-  Real c349 = 3 * C2313 * c112 * c54;
-  Real c350 = 4 * C2322 * c35 * c37 * c49;
-  Real c351 = 2 * C2312 * c112 * c49;
-  Real c352 = 3 * C2331 * c40;
-  Real c353 = 2 * C2321 * c35;
-  Real c354 = C2311 * c37;
-  Real c355 = c353 + c354;
-  Real c356 = c355 * c37;
-  Real c357 = c352 + c356;
-  Real c358 = c357 * c51;
-  Real c359 = c350 + c351 + c358;
-  Real c360 = c359 * c51;
-  Real c361 = c349 + c360;
-  Real c362 = c361 * c38 * c52;
-  Real c141 = Power(c51, -4);
-  Real c290 = 3 * C0413 * c16 * c67;
-  Real c291 = 4 * C0422 * c1 * c10 * c62;
-  Real c292 = 2 * C0412 * c16 * c62;
-  Real c293 = 3 * C0431 * c14;
-  Real c294 = 2 * C0421 * c10;
-  Real c295 = C0411 * c1;
-  Real c296 = c294 + c295;
-  Real c297 = c1 * c296;
-  Real c298 = c293 + c297;
-  Real c299 = c298 * c64;
-  Real c300 = c291 + c292 + c299;
-  Real c301 = c300 * c64;
-  Real c302 = c290 + c301;
-  Real c303 = c102 * c302 * c65;
-  Real c363 = 3 * C2413 * c112 * c67;
-  Real c364 = 4 * C2422 * c35 * c37 * c62;
-  Real c365 = 2 * C2412 * c112 * c62;
-  Real c366 = 3 * C2431 * c40;
-  Real c367 = 2 * C2421 * c35;
-  Real c368 = C2411 * c37;
-  Real c369 = c367 + c368;
-  Real c370 = c369 * c37;
-  Real c371 = c366 + c370;
-  Real c372 = c371 * c64;
-  Real c373 = c364 + c365 + c372;
-  Real c374 = c373 * c64;
-  Real c375 = c363 + c374;
-  Real c376 = c375 * c38 * c65;
-  Real c408 = 3 * C3413 * c146 * c67;
-  Real c409 = 4 * C3422 * c49 * c51 * c62;
-  Real c410 = 2 * C3412 * c146 * c62;
-  Real c411 = 3 * C3431 * c54;
-  Real c412 = 2 * C3421 * c49 * c51;
-  Real c413 = C3411 * c146;
-  Real c414 = c411 + c412 + c413;
-  Real c415 = c414 * c64;
-  Real c416 = c409 + c410 + c415;
-  Real c417 = c416 * c64;
-  Real c418 = c408 + c417;
-  Real c419 = c418 * c52 * c65;
-  Real c174 = Power(c64, -4);
-  Real c304 = 3 * C0513 * c16 * c80;
-  Real c305 = 4 * C0522 * c1 * c10 * c75;
-  Real c306 = 2 * C0512 * c16 * c75;
-  Real c307 = 3 * C0531 * c14;
-  Real c308 = 2 * C0521 * c10;
-  Real c309 = C0511 * c1;
-  Real c310 = c308 + c309;
-  Real c311 = c1 * c310;
-  Real c312 = c307 + c311;
-  Real c313 = c312 * c77;
-  Real c314 = c305 + c306 + c313;
-  Real c315 = c314 * c77;
-  Real c316 = c304 + c315;
-  Real c317 = c102 * c316 * c78;
-  Real c377 = 3 * C2513 * c112 * c80;
-  Real c378 = 4 * C2522 * c35 * c37 * c75;
-  Real c379 = 2 * C2512 * c112 * c75;
-  Real c380 = 3 * C2531 * c40;
-  Real c381 = 2 * C2521 * c35;
-  Real c382 = C2511 * c37;
-  Real c383 = c381 + c382;
-  Real c384 = c37 * c383;
-  Real c385 = c380 + c384;
-  Real c386 = c385 * c77;
-  Real c387 = c378 + c379 + c386;
-  Real c388 = c387 * c77;
-  Real c389 = c377 + c388;
-  Real c390 = c38 * c389 * c78;
-  Real c420 = 3 * C3513 * c146 * c80;
-  Real c421 = 4 * C3522 * c49 * c51 * c75;
-  Real c422 = 2 * C3512 * c146 * c75;
-  Real c423 = 3 * C3531 * c54;
-  Real c424 = 2 * C3521 * c49 * c51;
-  Real c425 = C3511 * c146;
-  Real c426 = c423 + c424 + c425;
-  Real c427 = c426 * c77;
-  Real c428 = c421 + c422 + c427;
-  Real c429 = c428 * c77;
-  Real c430 = c420 + c429;
-  Real c431 = c430 * c52 * c78;
-  Real c201 = Power(c77, -4);
-  out1(0) = c2 * (4 * C04 * c11 + 3 * C03 * c1 * c14 + 2 * C02 * c10 * c16 +
-                  C01 * c18 + C0113 * c18 * c22 * c24 +
-                  2 * C0122 * c10 * c16 * c26 * c27 + C0112 * c18 * c26 * c27 +
-                  3 * C0131 * c1 * c14 * c21 * c30 +
-                  2 * C0121 * c10 * c16 * c21 * c30 + C0111 * c18 * c21 * c30 +
-                  C0213 * c18 * c36 * c38 + 2 * C0222 * c10 * c16 * c40 * c42 +
-                  C0212 * c18 * c40 * c42 + 3 * C0231 * c1 * c14 * c35 * c45 +
-                  2 * C0221 * c10 * c16 * c35 * c45 + C0211 * c18 * c35 * c45 +
-                  C0313 * c18 * c50 * c52 + 2 * C0322 * c10 * c16 * c54 * c55 +
-                  C0312 * c18 * c54 * c55 + 3 * C0331 * c1 * c14 * c49 * c58 +
-                  2 * C0321 * c10 * c16 * c49 * c58 + C0311 * c18 * c49 * c58 +
-                  C0413 * c18 * c63 * c65 + 2 * C0422 * c10 * c16 * c67 * c68 +
-                  C0412 * c18 * c67 * c68 + 3 * C0431 * c1 * c14 * c62 * c71 +
-                  2 * C0421 * c10 * c16 * c62 * c71 + C0411 * c18 * c62 * c71 +
-                  C0513 * c18 * c76 * c78 + 2 * C0522 * c10 * c16 * c80 * c81 +
-                  C0512 * c18 * c80 * c81 + 3 * C0531 * c1 * c14 * c75 * c84 +
-                  2 * C0521 * c10 * c16 * c75 * c84 + C0511 * c18 * c75 * c84);
-  out1(1) =
-      c90 * (C11 * c100 + C0131 * c100 * c102 * c11 + 4 * C14 * c22 +
-             3 * C13 * c23 * c26 + C0111 * c10 * c100 * c93 +
-             3 * C0113 * c10 * c23 * c26 * c93 + 2 * C12 * c21 * c95 +
-             2 * C0112 * c10 * c21 * c93 * c95 + C0121 * c100 * c14 * c97 +
-             2 * C0122 * c14 * c21 * c95 * c97);
-  out1(2) =
-      c108 *
-      (C21 * c116 + C0231 * c102 * c11 * c116 + 2 * C22 * c112 * c35 +
-       4 * C24 * c36 + 3 * C23 * c37 * c40 + C2313 * c116 * c50 * c52 +
-       C2312 * c116 * c54 * c55 + 2 * C2322 * c112 * c35 * c54 * c55 +
-       C2311 * c116 * c49 * c58 + 2 * C2321 * c112 * c35 * c49 * c58 +
-       3 * C2331 * c37 * c40 * c49 * c58 + C2413 * c116 * c63 * c65 +
-       C2412 * c116 * c67 * c68 + 2 * C2422 * c112 * c35 * c67 * c68 +
-       C2411 * c116 * c62 * c71 + 2 * C2421 * c112 * c35 * c62 * c71 +
-       3 * C2431 * c37 * c40 * c62 * c71 + C2513 * c116 * c76 * c78 +
-       C2512 * c116 * c80 * c81 + 2 * C2522 * c112 * c35 * c80 * c81 +
-       C2511 * c116 * c75 * c84 + 2 * C2521 * c112 * c35 * c75 * c84 +
-       3 * C2531 * c37 * c40 * c75 * c84 + C0211 * c10 * c116 * c93 +
-       2 * C0212 * c10 * c112 * c35 * c93 + 3 * C0213 * c10 * c37 * c40 * c93 +
-       C0221 * c116 * c14 * c97 + 2 * C0222 * c112 * c14 * c35 * c97);
-  out1(3) =
-      c141 *
-      (C31 * c152 + C0331 * c102 * c11 * c152 + C2331 * c152 * c36 * c38 +
-       C2321 * c152 * c40 * c42 + C2311 * c152 * c35 * c45 +
-       2 * C32 * c146 * c49 + 2 * C2322 * c146 * c40 * c42 * c49 +
-       2 * C2312 * c146 * c35 * c45 * c49 + 4 * C34 * c50 +
-       3 * C33 * c51 * c54 + 3 * C2313 * c35 * c45 * c51 * c54 +
-       C3413 * c152 * c63 * c65 + C3412 * c152 * c67 * c68 +
-       2 * C3422 * c146 * c49 * c67 * c68 + C3411 * c152 * c62 * c71 +
-       2 * C3421 * c146 * c49 * c62 * c71 + 3 * C3431 * c51 * c54 * c62 * c71 +
-       C3513 * c152 * c76 * c78 + C3512 * c152 * c80 * c81 +
-       2 * C3522 * c146 * c49 * c80 * c81 + C3511 * c152 * c75 * c84 +
-       2 * C3521 * c146 * c49 * c75 * c84 + 3 * C3531 * c51 * c54 * c75 * c84 +
-       C0311 * c10 * c152 * c93 + 2 * C0312 * c10 * c146 * c49 * c93 +
-       3 * C0313 * c10 * c51 * c54 * c93 + C0321 * c14 * c152 * c97 +
-       2 * C0322 * c14 * c146 * c49 * c97);
-  out1(4) =
-      c174 *
-      (C41 * c188 + C0431 * c102 * c11 * c188 + C2431 * c188 * c36 * c38 +
-       C2421 * c188 * c40 * c42 + C2411 * c188 * c35 * c45 +
-       C3431 * c188 * c50 * c52 + C3421 * c188 * c54 * c55 +
-       C3411 * c188 * c49 * c58 + 2 * C42 * c180 * c62 +
-       2 * C2422 * c180 * c40 * c42 * c62 + 2 * C2412 * c180 * c35 * c45 * c62 +
-       2 * C3422 * c180 * c54 * c55 * c62 + 2 * C3412 * c180 * c49 * c58 * c62 +
-       4 * C44 * c63 + 3 * C43 * c64 * c67 + 3 * C2413 * c35 * c45 * c64 * c67 +
-       3 * C3413 * c49 * c58 * c64 * c67 + C0411 * c10 * c188 * c93 +
-       2 * C0412 * c10 * c180 * c62 * c93 + 3 * C0413 * c10 * c64 * c67 * c93 +
-       C0421 * c14 * c188 * c97 + 2 * C0422 * c14 * c180 * c62 * c97);
-  out1(5) =
-      c201 *
-      (C51 * c215 + C0531 * c102 * c11 * c215 + C2531 * c215 * c36 * c38 +
-       C2521 * c215 * c40 * c42 + C2511 * c215 * c35 * c45 +
-       C3531 * c215 * c50 * c52 + C3521 * c215 * c54 * c55 +
-       C3511 * c215 * c49 * c58 + 2 * C52 * c207 * c75 +
-       2 * C2522 * c207 * c40 * c42 * c75 + 2 * C2512 * c207 * c35 * c45 * c75 +
-       2 * C3522 * c207 * c54 * c55 * c75 + 2 * C3512 * c207 * c49 * c58 * c75 +
-       4 * C54 * c76 + 3 * C53 * c77 * c80 + 3 * C2513 * c35 * c45 * c77 * c80 +
-       3 * C3513 * c49 * c58 * c77 * c80 + C0511 * c10 * c215 * c93 +
-       2 * C0512 * c10 * c207 * c75 * c93 + 3 * C0513 * c10 * c77 * c80 * c93 +
-       C0521 * c14 * c215 * c97 + 2 * C0522 * c14 * c207 * c75 * c97);
-  out2(0, 0) = 2 * c2 *
-               (3 * C03 * c1 * c10 + 6 * C04 * c14 + C02 * c16 +
-                C0122 * c16 * c26 * c27 + 3 * C0131 * c1 * c10 * c21 * c30 +
-                C0121 * c16 * c21 * c30 + C0222 * c16 * c40 * c42 +
-                3 * C0231 * c1 * c10 * c35 * c45 + C0221 * c16 * c35 * c45 +
-                C0322 * c16 * c54 * c55 + 3 * C0331 * c1 * c10 * c49 * c58 +
-                C0321 * c16 * c49 * c58 + C0422 * c16 * c67 * c68 +
-                3 * C0431 * c1 * c10 * c62 * c71 + C0421 * c16 * c62 * c71 +
-                C0522 * c16 * c80 * c81 + 3 * C0531 * c1 * c10 * c75 * c84 +
-                C0521 * c16 * c75 * c84);
-  out2(0, 1) = c261;
-  out2(0, 2) = c275;
-  out2(0, 3) = c289;
-  out2(0, 4) = c303;
-  out2(0, 5) = c317;
-  out2(1, 0) = c261;
-  out2(1, 1) = 2 * c90 *
-               (6 * C14 * c26 +
-                c23 *
-                    (3 * C0113 * c1 * c10 * c21 + 3 * C13 * c16 * c21 +
-                     (c1 * (C12 * c1 + C0112 * c10) + C0122 * c14) * c23) *
-                    c97);
-  out2(1, 2) = 0;
-  out2(1, 3) = 0;
-  out2(1, 4) = 0;
-  out2(1, 5) = 0;
-  out2(2, 0) = c275;
-  out2(2, 1) = 0;
-  out2(2, 2) = 2 * c108 *
-               (C22 * c112 + 3 * C23 * c35 * c37 + 6 * C24 * c40 +
-                C2322 * c112 * c54 * c55 + C2321 * c112 * c49 * c58 +
-                3 * C2331 * c35 * c37 * c49 * c58 + C2422 * c112 * c67 * c68 +
-                C2421 * c112 * c62 * c71 + 3 * C2431 * c35 * c37 * c62 * c71 +
-                C2522 * c112 * c80 * c81 + C2521 * c112 * c75 * c84 +
-                3 * C2531 * c35 * c37 * c75 * c84 + C0212 * c10 * c112 * c93 +
-                3 * C0213 * c10 * c35 * c37 * c93 + C0222 * c112 * c14 * c97);
-  out2(2, 3) = c362;
-  out2(2, 4) = c376;
-  out2(2, 5) = c390;
-  out2(3, 0) = c289;
-  out2(3, 1) = 0;
-  out2(3, 2) = c362;
-  out2(3, 3) =
-      2 * c141 *
-      (C32 * c146 + C2322 * c146 * c40 * c42 + C2312 * c146 * c35 * c45 +
-       3 * C33 * c49 * c51 + 3 * C2313 * c35 * c45 * c49 * c51 + 6 * C34 * c54 +
-       C3422 * c146 * c67 * c68 + C3421 * c146 * c62 * c71 +
-       3 * C3431 * c49 * c51 * c62 * c71 + C3522 * c146 * c80 * c81 +
-       C3521 * c146 * c75 * c84 + 3 * C3531 * c49 * c51 * c75 * c84 +
-       C0312 * c10 * c146 * c93 + 3 * C0313 * c10 * c49 * c51 * c93 +
-       C0322 * c14 * c146 * c97);
-  out2(3, 4) = c419;
-  out2(3, 5) = c431;
-  out2(4, 0) = c303;
-  out2(4, 1) = 0;
-  out2(4, 2) = c376;
-  out2(4, 3) = c419;
-  out2(4, 4) =
-      2 * c174 *
-      (C42 * c180 + C2422 * c180 * c40 * c42 + C2412 * c180 * c35 * c45 +
-       C3422 * c180 * c54 * c55 + C3412 * c180 * c49 * c58 +
-       3 * C43 * c62 * c64 + 3 * C2413 * c35 * c45 * c62 * c64 +
-       3 * C3413 * c49 * c58 * c62 * c64 + 6 * C44 * c67 +
-       C0412 * c10 * c180 * c93 + 3 * C0413 * c10 * c62 * c64 * c93 +
-       C0422 * c14 * c180 * c97);
-  out2(4, 5) = 0;
-  out2(5, 0) = c317;
-  out2(5, 1) = 0;
-  out2(5, 2) = c390;
-  out2(5, 3) = c431;
-  out2(5, 4) = 0;
-  out2(5, 5) =
-      2 * c201 *
-      (C52 * c207 + C2522 * c207 * c40 * c42 + C2512 * c207 * c35 * c45 +
-       C3522 * c207 * c54 * c55 + C3512 * c207 * c49 * c58 +
-       3 * C53 * c75 * c77 + 3 * C2513 * c35 * c45 * c75 * c77 +
-       3 * C3513 * c49 * c58 * c75 * c77 + 6 * C54 * c80 +
-       C0512 * c10 * c207 * c93 + 3 * C0513 * c10 * c75 * c77 * c93 +
-       C0522 * c14 * c207 * c97);
+  auto gh0 = gradhess_taylor_0(
+      ekclamped); //  const taylor part, actual energy if not clamped
+  hess += gh0.first;
+  grad += gh0.second;
+  for (size_t i = 0; i < clamped_coords.size(); i++) {
+    int coord = clamped_coords[i];
+    double d = dek[i];
+
+    // {{hD,gD},{hDD,gDD}}
+    auto gh_D = gradhess_taylor_12_i(ekclamped, coord);
+
+    Vec6 tgradgrad = gh_D.first.second;
+    Mat6x6 tgradhess = gh_D.first.first;
+    if (d < 0) {
+      for (int i = 0; i < 6; ++i)
+        tgradgrad(i) = std::min(-min_taylor_grad, tgradgrad(i));
+      for (int i = 0; i < 6; ++i)
+        for (int j = 0; j < 6; ++i)
+          tgradhess(i, j) = std::min(-min_taylor_grad, tgradhess(i, j));
+    } else {
+      for (int i = 0; i < 6; ++i)
+        tgradgrad(i) = std::max(min_taylor_grad, tgradgrad(i));
+      for (int i = 0; i < 6; ++i)
+        for (int j = 0; j < 6; ++i)
+          tgradhess(i, j) = std::max(min_taylor_grad, tgradhess(i, j));
+    }
+
+    Vec6 crvgrad = gh_D.second.second;
+    for (int i = 0; i < 6; ++i)
+      crvgrad(i) = std::max(min_taylor_hess, crvgrad(i));
+    Mat6x6 crvhess = gh_D.second.first;
+    for (int i = 0; i < 6; ++i)
+      for (int j = 0; j < 6; ++i)
+        crvhess(i, j) = std::max(min_taylor_hess, crvhess(i, j));
+
+    hess += tgradhess * d + crvhess * (0.5 * d * d);
+    grad += tgradgrad * d + crvgrad * (0.5 * d * d);
+  }
 
   return std::make_pair(hess, grad);
 }

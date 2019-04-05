@@ -3,6 +3,7 @@
 
 #include "BaseMaterial.hpp"
 #include <vector>
+#include <tuple>
 
 namespace hylc {
 class FittedMaterial : public BaseMaterial {
@@ -25,6 +26,48 @@ private:
       C2321, C2313, C2322, C2331, C2411, C2412, C2421, C2413, C2422, C2431,
       C2511, C2512, C2521, C2513, C2522, C2531, C3411, C3412, C3421, C3413,
       C3422, C3431, C3511, C3512, C3521, C3513, C3522, C3531;
+  std::vector<double> ek_min, ek_max; // TODO from pydata
+
+  void clamp_strains(Vec6 &ek, std::vector<int> &clamped_coords,
+                     std::vector<double> &dek);
+  double min_taylor_grad = 0.0;
+  double min_taylor_hess = 1e-5;
+
+  // 0th derivative, i.e. actual values
+  double psi_taylor_0(const Vec6 &ek);
+  Vec6 grad_taylor_0(const Vec6 &ek);
+  std::pair<Mat6x6, Vec6> gradhess_taylor_0(const Vec6 &ek);
+  // 1st and 2nd derivative per strain coord for taylor
+  std::pair<double, double> psi_taylor_12_i(const Vec6 &ek, int i);
+  std::pair<Vec6, Vec6> grad_taylor_12_i(const Vec6 &ek, int i);
+  std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
+  gradhess_taylor_12_i(const Vec6 &ek, int i);
+
+
+  std::pair<double, double> psi_taylor_12_0(const Vec6 &ek);
+  std::pair<double, double> psi_taylor_12_1(const Vec6 &ek);
+  std::pair<double, double> psi_taylor_12_2(const Vec6 &ek);
+  std::pair<double, double> psi_taylor_12_3(const Vec6 &ek);
+  std::pair<double, double> psi_taylor_12_4(const Vec6 &ek);
+  std::pair<double, double> psi_taylor_12_5(const Vec6 &ek);
+  std::pair<Vec6, Vec6> grad_taylor_12_0(const Vec6 &ek);
+  std::pair<Vec6, Vec6> grad_taylor_12_1(const Vec6 &ek);
+  std::pair<Vec6, Vec6> grad_taylor_12_2(const Vec6 &ek);
+  std::pair<Vec6, Vec6> grad_taylor_12_3(const Vec6 &ek);
+  std::pair<Vec6, Vec6> grad_taylor_12_4(const Vec6 &ek);
+  std::pair<Vec6, Vec6> grad_taylor_12_5(const Vec6 &ek);
+  std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
+  gradhess_taylor_12_0(const Vec6 &ek);
+  std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
+  gradhess_taylor_12_1(const Vec6 &ek);
+  std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
+  gradhess_taylor_12_2(const Vec6 &ek);
+  std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
+  gradhess_taylor_12_3(const Vec6 &ek);
+  std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
+  gradhess_taylor_12_4(const Vec6 &ek);
+  std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
+  gradhess_taylor_12_5(const Vec6 &ek);
 };
 
 } // namespace hylc

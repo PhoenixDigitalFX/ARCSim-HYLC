@@ -1,0 +1,15 @@
+Real c1 = ek(1);
+Real c10 = ekscale(1);
+Real c14 = Power(c1,2);
+Real c15 = Power(c10,-3);
+Real c17 = ek(0);
+Real c18 = -1 + c17;
+Real c19 = ekscale(0);
+Real c23 = Power(c10,-2);
+Real c21 = 1/c19;
+Real c29 = 1/c10;
+Real c25 = Power(c18,2);
+Real c26 = Power(c19,-2);
+Real c11 = Power(c10,-4);
+out(0) = 4*C14*Power(c1,3)*c11 + 3*C13*c14*c15 + 3*C0113*c14*c15*c18*c21 + 2*C12*c1*c23 + 2*C0112*c1*c18*c21*c23 + 2*C0122*c1*c23*c25*c26 + C11*c29 + (C0131*Power(c18,3)*c29)/Power(c19,3) + C0111*c18*c21*c29 + C0121*c25*c26*c29;
+out(1) = 12*C14*c11*c14 + 6*C13*c1*c15 + 6*C0113*c1*c15*c18*c21 + 2*C12*c23 + 2*C0112*c18*c21*c23 + 2*C0122*c23*c25*c26;
