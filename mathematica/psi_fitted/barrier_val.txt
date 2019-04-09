@@ -1,0 +1,1 @@
+out(0) = s*(Power(ek(0) - ekclamped(0),6)/Power(ekscale(0),6) + Power(ek(1) - ekclamped(1),6)/Power(ekscale(1),6) + Power(ek(2) - ekclamped(2),6)/Power(ekscale(2),6) + Power(ek(3) - ekclamped(3),6)/Power(ekscale(3),6) + Power(ek(4) - ekclamped(4),6)/Power(ekscale(4),6) + Power(ek(5) - ekclamped(5),6)/Power(ekscale(5),6));

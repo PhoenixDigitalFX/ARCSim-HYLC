@@ -603,6 +603,116 @@ gradhess_type FittedMaterial::gradhess_taylor_0(const strain_type &ek) {
   return std::make_pair(hess, grad);
 }
 
+value_type FittedMaterial::psi_barrier(const strain_type &ek,
+                                       const Vec6 &ekclamped) {
+  return s * (Power(ek(0) - ekclamped(0), 6) / Power(ekscale(0), 6) +
+              Power(ek(1) - ekclamped(1), 6) / Power(ekscale(1), 6) +
+              Power(ek(2) - ekclamped(2), 6) / Power(ekscale(2), 6) +
+              Power(ek(3) - ekclamped(3), 6) / Power(ekscale(3), 6) +
+              Power(ek(4) - ekclamped(4), 6) / Power(ekscale(4), 6) +
+              Power(ek(5) - ekclamped(5), 6) / Power(ekscale(5), 6));
+}
+grad_type FittedMaterial::grad_barrier(const strain_type &ek,
+                                       const Vec6 &ekclamped) {
+  Vec6 out(0);
+  out(0) = (6 * s * Power(ek(0) - ekclamped(0), 5)) / Power(ekscale(0), 6);
+  out(1) = (6 * s * Power(ek(1) - ekclamped(1), 5)) / Power(ekscale(1), 6);
+  out(2) = (6 * s * Power(ek(2) - ekclamped(2), 5)) / Power(ekscale(2), 6);
+  out(3) = (6 * s * Power(ek(3) - ekclamped(3), 5)) / Power(ekscale(3), 6);
+  out(4) = (6 * s * Power(ek(4) - ekclamped(4), 5)) / Power(ekscale(4), 6);
+  out(5) = (6 * s * Power(ek(5) - ekclamped(5), 5)) / Power(ekscale(5), 6);
+
+  return out;
+}
+gradhess_type FittedMaterial::gradhess_barrier(const strain_type &ek,
+                                               const Vec6 &ekclamped) {
+  // define output
+  Mat6x6 hess(0);
+  Vec6 grad(0);
+  auto out1 = [&](int i) -> Real & { return grad[i]; };
+  auto out2 = [&](int i, int j) -> Real & { return hess(i, j); };
+
+  Real c1 = ek(0);
+  Real c2 = ekclamped(0);
+  Real c4 = -c2;
+  Real c5 = c1 + c4;
+  Real c7 = ekscale(0);
+  Real c8 = Power(c7, -6);
+  Real c10 = ek(1);
+  Real c11 = ekclamped(1);
+  Real c12 = -c11;
+  Real c14 = c10 + c12;
+  Real c16 = ekscale(1);
+  Real c17 = Power(c16, -6);
+  Real c19 = ek(2);
+  Real c21 = ekclamped(2);
+  Real c22 = -c21;
+  Real c23 = c19 + c22;
+  Real c25 = ekscale(2);
+  Real c26 = Power(c25, -6);
+  Real c28 = ek(3);
+  Real c29 = ekclamped(3);
+  Real c30 = -c29;
+  Real c31 = c28 + c30;
+  Real c33 = ekscale(3);
+  Real c34 = Power(c33, -6);
+  Real c36 = ek(4);
+  Real c37 = ekclamped(4);
+  Real c38 = -c37;
+  Real c39 = c36 + c38;
+  Real c42 = ekscale(4);
+  Real c43 = Power(c42, -6);
+  Real c45 = ek(5);
+  Real c46 = ekclamped(5);
+  Real c47 = -c46;
+  Real c48 = c45 + c47;
+  Real c50 = ekscale(5);
+  Real c51 = Power(c50, -6);
+  out1(0) = 6 * s * Power(c5, 5) * c8;
+  out1(1) = 6 * s * Power(c14, 5) * c17;
+  out1(2) = 6 * s * Power(c23, 5) * c26;
+  out1(3) = 6 * s * Power(c31, 5) * c34;
+  out1(4) = 6 * s * Power(c39, 5) * c43;
+  out1(5) = 6 * s * Power(c48, 5) * c51;
+  out2(0, 0) = 30 * s * Power(c5, 4) * c8;
+  out2(0, 1) = 0;
+  out2(0, 2) = 0;
+  out2(0, 3) = 0;
+  out2(0, 4) = 0;
+  out2(0, 5) = 0;
+  out2(1, 0) = 0;
+  out2(1, 1) = 30 * s * Power(c14, 4) * c17;
+  out2(1, 2) = 0;
+  out2(1, 3) = 0;
+  out2(1, 4) = 0;
+  out2(1, 5) = 0;
+  out2(2, 0) = 0;
+  out2(2, 1) = 0;
+  out2(2, 2) = 30 * s * Power(c23, 4) * c26;
+  out2(2, 3) = 0;
+  out2(2, 4) = 0;
+  out2(2, 5) = 0;
+  out2(3, 0) = 0;
+  out2(3, 1) = 0;
+  out2(3, 2) = 0;
+  out2(3, 3) = 30 * s * Power(c31, 4) * c34;
+  out2(3, 4) = 0;
+  out2(3, 5) = 0;
+  out2(4, 0) = 0;
+  out2(4, 1) = 0;
+  out2(4, 2) = 0;
+  out2(4, 3) = 0;
+  out2(4, 4) = 30 * s * Power(c39, 4) * c43;
+  out2(4, 5) = 0;
+  out2(5, 0) = 0;
+  out2(5, 1) = 0;
+  out2(5, 2) = 0;
+  out2(5, 3) = 0;
+  out2(5, 4) = 0;
+  out2(5, 5) = 30 * s * Power(c48, 4) * c51;
+  return std::make_pair(hess, grad);
+}
+
 // 1st and 2nd derivative of psi, grad, tuple<grad,hess> for 2nd order taylor
 // wrt ek[0 ... 5]
 // -------------- values -------------- //

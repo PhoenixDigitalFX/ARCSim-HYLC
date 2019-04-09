@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     80641,       2103]
-NotebookOptionsPosition[     77390,       2025]
-NotebookOutlinePosition[     77726,       2040]
-CellTagsIndexPosition[     77683,       2037]
+NotebookDataLength[     85346,       2221]
+NotebookOptionsPosition[     81989,       2141]
+NotebookOutlinePosition[     82325,       2156]
+CellTagsIndexPosition[     82282,       2153]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -1442,6 +1442,122 @@ Cell[BoxData["\<\"val d, val dd, grad d, grad dd, hess d, hess dd for \
 }, Open  ]],
 
 Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{"(*", " ", "barrier", " ", "*)"}], "\[IndentingNewLine]", 
+  "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"barrier", "[", "d_", "]"}], " ", ":=", " ", 
+    RowBox[{"s", " ", 
+     RowBox[{"Total", "[", 
+      RowBox[{"Table", "[", 
+       RowBox[{
+        SuperscriptBox[
+         RowBox[{"d", "[", 
+          RowBox[{"[", "i", "]"}], "]"}], "6"], ",", 
+        RowBox[{"{", 
+         RowBox[{"i", ",", "1", ",", "6"}], "}"}]}], "]"}], "]"}]}]}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"\[Epsilon]\[Kappa]", " ", "=", " ", 
+     RowBox[{"FunctionArray", "[", 
+      RowBox[{"\"\<ek\>\"", ",", "6"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"\[Epsilon]\[Kappa]clamped", " ", "=", " ", 
+     RowBox[{"FunctionArray", "[", 
+      RowBox[{"\"\<ekclamped\>\"", ",", "6"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"\[Epsilon]\[Kappa]dist", " ", "=", " ", 
+     RowBox[{"Table", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"\[Epsilon]\[Kappa]", "[", 
+           RowBox[{"[", "i", "]"}], "]"}], " ", "-", " ", 
+          RowBox[{"\[Epsilon]\[Kappa]clamped", "[", 
+           RowBox[{"[", "i", "]"}], "]"}]}], ")"}], "/", 
+        RowBox[{
+         RowBox[{"FunctionArray", "[", 
+          RowBox[{"\"\<ekscale\>\"", ",", "6"}], "]"}], "[", 
+         RowBox[{"[", "i", "]"}], "]"}]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"i", ",", "1", ",", "6"}], "}"}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"simplifyTimes", "=", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "180"}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"assumptions", " ", "=", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"Variables", "[", 
+        RowBox[{"Level", "[", 
+         RowBox[{
+          RowBox[{"psi", "[", "\[Epsilon]\[Kappa]normed", "]"}], " ", ",", 
+          RowBox[{"{", "0", "}"}]}], "]"}], "]"}], " ", "\[Element]", " ", 
+       "Reals"}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"SetDirectory", " ", "@", " ", 
+     RowBox[{"NotebookDirectory", "[", "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"opt1", " ", "=", " ", 
+     RowBox[{"Quiet", "[", 
+      RowBox[{"Simplify", "[", 
+       RowBox[{
+        RowBox[{"barrier", "[", "\[Epsilon]\[Kappa]dist", "]"}], " ", ",", 
+        RowBox[{"TimeConstraint", "\[Rule]", "simplifyTimes"}], ",", " ", 
+        RowBox[{"Assumptions", "\[Rule]", "assumptions"}]}], "]"}], "]"}]}], 
+    ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"WriteToFile", "[", 
+     RowBox[{"\"\<barrier_val.txt\>\"", ",", " ", 
+      RowBox[{"OptimizeExpressionToC", "[", 
+       RowBox[{"{", "opt1", "}"}], "]"}]}], "]"}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"opt2", " ", "=", " ", 
+     RowBox[{"Quiet", "[", 
+      RowBox[{"Simplify", "[", 
+       RowBox[{
+        RowBox[{"Grad", "[", 
+         RowBox[{"opt1", ",", "\[Epsilon]\[Kappa]"}], "]"}], ",", 
+        RowBox[{"TimeConstraint", "\[Rule]", "simplifyTimes"}], ",", " ", 
+        RowBox[{"Assumptions", "\[Rule]", "assumptions"}]}], "]"}], "]"}]}], 
+    ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"WriteToFile", "[", 
+     RowBox[{"\"\<barrier_grad.txt\>\"", ",", " ", 
+      RowBox[{"OptimizeExpressionToC", "[", "opt2", "]"}]}], "]"}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"opt3", " ", "=", " ", 
+     RowBox[{"Quiet", "[", 
+      RowBox[{"Simplify", "[", 
+       RowBox[{
+        RowBox[{"Grad", "[", 
+         RowBox[{"opt2", ",", "\[Epsilon]\[Kappa]"}], "]"}], ",", 
+        RowBox[{"TimeConstraint", "\[Rule]", "simplifyTimes"}], ",", " ", 
+        RowBox[{"Assumptions", "\[Rule]", "assumptions"}]}], "]"}], "]"}]}], 
+    ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"WriteToFile", "[", 
+     RowBox[{"\"\<barrier_gradhess.txt\>\"", ",", " ", 
+      RowBox[{"OptimizeExpressionToC", "[", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"opt2", ",", "opt3"}], "}"}], ",", "True"}], "]"}]}], "]"}], 
+    ";"}], "\[IndentingNewLine]"}]}]], "Input",
+ CellChangeTimes->{{3.763711890202764*^9, 3.7637119146905107`*^9}, {
+  3.76371220608073*^9, 3.763712247831872*^9}, {3.763712283367219*^9, 
+  3.763712300358861*^9}, {3.763712361190846*^9, 3.763712541485285*^9}, {
+  3.763712609844548*^9, 
+  3.76371267815589*^9}},ExpressionUUID->"8e14a896-3474-4389-98a3-\
+4fdea547e4b4"],
+
+Cell[BoxData[
  RowBox[{"\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
   "\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
   "\[IndentingNewLine]", "\[IndentingNewLine]", 
@@ -2041,7 +2157,7 @@ CellTagsIndex->{}
 Notebook[{
 Cell[558, 20, 156, 3, 32, "Input", "ExpressionUUID" -> \
 "ce7a8f21-2a7b-4df1-9a21-5d4ea3d14c5d"],
-Cell[717, 25, 11661, 288, 608, "Input", "ExpressionUUID" -> \
+Cell[717, 25, 11661, 288, 641, "Input", "ExpressionUUID" -> \
 "3612ea70-5f38-4e37-bd1b-6c0b5a9bdcae"],
 Cell[12381, 315, 10396, 269, 650, "Input", "ExpressionUUID" -> \
 "4776e7ad-a76c-49e4-b3e9-6cbde6d13ec3"],
@@ -2089,20 +2205,22 @@ Cell[55236, 1435, 240, 4, 24, "Print", "ExpressionUUID" -> \
 "b96ac247-c530-46de-bad8-11d676394cbd"]
 }, Open  ]]
 }, Open  ]],
-Cell[55503, 1443, 376, 7, 231, "Input", "ExpressionUUID" -> \
+Cell[55503, 1443, 4596, 114, 522, "Input", "ExpressionUUID" -> \
+"8e14a896-3474-4389-98a3-4fdea547e4b4"],
+Cell[60102, 1559, 376, 7, 231, "Input", "ExpressionUUID" -> \
 "160a8d72-e357-456b-856f-0603505aa090"],
-Cell[55882, 1452, 8325, 200, 512, "Input", "ExpressionUUID" -> \
+Cell[60481, 1568, 8325, 200, 512, "Input", "ExpressionUUID" -> \
 "3e7e2a88-e90f-4b35-8ccc-0a8b67bcba39"],
 Cell[CellGroupData[{
-Cell[64232, 1656, 921, 15, 99, "Input", "ExpressionUUID" -> \
+Cell[68831, 1772, 921, 15, 99, "Input", "ExpressionUUID" -> \
 "21e8f103-87d1-4bf6-9114-992f7095dff3"],
-Cell[65156, 1673, 10009, 310, 165, "Output", "ExpressionUUID" -> \
+Cell[69755, 1789, 10009, 310, 165, "Output", "ExpressionUUID" -> \
 "76bf3edd-c4ef-4ca6-895d-1d7cdf52750c"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[75202, 1988, 256, 6, 32, "Input", "ExpressionUUID" -> \
+Cell[79801, 2104, 256, 6, 32, "Input", "ExpressionUUID" -> \
 "4bca066b-acf3-431e-afb2-0d90de032b54"],
-Cell[75461, 1996, 1913, 26, 630, "Output", "ExpressionUUID" -> \
+Cell[80060, 2112, 1913, 26, 630, "Output", "ExpressionUUID" -> \
 "10d18bf2-bbb1-4dc1-a1c8-5d290fc0eb6e"]
 }, Open  ]]
 }

@@ -8,6 +8,7 @@ FittedMaterial::FittedMaterial(int type) {
 
   ek_min = {0.6, -0.5, 0.6, -50, -50, -50};
   ek_max = {1.5, 0.5, 1.5, 50, 50, 50};
+  s = 1;
 
   std::cout << "Loading Material " << type << "\n";
   switch (type) {
@@ -450,6 +451,7 @@ FittedMaterial::FittedMaterial(int type) {
   // C3522 = 0;
   // C3531 = 0;
   // density *= 0.1;
+  s *= 1e-3;
 }
 
 void FittedMaterial::clamp_strains(Vec6 &ek, std::vector<int> &clamped_coords,
@@ -486,23 +488,24 @@ double FittedMaterial::psi(const Vec6 &ek) {
   // dek_i^2
   out = psi_taylor_0(
       ekclamped); //  const taylor part, actual energy if not clamped
-  for (size_t i = 0; i < clamped_coords.size(); i++) {
-    int coord = clamped_coords[i];
-    double d = dek[i];
-
-    //
-    // std::cout<<"clamping "<<i<<" w distance "<<d<<"\n"
-    std::pair<double, double> psi_D = psi_taylor_12_i(ekclamped, coord);
-
-    double tgrad = psi_D.first;
-    if (d < 0)
-      tgrad = std::min(-min_taylor_grad, tgrad);
-    else
-      tgrad = std::max(min_taylor_grad, tgrad);
-    double crv = psi_D.second;
-    crv = std::max(min_taylor_hess, crv);
-    out += tgrad * d + crv * (0.5 * d * d);
-  }
+  // for (size_t i = 0; i < clamped_coords.size(); i++) {
+  //   int coord = clamped_coords[i];
+  //   double d = dek[i];
+  //
+  //   //
+  //   // std::cout<<"clamping "<<i<<" w distance "<<d<<"\n"
+  //   std::pair<double, double> psi_D = psi_taylor_12_i(ekclamped, coord);
+  //
+  //   double tgrad = psi_D.first;
+  //   if (d < 0)
+  //     tgrad = std::min(-min_taylor_grad, tgrad);
+  //   else
+  //     tgrad = std::max(min_taylor_grad, tgrad);
+  //   double crv = psi_D.second;
+  //   crv = std::max(min_taylor_hess, crv);
+  //   out += tgrad * d + crv * (0.5 * d * d);
+  // }
+  out += psi_barrier(ek, ekclamped);
 
   return out;
 }
@@ -518,24 +521,26 @@ Vec6 FittedMaterial::psi_grad(const Vec6 &ek) {
   Vec6 out(0);
   out = grad_taylor_0(
       ekclamped); //  const taylor part, actual energy if not clamped
-  for (size_t i = 0; i < clamped_coords.size(); i++) {
-    int coord = clamped_coords[i];
-    double d = dek[i];
+  // for (size_t i = 0; i < clamped_coords.size(); i++) {
+  //   int coord = clamped_coords[i];
+  //   double d = dek[i];
+  //
+  //   std::pair<Vec6, Vec6> grad_D = grad_taylor_12_i(ekclamped, coord);
+  //
+  //   Vec6 tgrad = grad_D.first;
+  //   if (d < 0)
+  //     for (int i = 0; i < 6; ++i)
+  //       tgrad(i) = std::min(-min_taylor_grad, tgrad(i));
+  //   else
+  //     for (int i = 0; i < 6; ++i)
+  //       tgrad(i) = std::max(min_taylor_grad, tgrad(i));
+  //   Vec6 crv = grad_D.second;
+  //   for (int i = 0; i < 6; ++i)
+  //     crv(i) = std::max(min_taylor_hess, crv(i));
+  //   out += tgrad * d + crv * (0.5 * d * d);
+  // }
+  out += grad_barrier(ek, ekclamped);
 
-    std::pair<Vec6, Vec6> grad_D = grad_taylor_12_i(ekclamped, coord);
-
-    Vec6 tgrad = grad_D.first;
-    if (d < 0)
-      for (int i = 0; i < 6; ++i)
-        tgrad(i) = std::min(-min_taylor_grad, tgrad(i));
-    else
-      for (int i = 0; i < 6; ++i)
-        tgrad(i) = std::max(min_taylor_grad, tgrad(i));
-    Vec6 crv = grad_D.second;
-    for (int i = 0; i < 6; ++i)
-      crv(i) = std::max(min_taylor_hess, crv(i));
-    out += tgrad * d + crv * (0.5 * d * d);
-  }
   return out;
 }
 
@@ -555,40 +560,44 @@ std::pair<Mat6x6, Vec6> FittedMaterial::psi_drv(const Vec6 &ek) {
       ekclamped); //  const taylor part, actual energy if not clamped
   hess += gh0.first;
   grad += gh0.second;
-  for (size_t i = 0; i < clamped_coords.size(); i++) {
-    int coord = clamped_coords[i];
-    double d = dek[i];
-
-    // {{hD,gD},{hDD,gDD}}
-    auto gh_D = gradhess_taylor_12_i(ekclamped, coord);
-
-    Vec6 tgradgrad = gh_D.first.second;
-    Mat6x6 tgradhess = gh_D.first.first;
-    if (d < 0) {
-      for (int i = 0; i < 6; ++i)
-        tgradgrad(i) = std::min(-min_taylor_grad, tgradgrad(i));
-      for (int i = 0; i < 6; ++i)
-        for (int j = 0; j < 6; ++i)
-          tgradhess(i, j) = std::min(-min_taylor_grad, tgradhess(i, j));
-    } else {
-      for (int i = 0; i < 6; ++i)
-        tgradgrad(i) = std::max(min_taylor_grad, tgradgrad(i));
-      for (int i = 0; i < 6; ++i)
-        for (int j = 0; j < 6; ++i)
-          tgradhess(i, j) = std::max(min_taylor_grad, tgradhess(i, j));
-    }
-
-    Vec6 crvgrad = gh_D.second.second;
-    for (int i = 0; i < 6; ++i)
-      crvgrad(i) = std::max(min_taylor_hess, crvgrad(i));
-    Mat6x6 crvhess = gh_D.second.first;
-    for (int i = 0; i < 6; ++i)
-      for (int j = 0; j < 6; ++i)
-        crvhess(i, j) = std::max(min_taylor_hess, crvhess(i, j));
-
-    hess += tgradhess * d + crvhess * (0.5 * d * d);
-    grad += tgradgrad * d + crvgrad * (0.5 * d * d);
-  }
+  // for (size_t i = 0; i < clamped_coords.size(); i++) {
+  //   int coord = clamped_coords[i];
+  //   double d = dek[i];
+  //
+  //   // {{hD,gD},{hDD,gDD}}
+  //   auto gh_D = gradhess_taylor_12_i(ekclamped, coord);
+  //
+  //   Vec6 tgradgrad = gh_D.first.second;
+  //   Mat6x6 tgradhess = gh_D.first.first;
+  //   if (d < 0) {
+  //     for (int i = 0; i < 6; ++i)
+  //       tgradgrad(i) = std::min(-min_taylor_grad, tgradgrad(i));
+  //     for (int i = 0; i < 6; ++i)
+  //       for (int j = 0; j < 6; ++i)
+  //         tgradhess(i, j) = std::min(-min_taylor_grad, tgradhess(i, j));
+  //   } else {
+  //     for (int i = 0; i < 6; ++i)
+  //       tgradgrad(i) = std::max(min_taylor_grad, tgradgrad(i));
+  //     for (int i = 0; i < 6; ++i)
+  //       for (int j = 0; j < 6; ++i)
+  //         tgradhess(i, j) = std::max(min_taylor_grad, tgradhess(i, j));
+  //   }
+  //
+  //   Vec6 crvgrad = gh_D.second.second;
+  //   for (int i = 0; i < 6; ++i)
+  //     crvgrad(i) = std::max(min_taylor_hess, crvgrad(i));
+  //   Mat6x6 crvhess = gh_D.second.first;
+  //   for (int i = 0; i < 6; ++i)
+  //     for (int j = 0; j < 6; ++i)
+  //       crvhess(i, j) = std::max(min_taylor_hess, crvhess(i, j));
+  //
+  //   hess += tgradhess * d + crvhess * (0.5 * d * d);
+  //   grad += tgradgrad * d + crvgrad * (0.5 * d * d);
+  // }
+  auto ghB = gradhess_barrier(ek,
+      ekclamped); //  const taylor part, actual energy if not clamped
+  hess += ghB.first;
+  grad += ghB.second;
 
   return std::make_pair(hess, grad);
 }

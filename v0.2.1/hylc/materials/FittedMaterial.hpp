@@ -33,6 +33,13 @@ private:
   double min_taylor_grad = 0.0;
   double min_taylor_hess = 1e-5;
 
+
+  // barrier
+  double s;
+  double psi_barrier(const Vec6 &ek,const Vec6 &ekclamped);
+  Vec6 grad_barrier(const Vec6 &ek,const Vec6 &ekclamped);
+  std::pair<Mat6x6, Vec6> gradhess_barrier(const Vec6 &ek,const Vec6 &ekclamped);
+
   // 0th derivative, i.e. actual values
   double psi_taylor_0(const Vec6 &ek);
   Vec6 grad_taylor_0(const Vec6 &ek);
