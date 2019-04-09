@@ -1,21 +1,29 @@
 {
     "hylc": {
         "enabled": true,
-        "type": 1 // -1 analytic, 0 knit, 1 knit, 2 woven, 3 woven
+        "type": 0 // -1 analytic, 0 knit, 1 knit, 2 woven, 3 woven
         //"a0": 0,
         //"a1": 0,
         //"b0": 0,
         //"b1": 0
     },
-    "disable": ["remeshing"],
+    /* "disable": ["remeshing"], */
     "implicit": false,
     "explicit_massdamping": 1e-1, // maybe even lower
     "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.04,
-    "frame_steps": 400,
+    "frame_steps": 800,
     "end_time": 10,
     "cloths": [{
-        "mesh": "meshes/square.obj",
+        "remeshing": {
+            "refine_angle": 0.3,
+            "refine_compression": 0.005,
+            "refine_velocity": 0.5,
+            //"size": [10e-3, 200e-3],
+            "size": [1e-2, 1e-2],
+            "aspect_min": 0.2
+        },
+        "mesh": "meshes/square4.obj",
         "transform": {"scale": 0.1, "translate": [-0.05, -0.1, 0.2]},
         "materials": [{"data": "materials/gray-interlock.json",
                        "thicken": 2}]
@@ -36,5 +44,6 @@
     "gravity": [0, 0, -9.8],
     "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6,
 	      "relax_initial_state": false,
-              "fixed_high_res_mesh": true}
+              "fixed_high_res_mesh": true
+            }
 }
