@@ -54,7 +54,8 @@ else:
         "conf/hylc_sphere_noremesh.json",
         "conf/hylc_sphere.json",
         "conf/hylc_stretchx.json",
-        "conf/hylc_stretchy.json"
+        "conf/hylc_stretchy.json",
+        "conf/hylc_shearx.json"
     ][int(args['conf'])]
 
 simargs = unknownargs # remaining args

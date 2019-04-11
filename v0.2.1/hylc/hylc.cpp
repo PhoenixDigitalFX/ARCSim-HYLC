@@ -52,8 +52,8 @@ std::shared_ptr<BaseMaterial> get_material() {
       for (int j = 0; j < 15; ++j) {
         Vec6 ekcopy = ektst;
         double b = j * 1.0 / 15;
-        ekcopy(0) = (1 - a) * 0.1 + a * 3.5;
-        ekcopy(2) = (1 - b) * 0.1 + b * 3.5;
+        ekcopy(0) = (1 - a) * -0.1 + a * 0.5;
+        ekcopy(2) = (1 - b) * -0.1 + b * 0.5;
         // ekcopy(5) = (1 - b) * -150 + b * 150;
         double psi = global_material->psi(ekcopy);
         std::cout << ekcopy(0) << ", " << ekcopy(2) << ", " << psi << ", ";

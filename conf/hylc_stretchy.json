@@ -13,7 +13,7 @@
     "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
     "frame_steps": 500,
-    "end_time": 10, // TODO
+    "end_time": 1.0, // TODO
     "cloths": [{
         "remeshing": {
             "refine_angle": 0.3,
