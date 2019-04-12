@@ -9,7 +9,7 @@
     },
     "disable": ["remeshing"],
     "implicit": false,
-    "explicit_massdamping": 1e0,
+    "explicit_massdamping": 1e1, // high
     "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
     "frame_steps": 500,
@@ -23,8 +23,8 @@
             "size": [1e-2, 1e-2],
             "aspect_min": 0.2
         },
-        /* "mesh": "meshes/square.obj", */
-        "mesh": "meshes/hylc_square1.obj",
+        /* "mesh": "meshes/hylc_square0p.obj", */
+        "mesh": "meshes/hylc_square1p.obj",
         "transform": {"scale": 0.1, "translate": [-0.05, -0.1, 0.2]},
         "materials": [{"data": "materials/gray-interlock.json",
                        "thicken": 2}]

@@ -56,7 +56,7 @@ std::shared_ptr<BaseMaterial> get_material() {
         ekcopy(2) = (1 - b) * -0.1 + b * 0.5;
         // ekcopy(5) = (1 - b) * -150 + b * 150;
         double psi = global_material->psi(ekcopy);
-        std::cout << ekcopy(0) << ", " << ekcopy(2) << ", " << psi << ", ";
+        printf("%.10e, %.10e, %.10e, ", ekcopy(0),ekcopy(2), psi);
       }
     }
     std::cout << "\n\n\n\n";

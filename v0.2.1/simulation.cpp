@@ -193,7 +193,7 @@ void physics_step(Simulation &sim, const vector<Constraint *> &cons) {
     step_mesh(*sim.obstacle_meshes[o], sim.step_time);
   sim.timers[physics].tock();
 
-  printf("Step time: %.2e\n", sim.timers[physics].last);
+  printf("Step [t=%.5f]: %.2e\n", sim.time, sim.timers[physics].last);
 }
 
 void step_mesh(Mesh &mesh, double dt) {
