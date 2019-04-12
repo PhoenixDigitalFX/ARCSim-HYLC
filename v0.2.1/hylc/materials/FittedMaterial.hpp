@@ -36,7 +36,7 @@ private:
          C2531 = 0, C3411 = 0, C3412 = 0, C3421 = 0, C3413 = 0, C3422 = 0,
          C3431 = 0, C3511 = 0, C3512 = 0, C3521 = 0, C3513 = 0, C3522 = 0,
          C3531 = 0, C4511 = 0, C4512 = 0, C4521 = 0, C4513 = 0, C4522 = 0,
-         C4531 = 0;
+         C4531 = 0, Ccompr0 = 0, Ccompr1 = 0;
   std::vector<double> ek_min, ek_max; // TODO from pydata
 
   bool clamp_strains(Vec6 &ek, std::vector<int> &clamped_coords,
@@ -50,6 +50,10 @@ private:
   Vec6 grad_barrier(const Vec6 &ek, const Vec6 &ekclamped);
   std::pair<Mat6x6, Vec6> gradhess_barrier(const Vec6 &ek,
                                            const Vec6 &ekclamped);
+
+  double psi_compr(const Vec6 &ek);
+  Vec6 grad_compr(const Vec6 &ek);
+  std::pair<Mat6x6, Vec6> gradhess_compr(const Vec6 &ek);
 
   // 0th derivative, i.e. actual values
   double psi_taylor_0(const Vec6 &ek);

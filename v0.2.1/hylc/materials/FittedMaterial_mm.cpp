@@ -986,3 +986,96 @@ gradhess_type FittedMaterial::gradhess_barrier(const strain_type &ek,
       BARRIERPOWER * bscale * copt103 * copt31 * Power(copt76, copt80) * copt79;
   return std::make_pair(hess, grad);
 }
+
+double FittedMaterial::psi_compr(const Vec6 &ek) {
+  Real copt1 = ek(0);
+  Real copt5 = ek(2);
+  Real copt18 = copt1 * copt5;
+  Real copt23 = Ccompr1 + copt18;
+  Real copt26 = 1 / copt23;
+  return Ccompr0 * copt26;
+}
+
+Vec6 FittedMaterial::grad_compr(const Vec6 &ek) {
+  Vec6 out(0);
+  Real copt5 = ek(0);
+  Real copt1 = ek(2);
+  Real copt18 = copt1 * copt5;
+  Real copt23 = Ccompr1 + copt18;
+  Real copt26 = Power(copt23, 2);
+  Real copt29 = 1 / copt26;
+  out(0) = -(Ccompr0 * copt1 * copt29);
+  out(1) = 0;
+  out(2) = -(Ccompr0 * copt29 * copt5);
+  out(3) = 0;
+  out(4) = 0;
+  out(5) = 0;
+  return out;
+}
+
+std::pair<Mat6x6, Vec6> FittedMaterial::gradhess_compr(const Vec6 &ek) {
+
+  // define output
+  Mat6x6 hess(0);
+  Vec6 grad(0);
+  auto out1 = [&](int i) -> Real & { return grad[i]; };
+  auto out2 = [&](int i, int j) -> Real & { return hess(i, j); };
+
+  Real copt5 = ek(0);
+  Real copt1 = ek(2);
+  Real copt18 = copt1 * copt5;
+  Real copt23 = Ccompr1 + copt18;
+  Real copt26 = Power(copt23, 2);
+  Real copt29 = 1 / copt26;
+  Real copt32 = Power(copt1, 2);
+  Real copt33 = copt23 * copt26;
+  Real copt34 = 1 / copt33;
+  Real copt36 = -Ccompr1;
+  Real copt37 = copt18 + copt36;
+  Real copt38 = Ccompr0 * copt34 * copt37;
+  Real copt39 = Power(copt5, 2);
+  out1(0) = -(Ccompr0 * copt1 * copt29);
+  out1(1) = 0;
+  out1(2) = -(Ccompr0 * copt29 * copt5);
+  out1(3) = 0;
+  out1(4) = 0;
+  out1(5) = 0;
+  out2(0, 0) = 2 * Ccompr0 * copt32 * copt34;
+  out2(0, 1) = 0;
+  out2(0, 2) = copt38;
+  out2(0, 3) = 0;
+  out2(0, 4) = 0;
+  out2(0, 5) = 0;
+  out2(1, 0) = 0;
+  out2(1, 1) = 0;
+  out2(1, 2) = 0;
+  out2(1, 3) = 0;
+  out2(1, 4) = 0;
+  out2(1, 5) = 0;
+  out2(2, 0) = copt38;
+  out2(2, 1) = 0;
+  out2(2, 2) = 2 * Ccompr0 * copt34 * copt39;
+  out2(2, 3) = 0;
+  out2(2, 4) = 0;
+  out2(2, 5) = 0;
+  out2(3, 0) = 0;
+  out2(3, 1) = 0;
+  out2(3, 2) = 0;
+  out2(3, 3) = 0;
+  out2(3, 4) = 0;
+  out2(3, 5) = 0;
+  out2(4, 0) = 0;
+  out2(4, 1) = 0;
+  out2(4, 2) = 0;
+  out2(4, 3) = 0;
+  out2(4, 4) = 0;
+  out2(4, 5) = 0;
+  out2(5, 0) = 0;
+  out2(5, 1) = 0;
+  out2(5, 2) = 0;
+  out2(5, 3) = 0;
+  out2(5, 4) = 0;
+  out2(5, 5) = 0;
+
+  return std::make_pair(hess, grad);
+}

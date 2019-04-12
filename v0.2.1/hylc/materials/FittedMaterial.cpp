@@ -6,15 +6,16 @@ using namespace hylc::mathematica;
 #include <iostream>
 FittedMaterial::FittedMaterial(int type) {
 
-
-  bspeed = 1e1; // barrier strength // TODO, also maybe barrier not 6th order TODO
+  bspeed =
+      1e1; // barrier strength // TODO, also maybe barrier not 6th order TODO
   bscale = 1e2;
-  // if barrier is 4th order and bspeed is 10 but strain is normalized same way then it should grow 10^4 times faster ?
+  // if barrier is 4th order and bspeed is 10 but strain is normalized same way
+  // then it should grow 10^4 times faster ?
 
   std::cout << "Loading Material " << type << "\n";
   // TODO switch or subclass with other constructor
   density = 4.8530851068e-01;
-  ek_min = {0.3, -0.8, 0.3, -70, -40, -70}; // TODO measure bounds vs barrier?
+  ek_min = {0.0, -0.8, 0.0, -70, -40, -70}; // TODO measure bounds vs barrier?
   ek_max = {4.0, 0.8, 4.0, 70, 40, 70};
   // ek_min = {0.1, -2, 0.1, -300, -100, -300}; // TODO <--- confidence
   // ek_max = {7.0, 2, 7.0, 300, 100, 300};
@@ -27,85 +28,87 @@ FittedMaterial::FittedMaterial(int type) {
   ekscale[3] = 1.399864101000000e+02;
   ekscale[4] = 3.546223147500000e+01;
   ekscale[5] = 1.399860782000000e+02;
-  double bendmult = 1;//1e2;
-  C0    = -2.377419535288772e+00;
-  C01   = -6.353491632007823e+00;
-  C02   = 2.592702012390881e+02;
-  C03   = -4.250956455651524e+02;
-  C04   = 2.332829716578757e+02;
-  C11   = 8.629258760186682e-01;
-  C12   = 3.072934731374260e+01;
-  C13   = -2.139756725664153e-01;
-  C14   = 1.314536054295262e+01;
-  C21   = -9.183306964792202e+00;
-  C22   = 1.884982131987582e+02;
-  C23   = -2.650059360980511e+02;
-  C24   = 1.438318992599692e+02;
-  C31   = bendmult*4.826001482726263e-01;
-  C32   = bendmult*1.812581445312619e+01;
-  C33   = bendmult*-4.203978104893830e-01;
-  C34   = bendmult*1.093866293185757e-07;
-  C41   = bendmult*-4.743176262124552e-02;
-  C42   = bendmult*5.976623978295525e+00;
-  C43   = bendmult*1.227988766966033e-01;
-  C44   = bendmult*1.000000000000001e-10;
-  C51   = bendmult*1.253486154329573e+00;
-  C52   = bendmult*1.879349915716852e+01;
-  C53   = bendmult*5.514722220845923e-01;
-  C54   = bendmult*2.810403860094979e-10;
-  C0111 = -2.448591773295877e+00;
-  C0112 = -1.035849737305243e+02;
-  C0121 = -2.379095122747371e+00;
-  C0113 = 1.341023677501257e+00;
-  C0122 = 6.895544677906587e+01;
-  C0131 = 3.527446260668672e+00;
-  C1211 = -8.655932889920050e+00;
-  C1221 = -7.594521842691807e+01;
-  C1212 = 5.911568344154627e+00;
-  C1231 = 1.000000023160279e-10;
-  C1222 = 5.290854575246620e+01;
-  C1213 = 3.270235067773814e-10;
-  C0211 = 2.609697882234321e+02;
-  C0212 = -2.183919890524269e+02;
-  C0221 = -1.438762325694731e+02;
-  C0213 = 5.974622381041176e+01;
-  C0222 = 2.108509821644536e+02;
-  C0231 = 1.329545128607632e+01;
-  C0311 = 1.049208549298532e+01;
-  C0312 = -6.889265572956786e+01;
-  C0321 = -1.060916969807765e+01;
-  C0313 = 2.492782701540272e-01;
-  C0322 = 5.097943832059515e+01;
-  C0331 = 2.553620077984803e+00;
-  C2511 = -9.528691969971483e+00;
-  C2512 = -6.663247849733990e+01;
-  C2521 = 8.441030251921262e+00;
-  C2513 = 1.000000014669581e-10;
-  C2522 = 5.097116884220844e+01;
-  C2531 = 1.000000000763121e-10;
-  C3511 = 4.186805370886005e-01;
-  C3512 = -1.995054403583357e-01;
-  C3521 = -7.077077308421980e+00;
-  C3513 = 1.000000000077098e-10;
-  C3522 = 3.107621786093128e+02;
-  C3531 = 1.000469198978339e-10;
+  double bendmult = 1; // 1e2;
+  C0 = -3.173365863561212e+00;
+  C01 = 1.274173003488781e+01;
+  C02 = 4.747231875296465e+01;
+  C03 = -4.480497102275712e-01;
+  C04 = 1.000000062449521e-10;
+  C11 = -8.254626670431638e-02;
+  C12 = 1.694450101740435e+01;
+  C13 = 8.856231617824880e-01;
+  C14 = 1.249142869700673e+01;
+  C21 = 1.293384050109903e+01;
+  C22 = 2.304301037900553e+01;
+  C23 = 2.279546080079567e+01;
+  C24 = 1.000000002700019e-10;
+  C31 = 4.271820882958070e-01;
+  C32 = 7.105730259356392e+00;
+  C33 = -4.512893307033707e-01;
+  C34 = 3.346153921544564e-03;
+  C41 = -4.596599884973425e-02;
+  C42 = 9.500414130012255e-01;
+  C43 = 1.210041988288516e-01;
+  C44 = 1.000000000000354e-10;
+  C51 = 2.692952968668278e-01;
+  C52 = 3.674778093960921e+00;
+  C53 = 7.009053310225889e-01;
+  C54 = 9.843922790388412e-01;
+  C0111 = 1.228169641433861e+00;
+  C0112 = -4.178450046639179e+01;
+  C0121 = -8.272436924352622e+00;
+  C0113 = 1.722200262355749e-01;
+  C0122 = 1.968737309207855e+01;
+  C0131 = 6.832757413035157e+00;
+  C1211 = -6.091033484877289e+00;
+  C1221 = -2.184350879510441e+01;
+  C1212 = 3.540093247569986e+00;
+  C1231 = 1.000000424511114e-10;
+  C1222 = 1.031121344118416e+01;
+  C1213 = 1.077358510766908e-10;
+  C0211 = 1.295350875922079e+01;
+  C0212 = 8.264307218082685e+01;
+  C0221 = 1.171109934061652e+02;
+  C0213 = 1.000031758144436e-10;
+  C0222 = 1.000000216137947e-10;
+  C0231 = 1.000003346836002e-10;
+  C0311 = 1.198363764520588e+01;
+  C0312 = -2.174293040442834e+01;
+  C0321 = -1.487177753497701e+01;
+  C0313 = 1.814448778738220e-01;
+  C0322 = 1.300367900051241e+01;
+  C0331 = 5.491209974476847e+00;
+  C2511 = -5.298133748971060e+00;
+  C2512 = -1.424386818243591e+01;
+  C2521 = 5.424247859338142e+00;
+  C2513 = 1.656680848353157e-10;
+  C2522 = 1.104873452274377e+01;
+  C2531 = 1.055998868359542e-10;
+  C3511 = 3.179424187234492e-01;
+  C3512 = 1.829232842834747e-01;
+  C3521 = 6.183366848611576e+00;
+  C3513 = 1.000000021229392e-10;
+  C3522 = 7.392664856532826e+01;
+  C3531 = 6.904746092521139e+00;
+  Ccompr0 = 4.078976900696096e+00;
+  Ccompr1 = 1.518191854741584e-02;
 }
 
 bool FittedMaterial::clamp_strains(Vec6 &ek, std::vector<int> &clamped_coords,
                                    std::vector<double> &dek) {
-  bool clamped=false;
+  bool clamped = false;
   for (int i = 0; i < 6; ++i) {
     if (ek[i] < ek_min[i]) {
       clamped_coords.push_back(i);
       dek.push_back(ek[i] - ek_min[i]); // (ek - ekclamped)
       ek[i] = ek_min[i];
-      clamped=true;
+      clamped = true;
       // std::cout<<"clamping min "<<i<<" w distance "<<ek[i] - ek_min[i]<<"\n";
     } else if (ek[i] > ek_max[i]) {
       clamped_coords.push_back(i);
       dek.push_back(ek[i] - ek_max[i]); // (ek - ekclamped)
       ek[i] = ek_max[i];
-      clamped=true;
+      clamped = true;
       // std::cout<<"clamping max "<<i<<" w distance "<<ek[i] - ek_min[i]<<"\n";
     }
   }
@@ -134,7 +137,7 @@ double FittedMaterial::psi(const Vec6 &ek) {
   //   double d = dek[i];
   //
   //   //
-//   // std::cout<<"clamping "<<i<<" w distance "<<d<<"\n"
+  //   // std::cout<<"clamping "<<i<<" w distance "<<d<<"\n"
   //   std::pair<double, double> psi_D = psi_taylor_12_i(ekclamped, coord);
   //
   //   double tgrad = psi_D.first;
@@ -147,6 +150,7 @@ double FittedMaterial::psi(const Vec6 &ek) {
   //   out += tgrad * d + crv * (0.5 * d * d);
   // }
   out += psi_barrier(ek, ekclamped);
+  out += psi_compr(ek);
 
   return out;
 }
@@ -181,6 +185,7 @@ Vec6 FittedMaterial::psi_grad(const Vec6 &ek) {
   //   out += tgrad * d + crv * (0.5 * d * d);
   // }
   out += grad_barrier(ek, ekclamped);
+  out += grad_compr(ek);
 
   return out;
 }
@@ -197,10 +202,11 @@ std::pair<Mat6x6, Vec6> FittedMaterial::psi_drv(const Vec6 &ek) {
   Mat6x6 hess(0);
   Vec6 grad(0);
 
-  auto gh0 = gradhess_taylor_0(
-      ekclamped); //  const taylor part, actual energy if not clamped
-  hess += gh0.first;
-  grad += gh0.second;
+    auto gh0 = gradhess_taylor_0(
+        ekclamped); //  const taylor part, actual energy if not clamped
+    hess += gh0.first;
+    grad += gh0.second;
+
   // for (size_t i = 0; i < clamped_coords.size(); i++) {
   //   int coord = clamped_coords[i];
   //   double d = dek[i];
@@ -237,9 +243,15 @@ std::pair<Mat6x6, Vec6> FittedMaterial::psi_drv(const Vec6 &ek) {
   // }
   auto ghB = gradhess_barrier(
       ek,
-      ekclamped); //  const taylor part, actual energy if not clamped
+      ekclamped);
   hess += ghB.first;
   grad += ghB.second;
+
+
+  auto ghC = gradhess_compr(
+      ek);
+  hess += ghC.first;
+  grad += ghC.second;
 
   return std::make_pair(hess, grad);
 }

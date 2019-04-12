@@ -8,19 +8,20 @@
         //"b1": 0
     },
     "disable": ["remeshing"],
-    "implicit": false,
+    "implicit": true,
     "explicit_massdamping": 1e-1, // maybe even lower
     "explicit_stretchdamping": 1e-2, // stiffest term
-    "frame_time": 0.04,
-    "frame_steps": 160,
+    "frame_time": 0.0167,
+    "frame_steps": 10,
     "end_time": 10,
     "cloths": [{
-        "mesh": "meshes/square.obj",
+        /* "mesh": "meshes/square.obj", */
+        "mesh": "meshes/hylc_square1p.obj",
         "transform": {"translate": [-0.5, -1, 0.5]},
         /* "transform": {"scale": 0.1, "translate": [-0.05, -0.1, 0.2]}, */
         // "transform": {"translate": [0.5, 0, 0.5]},
         "materials": [{"data": "materials/gray-interlock.json",
-                       "thicken": 2}]
+                       "thicken": 2, "damping": 1e-2}]
     }],
     "handles": [{"nodes": [2,3], "end_time": 7}],
     "motions": [[

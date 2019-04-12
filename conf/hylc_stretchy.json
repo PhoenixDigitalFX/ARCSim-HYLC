@@ -27,7 +27,7 @@
         "mesh": "meshes/hylc_square1p.obj",
         "transform": {"scale": 0.1, "translate": [-0.05, -0.1, 0.2]},
         "materials": [{"data": "materials/gray-interlock.json",
-                       "thicken": 2}]
+                       "thicken": 2, "damping": 1e-3}]
     }],
     "motions": [[
         {"time": 0, "transform": {"translate": [0,0,0]}},
