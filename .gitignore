@@ -1,5 +1,7 @@
 # offline simulation data
 offline_sims/
+# vscode
+.vscode*
 # compiled stuff
 build*/
 # other stuff

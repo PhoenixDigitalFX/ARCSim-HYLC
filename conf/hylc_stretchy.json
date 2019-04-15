@@ -8,11 +8,11 @@
         //"b1": 0
     },
     "disable": ["remeshing"],
-    "implicit": false,
+    "implicit": true,
     "explicit_massdamping": 1e1, // high
     "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
-    "frame_steps": 500,
+    "frame_steps": 10,
     "end_time": 1.0, // TODO
     "cloths": [{
         "remeshing": {
@@ -48,6 +48,7 @@
     ],
     "gravity": [0, 0, -9.8],
     "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6,
+        "handle_stiffness": 1e6, // default 1e3
 	      "relax_initial_state": false,
               "fixed_high_res_mesh": true
             }
