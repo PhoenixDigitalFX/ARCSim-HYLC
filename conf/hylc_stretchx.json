@@ -34,8 +34,8 @@
       {"nodes": [2,1], "motion": 1}
     ], */
     "handlebars": [
-      {"side": 0, "motion": 0},
-      {"side": 2, "motion": 1}
+      {"side": 0, "lengthp": 0.75, "widthp": 0.25, "insetp": 0.0, "motion": 0},
+      {"side": 2, "lengthp": 0.75, "widthp": 0.25, "insetp": 0.0, "motion": 1}
     ],
     "gravity": [0, 0, -9.8],
     "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6,

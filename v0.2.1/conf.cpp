@@ -426,30 +426,38 @@ void parse_handlebar(vector<Handle *> &hans, const Json::Value &json,
   int side;
   parse(side, json["side"], 0); // 0-left, 1-bottom, 2-right, 3-top
   int nhans = hans.size();
+  
+  double widthp,lengthp,insetp;
+  parse(widthp,json["widthp"],0.0); // % of other side have as size
+  parse(lengthp,json["lengthp"],1.0); // % of side to cover
+  parse(insetp,json["insetp"],0.0); // % of other side to inset
 
+  double offset = 0.5 * (1.0 - lengthp); // how much to offset start and stop
+  // widthp = max(widthp, 1e-5); // min size to numerically cover at least a line
+  Vec2 extents = umax - umin;
   Vec2 from, to;
   if (side == 0) { // left
-    from(0) = umin(0);
-    from(1) = umin(1);
-    to(0) = umin(0);
-    to(1) = umax(1);
+    from(0) = umin(0) + insetp * extents(0) - 0.5 * widthp * extents(0);
+    from(1) = umin(1) + offset * extents(1);
+    to(0) = umin(0) + insetp * extents(0) + 0.5 * widthp * extents(0);
+    to(1) = umax(1) - offset * extents(1);
   } else if (side == 1) { // bottom
-    from(0) = umin(0);
-    from(1) = umin(1);
-    to(0) = umax(0);
-    to(1) = umin(1);
+    from(0) = umin(0) + offset * extents(0);
+    from(1) = umin(1) + insetp * extents(1) - 0.5 * widthp * extents(1);
+    to(0) = umax(0) - offset * extents(0);
+    to(1) = umin(1) + insetp * extents(1) + 0.5 * widthp * extents(1);
   } else if (side == 2) { // right
-    from(0) = umax(0);
-    from(1) = umin(1);
-    to(0) = umax(0);
-    to(1) = umax(1);
+    from(0) = umax(0) - insetp * extents(0) - 0.5 * widthp * extents(0);
+    from(1) = umin(1) + offset * extents(1);
+    to(0) = umax(0) - insetp * extents(0) + 0.5 * widthp * extents(0);
+    to(1) = umax(1) - offset * extents(1);
   } else { // top
-    from(0) = umin(0);
-    from(1) = umax(1);
-    to(0) = umax(0);
-    to(1) = umax(1);
+    from(0) = umin(0) + offset * extents(0);
+    from(1) = umax(1) - insetp * extents(1) - 0.5 * widthp * extents(1);
+    to(0) = umax(0) - offset * extents(0);
+    to(1) = umax(1) - insetp * extents(1) + 0.5 * widthp * extents(1);
   }
-  // fatten
+  // fatten numerically
   double w = 1e-5;
   from(0) -= w;
   from(1) -= w;
