@@ -818,7 +818,7 @@ gradhess_type FittedMaterial::gradhess_taylor_0(const strain_type &ek) {
   return std::make_pair(hess, grad);
 }
 
-#define BARRIERPOWER 4 // should be even integer!
+#define BARRIERPOWER 6 // should be even integer!
 value_type FittedMaterial::psi_barrier(const strain_type &ek,
                                        const strain_type &ekclamped) {
   Real copt106 = ekscale(0);
