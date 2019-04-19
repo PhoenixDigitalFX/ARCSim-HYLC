@@ -1,7 +1,7 @@
 {
     "hylc": {
         "enabled": true,
-        "type": 0 // -1 analytic, 0 knit, 1 knit, 2 woven, 3 woven
+        "type": 3 // -1 analytic, 0 knit, 1 knit, 2 woven, 3 woven
         //"a0": 0,
         //"a1": 0,
         //"b0": 0,

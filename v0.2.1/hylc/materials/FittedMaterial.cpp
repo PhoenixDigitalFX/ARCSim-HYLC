@@ -368,9 +368,13 @@ double FittedMaterial::psi(const Vec6 &ek) {
   //   crv = std::max(min_taylor_hess, crv);
   //   out += tgrad * d + crv * (0.5 * d * d);
   // }
-  if (use_barrier) out += psi_barrier(ek, ekclamped);
+
   out += psi_compr(ek);
 
+  for(int i = 3; i < 6; i++)
+    ekclamped(i) = ek(i); // pretend that distance is 0 for bending strains
+  if (use_barrier) out += psi_barrier(ek, ekclamped);
+  
   return out;
 }
 
@@ -404,8 +408,11 @@ Vec6 FittedMaterial::psi_grad(const Vec6 &ek) {
   //     crv(i) = std::max(min_taylor_hess, crv(i));
   //   out += tgrad * d + crv * (0.5 * d * d);
   // }
-  if (use_barrier) out += grad_barrier(ek, ekclamped);
   out += grad_compr(ek);
+
+  for(int i = 3; i < 6; i++)
+    ekclamped(i) = ek(i); // pretend that distance is 0 for bending strains
+  if (use_barrier) out += grad_barrier(ek, ekclamped);
 
   return out;
 }
@@ -461,14 +468,18 @@ std::pair<Mat6x6, Vec6> FittedMaterial::psi_drv(const Vec6 &ek) {
   //   hess += tgradhess * d + crvhess * (0.5 * d * d);
   //   grad += tgradgrad * d + crvgrad * (0.5 * d * d);
   // }
+
+  auto ghC = gradhess_compr(ek);
+  hess += ghC.first;
+  grad += ghC.second;
+
+  for(int i = 3; i < 6; i++)
+    ekclamped(i) = ek(i); // pretend that distance is 0 for bending strains
   if (use_barrier) {
     auto ghB = gradhess_barrier(ek, ekclamped);
     hess += ghB.first;
     grad += ghB.second;
   }
-  auto ghC = gradhess_compr(ek);
-  hess += ghC.first;
-  grad += ghC.second;
 
   return std::make_pair(hess, grad);
 }
