@@ -2,6 +2,7 @@
 offline_sims/
 # compiled stuff
 build*/
+.vscode*
 # other stuff
 *.kdev4
 *~
