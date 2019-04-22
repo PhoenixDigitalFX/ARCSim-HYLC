@@ -1,8 +1,19 @@
 // Dress on female character
 // Narain et al. 2012, Figure 10(a)
 {
-    "frame_time": 0.04,
-    "frame_steps": 8,
+    "hylc": {
+        "enabled": true,
+        "type": 3 
+        //"a0": 0,
+        //"a1": 0,
+        //"b0": 0,
+        //"b1": 0
+    },
+    "implicit": true,
+
+    "frame_time": 0.0167,
+    "frame_steps": 50,
+
     "end_time": 20,
     "cloths": [{
         "mesh": "meshes/dress4.obj",
@@ -12,7 +23,8 @@
             "refine_angle": 0.3,
             "refine_compression": 0.01,
             "refine_velocity": 0.5,
-            "size": [10e-3, 200e-3],
+            "size": [30e-3, 30e-3],
+            // "size": [10e-3, 200e-3],
             "aspect_min": 0.2
         }
     }],
@@ -27,5 +39,8 @@
     "obstacles": "meshes/female-objs/body%04d.obj",
     "gravity": [0, 0, -9.8],
     "disable": ["popfilter"],
-    "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6}
+    "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6,
+        "relax_initial_state": true, // kind of imporant for the sim
+        "fixed_high_res_mesh": true
+    }
 }

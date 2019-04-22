@@ -1,0 +1,6 @@
+out(0) = (6*s*Power(ek(0) - ekclamped(0),5))/Power(ekscale(0),6);
+out(1) = (6*s*Power(ek(1) - ekclamped(1),5))/Power(ekscale(1),6);
+out(2) = (6*s*Power(ek(2) - ekclamped(2),5))/Power(ekscale(2),6);
+out(3) = (6*s*Power(ek(3) - ekclamped(3),5))/Power(ekscale(3),6);
+out(4) = (6*s*Power(ek(4) - ekclamped(4),5))/Power(ekscale(4),6);
+out(5) = (6*s*Power(ek(5) - ekclamped(5),5))/Power(ekscale(5),6);

@@ -1,1 +1,13 @@
-out(0) = s*(Power(ek(0) - ekclamped(0),6)/Power(ekscale(0),6) + Power(ek(1) - ekclamped(1),6)/Power(ekscale(1),6) + Power(ek(2) - ekclamped(2),6)/Power(ekscale(2),6) + Power(ek(3) - ekclamped(3),6)/Power(ekscale(3),6) + Power(ek(4) - ekclamped(4),6)/Power(ekscale(4),6) + Power(ek(5) - ekclamped(5),6)/Power(ekscale(5),6));
+Real copt106 = ekscale(0);
+Real copt107 = 1/copt106;
+Real copt120 = ekscale(1);
+Real copt121 = 1/copt120;
+Real copt132 = ekscale(2);
+Real copt133 = 1/copt132;
+Real copt148 = ekscale(3);
+Real copt149 = 1/copt148;
+Real copt158 = ekscale(4);
+Real copt159 = 1/copt158;
+Real copt166 = ekscale(5);
+Real copt167 = 1/copt166;
+out(0) = bscale*(Power(bspeed*copt107*(ek(0) - ekclamped(0)),BARRIERPOWER) + Power(bspeed*copt121*(ek(1) - ekclamped(1)),BARRIERPOWER) + Power(bspeed*copt133*(ek(2) - ekclamped(2)),BARRIERPOWER) + Power(bspeed*copt149*(ek(3) - ekclamped(3)),BARRIERPOWER) + Power(bspeed*copt159*(ek(4) - ekclamped(4)),BARRIERPOWER) + Power(bspeed*copt167*(ek(5) - ekclamped(5)),BARRIERPOWER));

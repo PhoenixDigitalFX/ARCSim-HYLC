@@ -1,0 +1,12 @@
+Real copt5 = ek(0);
+Real copt1 = ek(2);
+Real copt18 = copt1*copt5;
+Real copt23 = Ccompr1 + copt18;
+Real copt26 = Power(copt23,2);
+Real copt29 = 1/copt26;
+out(0) = -(Ccompr0*copt1*copt29);
+out(1) = 0;
+out(2) = -(Ccompr0*copt29*copt5);
+out(3) = 0;
+out(4) = 0;
+out(5) = 0;
