@@ -44,7 +44,7 @@ executable = os.path.join(builddir, "bin", "arcsim_0.2.1")
 # from workdir call
 # ./build-Release/bin/arcsim_0.2.1 $op $configfile ${3}
 
-# operation: simulate, simulateoffline etc.
+# operation: simulate, simulateoffline, replay etc.
 op = args['op']
 # configfile
 if args['conf'].endswith(".json"):
@@ -61,6 +61,9 @@ else:
 simargs = unknownargs # remaining args
 print("Executing:", executable)
 try:
-    subprocess.check_call([executable, op, conf] + simargs, cwd=workdir)
+    if op == "replay":
+        subprocess.check_call([executable, op] + simargs, cwd=workdir)
+    else:
+        subprocess.check_call([executable, op, conf] + simargs, cwd=workdir)
 except KeyboardInterrupt:
     print("PY: Aborting execution")

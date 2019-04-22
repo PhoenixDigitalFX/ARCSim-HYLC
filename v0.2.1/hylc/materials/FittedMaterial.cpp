@@ -237,8 +237,8 @@ FittedMaterial::FittedMaterial(int type) {
     Ccompr1 = 7.530058687210900e-02;
   } else if (type == 3) {  // left diagonal
     ek_min = {0.0,  -0.8, 0.0,
-              -100, -70, -100};  // TODO measure bounds vs barrier?
-    ek_max = {4.0, 0.8, 4.0, 100, 70, 100}; // sampling bounds here..
+              -100, -70,  -100};             // TODO measure bounds vs barrier?
+    ek_max = {4.0, 0.8, 4.0, 100, 70, 100};  // sampling bounds here..
     density = 4.5347352190e-01;
     ekscale[0] = 3.000000000000000e+00;
     ekscale[1] = 1.600000000000000e+00;
@@ -343,7 +343,6 @@ double FittedMaterial::psi(const Vec6 &ek) {
   clamp_strains(ekclamped, clamped_coords, dek);
 
   double out = 0;
-  // std::cout<<ekclamped[0]<<" from "<<ek[0]<<"\n\n";
 
   // if unclamped dek is 0 and only actual energy remains
   // psi(ek + dek) = psi(ek) + dpsid_i(ek) * dek_i + 0.5 * dpsidd_i(ek) *
@@ -371,10 +370,10 @@ double FittedMaterial::psi(const Vec6 &ek) {
 
   out += psi_compr(ek);
 
-  for(int i = 3; i < 6; i++)
-    ekclamped(i) = ek(i); // pretend that distance is 0 for bending strains
+  for (int i = 3; i < 6; i++)
+    ekclamped(i) = ek(i);  // pretend that distance is 0 for bending strains
   if (use_barrier) out += psi_barrier(ek, ekclamped);
-  
+
   return out;
 }
 
@@ -410,8 +409,8 @@ Vec6 FittedMaterial::psi_grad(const Vec6 &ek) {
   // }
   out += grad_compr(ek);
 
-  for(int i = 3; i < 6; i++)
-    ekclamped(i) = ek(i); // pretend that distance is 0 for bending strains
+  for (int i = 3; i < 6; i++)
+    ekclamped(i) = ek(i);  // pretend that distance is 0 for bending strains
   if (use_barrier) out += grad_barrier(ek, ekclamped);
 
   return out;
@@ -424,6 +423,13 @@ std::pair<Mat6x6, Vec6> FittedMaterial::psi_drv(const Vec6 &ek) {
   std::vector<double> dek;  // (ei - clamped(ei)) Taylor distance
   dek.reserve(6);
   clamp_strains(ekclamped, clamped_coords, dek);
+
+  // if (ek[5] < -50) {
+  //   for (int i = 0; i < 6; i++) {
+  //     std::cout << "  " << ek[i] << " --> " << ekclamped[i] << "\n";
+  //   }
+  //   std::cout << "\n";
+  // }
 
   Mat6x6 hess(0);
   Vec6 grad(0);
@@ -473,8 +479,8 @@ std::pair<Mat6x6, Vec6> FittedMaterial::psi_drv(const Vec6 &ek) {
   hess += ghC.first;
   grad += ghC.second;
 
-  for(int i = 3; i < 6; i++)
-    ekclamped(i) = ek(i); // pretend that distance is 0 for bending strains
+  for (int i = 3; i < 6; i++)
+    ekclamped(i) = ek(i);  // pretend that distance is 0 for bending strains
   if (use_barrier) {
     auto ghB = gradhess_barrier(ek, ekclamped);
     hess += ghB.first;

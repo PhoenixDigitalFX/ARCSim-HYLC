@@ -3,7 +3,7 @@
 {
     "hylc": {
         "enabled": true,
-        "type": 3 
+        "type": 1 
         //"a0": 0,
         //"a1": 0,
         //"b0": 0,
@@ -26,7 +26,7 @@
             "refine_angle": 0.3,
             "refine_compression": 0.01,
             "refine_velocity": 0.5,
-            "size": [70e-3, 70e-3],
+            "size": [20e-3, 70e-3],
             // "size": [10e-3, 200e-3],
             "aspect_min": 0.2
         }
@@ -43,7 +43,7 @@
     "gravity": [0, 0, -9.8],
     "disable": ["popfilter"],
     "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6,
-        "relax_initial_state": true, // kind of imporant for the sim
-        "fixed_high_res_mesh": true
+        "relax_initial_state": true//, // kind of imporant for the sim
+        //"fixed_high_res_mesh": true
     }
 }

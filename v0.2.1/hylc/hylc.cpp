@@ -202,13 +202,40 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   t1 *= (double)nn1_exists;
   t2 *= (double)nn2_exists;
 
+  double Acpy = A;
+  bool debug_localize = false; //TODO also other methods
+  Mat2x2 tile;
+  tile(0,0) = 0.032;
+  tile(1,0) = 0.0;
+  tile(0,1) = 0.0;
+  tile(1,1) = 0.02;
+  if (debug_localize) {
+    if (nn0_exists) {
+      t0 = normalize(t0);
+      l0 = norm(tile * t0);
+    }
+    if (nn1_exists) {
+      t1 = normalize(t1);
+      l1 = norm(tile * t1);
+    }
+    if (nn2_exists) {
+      t2 = normalize(t2);
+      l2 = norm(tile * t2);
+    }
+    Acpy = 1.0; // sum
+    // Acpy = 1.0/3.0; // avg
+  }
+
+
+  // std::cout<<"TRI INFO\n"<<l0<<" "<<norm(t0)<<", "<<l1<<" "<<norm(t1)<<", "<<l2<<" "<<norm(t2)<<"; "<<A<<"\n\n";
+
   // 1. mmcpp compute epsilon, kappa as vec6 ek, and simulatenous grad and hess
   std::tuple<std::vector<Mat18x18>, Mat6x18, Vec6> ek_hgv;
   if (config.eklinear) // linear angle in curvature tensor
-    ek_hgv = mm::eklinear_valdrv(xlocal, invDm, A, theta_rest0, theta_rest1,
+    ek_hgv = mm::eklinear_valdrv(xlocal, invDm, Acpy, theta_rest0, theta_rest1,
                                  theta_rest2, l0, l1, l2, t0, t1, t2);
   else // 2tan(theta/2) in curvature tensor
-    ek_hgv = mm::ek_valdrv(xlocal, invDm, A, theta_rest0, theta_rest1,
+    ek_hgv = mm::ek_valdrv(xlocal, invDm, Acpy, theta_rest0, theta_rest1,
                            theta_rest2, l0, l1, l2, t0, t1, t2);
 
   Vec6 &ek = std::get<2>(ek_hgv);

@@ -17,7 +17,7 @@
     "cloths": [{
         /* "mesh": "meshes/square.obj", */
         // "mesh": "meshes/hylc_square1p.obj",
-        "mesh": "meshes/hylc_square2p.obj",
+        "mesh": "meshes/hylc_square1p.obj",
         "transform": {"translate": [-0.5, -1, 0.5]},
         /* "transform": {"scale": 0.1, "translate": [-0.05, -0.1, 0.2]}, */
         // "transform": {"translate": [0.5, 0, 0.5]},

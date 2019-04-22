@@ -12,7 +12,7 @@
     "explicit_massdamping": 1e1, // high
     "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
-    "frame_steps": 10, // implicit works even with 10!, explicit 500ish
+    "frame_steps": 5, // implicit works even with 10!, explicit 500ish
     "end_time": 0.8, // TODO
     "cloths": [{
         /* "mesh": "meshes/square.obj", */
