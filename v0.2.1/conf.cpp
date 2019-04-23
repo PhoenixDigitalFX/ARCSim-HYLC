@@ -75,6 +75,8 @@ void parse_handles(vector<Handle *> &, const Json::Value &,
                    const vector<Cloth> &, const vector<Motion> &);
 void parse_handlebars(vector<Handle *> &, const Json::Value &,
                       const vector<Cloth> &, const vector<Motion> &);
+void parse_handlespheres(vector<Handle *> &, const Json::Value &,
+                      const vector<Cloth> &, const vector<Motion> &);
 void parse_obstacles(vector<Obstacle> &, const Json::Value &,
                      const vector<Motion> &);
 void parse_morphs(vector<Morph> &, const Json::Value &, const vector<Cloth> &);
@@ -112,6 +114,7 @@ void load_json(const string &configFilename, Simulation &sim) {
   parse_motions(sim.motions, json["motions"]);
   parse_handles(sim.handles, json["handles"], sim.cloths, sim.motions);
   parse_handlebars(sim.handles, json["handlebars"], sim.cloths, sim.motions);
+  parse_handlespheres(sim.handles, json["handlespheres"], sim.cloths, sim.motions);
   parse_obstacles(sim.obstacles, json["obstacles"], sim.motions);
   parse_morphs(sim.morphs, json["morphs"], sim.cloths);
   parse(sim.gravity, json["gravity"], Vec3(0));
@@ -349,6 +352,8 @@ void parse_handle(vector<Handle *> &, const Json::Value &,
 void parse_handlebar(vector<Handle *> &, const Json::Value &,
                      const vector<Cloth> &, const vector<Motion> &,
                      const Vec2 &umin, const Vec2 &umax);
+void parse_handlesphere(vector<Handle *> &, const Json::Value &,
+                     const vector<Cloth> &, const vector<Motion> &);
 
 void parse_handles(vector<Handle *> &hans, const Json::Value &jsons,
                    const vector<Cloth> &cloths, const vector<Motion> &motions) {
@@ -380,6 +385,14 @@ void parse_handlebars(vector<Handle *> &hans, const Json::Value &jsons,
   }
   for (int j = 0; j < jsons.size(); j++)
     parse_handlebar(hans, jsons[j], cloths, motions, umin, umax);
+}
+
+
+void parse_handlespheres(vector<Handle *> &hans, const Json::Value &jsons,
+                      const vector<Cloth> &cloths,
+                      const vector<Motion> &motions) {
+  for (int j = 0; j < jsons.size(); j++)
+    parse_handlesphere(hans, jsons[j], cloths, motions);
 }
 
 void parse_node_handle(vector<Handle *> &hans, const Json::Value &json,
@@ -479,6 +492,45 @@ void parse_handlebar(vector<Handle *> &hans, const Json::Value &json,
     for (int i = 0; i < (int)mesh.verts.size(); i++) { // maybe nodes instead?
       Vec2 &u = mesh.verts[i]->u;
       if (u(0) > from(0) && u(0) < to(0) && u(1) > from(1) && u(1) < to(1))
+        cpynodes.append(mesh.verts[i]->node->index);
+    }
+  }
+
+  // redirect to default node handle parsing with altered json
+  parse_node_handle(hans, cpy, cloths, motions);
+
+  double start_time, end_time, fade_time;
+  parse(start_time, json["start_time"], 0.);
+  parse(end_time, json["end_time"], infinity);
+  parse(fade_time, json["fade_time"], 0.);
+  for (int h = nhans; h < hans.size(); h++) {
+    hans[h]->start_time = start_time;
+    hans[h]->end_time = end_time;
+    hans[h]->fade_time = fade_time;
+  }
+}
+void parse_handlesphere(vector<Handle *> &hans, const Json::Value &json,
+                     const vector<Cloth> &cloths, const vector<Motion> &motions) {
+
+  int nhans = hans.size();
+
+  Vec3 loc(0);
+  double radius;
+  parse(loc, json["center"]);
+  parse(radius, json["radius"]);
+
+  Json::Value cpy(json); // copy with motion info etc.
+  // remove side and replace with nodes
+  cpy.removeMember("center");
+  cpy.removeMember("radius");
+  Json::Value &cpynodes = cpy["nodes"];
+
+  // add respective indices to nodes
+  for (const auto &cloth : cloths) {
+    const Mesh &mesh = cloth.mesh;
+    for (int i = 0; i < (int)mesh.verts.size(); i++) { // maybe nodes instead?
+      Vec3 &x = mesh.verts[i]->node->x;
+      if (norm2(x-loc) <= radius*radius)
         cpynodes.append(mesh.verts[i]->node->index);
     }
   }
