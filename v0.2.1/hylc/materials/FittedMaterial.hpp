@@ -10,14 +10,14 @@ class FittedMaterial : public BaseMaterial {
 public:
   FittedMaterial(int type);
 
-  virtual double psi(const Vec6 &ek);
-  virtual std::pair<Mat6x6, Vec6> psi_drv(const Vec6 &ek);
-  virtual Vec6 psi_grad(const Vec6 &ek);
+  virtual double psi(const Vec6 &strain);
+  virtual std::pair<Mat6x6, Vec6> psi_drv(const Vec6 &strain);
+  virtual Vec6 psi_grad(const Vec6 &strain);
 
 private:
   // base::density
   // coefficients
-  Vec6 ekscale;
+  Vec6 strainscale;
   double C0 = 0, C01 = 0, C02 = 0, C03 = 0, C04 = 0, C11 = 0, C12 = 0, C13 = 0,
          C14 = 0, C21 = 0, C22 = 0, C23 = 0, C24 = 0, C31 = 0, C32 = 0, C33 = 0,
          C34 = 0, C41 = 0, C42 = 0, C43 = 0, C44 = 0, C51 = 0, C52 = 0, C53 = 0,
@@ -37,59 +37,55 @@ private:
          C3431 = 0, C3511 = 0, C3512 = 0, C3521 = 0, C3513 = 0, C3522 = 0,
          C3531 = 0, C4511 = 0, C4512 = 0, C4521 = 0, C4513 = 0, C4522 = 0,
          C4531 = 0, Ccompr0 = 0, Ccompr1 = 0;
-  std::vector<double> ek_min, ek_max; // TODO from pydata
+  std::vector<double> strain_min, strain_max; // TODO from pydata
 
-  bool clamp_strains(Vec6 &ek, std::vector<int> &clamped_coords,
-                     std::vector<double> &dek);
-  double min_taylor_grad = 0.0;
-  double min_taylor_hess = 1e-5;
+  bool clamp_strains(Vec6 &strain, std::vector<int> &clamped_coords,
+                     std::vector<double> &dstrain);
+  // double min_taylor_grad = 0.0;
+  // double min_taylor_hess = 1e-5;
 
   // barrier
   double bspeed, bscale;
   bool use_barrier=true;
-  double psi_barrier(const Vec6 &ek, const Vec6 &ekclamped);
-  Vec6 grad_barrier(const Vec6 &ek, const Vec6 &ekclamped);
-  std::pair<Mat6x6, Vec6> gradhess_barrier(const Vec6 &ek,
-                                           const Vec6 &ekclamped);
-
-  double psi_compr(const Vec6 &ek);
-  Vec6 grad_compr(const Vec6 &ek);
-  std::pair<Mat6x6, Vec6> gradhess_compr(const Vec6 &ek);
+  double psi_barrier(const Vec6 &strain, const Vec6 &strainclamped);
+  Vec6 grad_barrier(const Vec6 &strain, const Vec6 &strainclamped);
+  std::pair<Mat6x6, Vec6> gradhess_barrier(const Vec6 &strain,
+                                           const Vec6 &strainclamped);
 
   // 0th derivative, i.e. actual values
-  double psi_taylor_0(const Vec6 &ek);
-  Vec6 grad_taylor_0(const Vec6 &ek);
-  std::pair<Mat6x6, Vec6> gradhess_taylor_0(const Vec6 &ek);
+  double psi_taylor_0(const Vec6 &strain);
+  Vec6 grad_taylor_0(const Vec6 &strain);
+  std::pair<Mat6x6, Vec6> gradhess_taylor_0(const Vec6 &strain);
   // 1st and 2nd derivative per strain coord for taylor
-  std::pair<double, double> psi_taylor_12_i(const Vec6 &ek, int i);
-  std::pair<Vec6, Vec6> grad_taylor_12_i(const Vec6 &ek, int i);
-  std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
-  gradhess_taylor_12_i(const Vec6 &ek, int i);
+  // std::pair<double, double> psi_taylor_12_i(const Vec6 &ek, int i);
+  // std::pair<Vec6, Vec6> grad_taylor_12_i(const Vec6 &ek, int i);
+  // std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
+  // gradhess_taylor_12_i(const Vec6 &ek, int i);
 
-  std::pair<double, double> psi_taylor_12_0(const Vec6 &ek);
-  std::pair<double, double> psi_taylor_12_1(const Vec6 &ek);
-  std::pair<double, double> psi_taylor_12_2(const Vec6 &ek);
-  std::pair<double, double> psi_taylor_12_3(const Vec6 &ek);
-  std::pair<double, double> psi_taylor_12_4(const Vec6 &ek);
-  std::pair<double, double> psi_taylor_12_5(const Vec6 &ek);
-  std::pair<Vec6, Vec6> grad_taylor_12_0(const Vec6 &ek);
-  std::pair<Vec6, Vec6> grad_taylor_12_1(const Vec6 &ek);
-  std::pair<Vec6, Vec6> grad_taylor_12_2(const Vec6 &ek);
-  std::pair<Vec6, Vec6> grad_taylor_12_3(const Vec6 &ek);
-  std::pair<Vec6, Vec6> grad_taylor_12_4(const Vec6 &ek);
-  std::pair<Vec6, Vec6> grad_taylor_12_5(const Vec6 &ek);
-  std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
-  gradhess_taylor_12_0(const Vec6 &ek);
-  std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
-  gradhess_taylor_12_1(const Vec6 &ek);
-  std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
-  gradhess_taylor_12_2(const Vec6 &ek);
-  std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
-  gradhess_taylor_12_3(const Vec6 &ek);
-  std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
-  gradhess_taylor_12_4(const Vec6 &ek);
-  std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
-  gradhess_taylor_12_5(const Vec6 &ek);
+  // std::pair<double, double> psi_taylor_12_0(const Vec6 &ek);
+  // std::pair<double, double> psi_taylor_12_1(const Vec6 &ek);
+  // std::pair<double, double> psi_taylor_12_2(const Vec6 &ek);
+  // std::pair<double, double> psi_taylor_12_3(const Vec6 &ek);
+  // std::pair<double, double> psi_taylor_12_4(const Vec6 &ek);
+  // std::pair<double, double> psi_taylor_12_5(const Vec6 &ek);
+  // std::pair<Vec6, Vec6> grad_taylor_12_0(const Vec6 &ek);
+  // std::pair<Vec6, Vec6> grad_taylor_12_1(const Vec6 &ek);
+  // std::pair<Vec6, Vec6> grad_taylor_12_2(const Vec6 &ek);
+  // std::pair<Vec6, Vec6> grad_taylor_12_3(const Vec6 &ek);
+  // std::pair<Vec6, Vec6> grad_taylor_12_4(const Vec6 &ek);
+  // std::pair<Vec6, Vec6> grad_taylor_12_5(const Vec6 &ek);
+  // std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
+  // gradhess_taylor_12_0(const Vec6 &ek);
+  // std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
+  // gradhess_taylor_12_1(const Vec6 &ek);
+  // std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
+  // gradhess_taylor_12_2(const Vec6 &ek);
+  // std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
+  // gradhess_taylor_12_3(const Vec6 &ek);
+  // std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
+  // gradhess_taylor_12_4(const Vec6 &ek);
+  // std::pair<std::pair<Mat6x6, Vec6>, std::pair<Mat6x6, Vec6>>
+  // gradhess_taylor_12_5(const Vec6 &ek);
 };
 
 } // namespace hylc
