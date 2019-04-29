@@ -1,7 +1,7 @@
 {
     "hylc": {
         "enabled": true,
-        "type": 3
+        "type": 0
     },
     "disable": ["remeshing"],
     "implicit": true,

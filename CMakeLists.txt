@@ -34,6 +34,7 @@ set(LIBRARY_OUTPUT_PATH    "${PROJECT_BINARY_DIR}/bin")
 
 add_subdirectory(dependencies/alglib)
 add_subdirectory(dependencies/jsoncpp)
+add_subdirectory(dependencies/fitpackpp)
 if(WIN32)
 add_subdirectory(dependencies/zlib)
 add_subdirectory(dependencies/freeglut)

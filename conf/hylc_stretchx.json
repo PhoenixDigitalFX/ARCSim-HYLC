@@ -2,15 +2,11 @@
     "hylc": {
         "enabled": true,
         "type": 0 
-        //"a0": 0,
-        //"a1": 0,
-        //"b0": 0,
-        //"b1": 0
     },
     "disable": ["remeshing"],
     "implicit": true, // currently explicit explodes but implicit works..
-    "explicit_massdamping": 1e1, // high
-    "explicit_stretchdamping": 1e-2, // stiffest term
+    // "explicit_massdamping": 1e1, // high
+    // "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
     "frame_steps": 5, // implicit works even with 10!, explicit 500ish
     "end_time": 0.8, // TODO
@@ -18,16 +14,16 @@
         /* "mesh": "meshes/square.obj", */
         /* "mesh": "meshes/hylc_square0p.obj", */
         "mesh": "meshes/hylc_square1p.obj",
-        "transform": {"scale": 0.1, "translate": [-0.05, -0.1, 0.2]},
+        "transform": {"scale": 0.3, "translate": [-0.15, -0.3, 0.2]},
         "materials": [{"data": "materials/gray-interlock.json",
                        "thicken": 2, "damping": 1e-2}] // high damping for implicit
     }],
     "motions": [[
         {"time": 0, "transform": {"translate": [0,0,0]}},
-        {"time": 0.5, "transform": {"translate": [-0.05,0,0]}}
+        {"time": 0.7, "transform": {"translate": [-0.075,0,0]}}
     ], [
         {"time": 0, "transform": {"translate": [0,0,0]}},
-        {"time": 0.5, "transform": {"translate": [0.05,0,0]}}
+        {"time": 0.7, "transform": {"translate": [0.075,0,0]}}
     ]],
     /* "handles": [
       {"nodes": [3,0], "motion": 0},
@@ -39,7 +35,7 @@
     ],
     "gravity": [0, 0, -9.8],
     "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6,
-        "handle_stiffness": 1e6, // default 1e3
+       // "handle_stiffness": 1e6, // default 1e3
 	      "relax_initial_state": false,
               "fixed_high_res_mesh": true}
 }

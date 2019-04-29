@@ -8,15 +8,14 @@ namespace hylc {
 bool hylc_enabled() { return config.enabled; }
 
 // bad design? store somewhere locally, but rest of arccsim is so global
-std::shared_ptr<BaseMaterial> global_material = nullptr;
 std::shared_ptr<BaseMaterial> get_material() {
-  if (global_material == nullptr) {
+  if (config.material == nullptr) {
     // if (config.material_type < 0)
     //   global_material = std::make_shared<AnalyticMaterial>(
     //       config.a0, config.a1, config.b0, config.b1);
     // else
     
-    global_material = std::make_shared<FittedMaterial>(config.material_type);
+    config.material = std::make_shared<FittedMaterial>(0);
 
     // // TEST PLOT EXTRAPOLATION
     // Vec6 straintst(0);
@@ -62,7 +61,7 @@ std::shared_ptr<BaseMaterial> get_material() {
     // }
     // std::cout << "\n\n\n\n";
   }
-  return global_material;
+  return config.material;
 }
 
 double get_density() { return get_material()->density; }
