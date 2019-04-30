@@ -1,36 +1,28 @@
 {
     "hylc": {
         "enabled": true,
-        // "material": "hylcmaterials/stockinette1.json"
+        "material": "hylcmaterials/stockinette1.json"
         // "material": "hylcmaterials/cartrib1.json"
-        "material": "hylcmaterials/basket1.json"
+        // "material": "hylcmaterials/basket1.json"
     },
     "disable": ["remeshing"],
     "implicit": true,
     // "explicit_massdamping": 1e-1, // maybe even lower
     // "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
-    "frame_steps": 5,
+    "frame_steps": 5000,
     "end_time": 10,
     "cloths": [{
-        // "mesh": "meshes/hylc_square1p.obj",
-        "mesh": "meshes/hylc_square2p.obj",
-        // "transform": {"translate": [-0.5, -1, 0.5]},
-        "transform": {"scale": 0.3, "translate": [-0.15, -0.15, 0.0]},
+        // "mesh": "meshes/sphere.obj",
+        "mesh": "meshes/hylc_bunny2.obj",
+        "transform": {"scale": 0.3, "translate": [-0.05, -0.05, 0.05]},
+        // "transform": {"scale": 1.0, "translate": [-0.15, -0.15, 0.0]},
         "materials": [{"data": "materials/gray-interlock.json",
                        "thicken": 1, "damping": 1e-2}]
     }],
-    // "handles": [{"nodes": [2,3]}
-    "handlespheres": [{
-        "radius": 0.01,
-        "center": [-0.1, 0.1, 0]
-    },{
-        "radius": 0.01,
-        "center": [0.1, 0.1, 0]
-    }],
     "obstacles": [{
-        "mesh": "meshes/sphere.obj",
-        "transform": {"scale": 0.03,"translate": [0.0,0.0,-0.04]}
+        "mesh": "meshes/square.obj",
+        "transform": {"translate": [-0.5,-0.5,-0.5]}
     }],
     "gravity": [0, 0, -9.8],
     "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6,
