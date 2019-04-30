@@ -8,36 +8,47 @@ using namespace fitpackpp;
 SplineMaterial::SplineMaterial() {}
 
 double SplineMaterial::psi(const Vec6 &strain) {
+  double val = 0;
   if (!initialized)
-    return 0;
+    return val;
 
-  // normalize strain
+  // clamp / barrier
   Vec6 X;
-  for (int i = 0; i < 6; i++)
-    if (i > 2)
-      // X(i) =
-      // std::min(std::max(strain(i),this->strain_min(i)),this->strain_max(i));
-      X(i) = strain(i);
-    else
-      X(i) = strain(i);  // TODO THIS WAS MISSING
+  for (int i = 0; i < 6;
+       i++) {  // TODO clamp only bending for 1D but all for 2D?
+               // if (i > 2)
+    X(i) =
+        std::min(std::max(strain(i), this->strain_min(i)), this->strain_max(i));
+    // X(i) = strain(i);
+    // else
+    // X(i) = strain(i);
+  }
 
+  if (use_barrier) {
+    val += psi_barrier(strain, X);
+  }
+
+  // normalize
   for (int i = 0; i < 6; i++)
-    X(i) = (X(i) - this->strainshift(i)) / this->strainscale(i);
+    X(i)     = (X(i) - this->strainshift(i)) / this->strainscale(i);
 
   // const
-  double val = C0;
+  val += C0;
 
   // 1D
   for (auto &spline1d : splines_1d) {
     val += spline1d.spline->eval(X(spline1d.k));
   }
 
-  // 2D
+  // 2D splines old
   for (auto &spline2d : splines_2d) {
     val += spline2d.spline->eval(X(spline2d.k0), X(spline2d.k1));
   }
 
-  // TODO barrier
+  // 2D polys
+  for (auto &poly : polys_2d) {
+    val += poly.eval(X(poly.k0), X(poly.k1));
+  }
 
   return val;
 }
@@ -47,18 +58,25 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
   if (!initialized)
     return grad;
 
-  // normalize strain
+  // clamp / barrier
   Vec6 X;
-  for (int i = 0; i < 6; i++)
-    if (i > 2)
-      // X(i) =
-      // std::min(std::max(strain(i),this->strain_min(i)),this->strain_max(i));
-      X(i) = strain(i);
-    else
-      X(i) = strain(i);  // TODO THIS WAS MISSING
+  for (int i = 0; i < 6;
+       i++) {  // TODO clamp only bending for 1D but all for 2D?
+               // if (i > 2)
+    X(i) =
+        std::min(std::max(strain(i), this->strain_min(i)), this->strain_max(i));
+    // X(i) = strain(i);
+    // else
+    // X(i) = strain(i);
+  }
 
+  if (use_barrier) {
+    grad += grad_barrier(strain, X);
+  }
+
+  // normalize
   for (int i = 0; i < 6; i++)
-    X(i) = (X(i) - this->strainshift(i)) / this->strainscale(i);
+    X(i)     = (X(i) - this->strainshift(i)) / this->strainscale(i);
 
   // 1D
   for (auto &spline1d : splines_1d) {
@@ -66,7 +84,7 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
         spline1d.spline->der(X(spline1d.k), 1) / this->strainscale(spline1d.k);
   }
 
-  // 2D
+  // 2D splines old
   for (auto &spline2d : splines_2d) {
     double x = X(spline2d.k0);
     double y = X(spline2d.k1);
@@ -76,7 +94,13 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
         spline2d.spline->der(x, y, 0, 1) / this->strainscale(spline2d.k1);
   }
 
-  // TODO barrier
+  // 2D polys
+  for (auto &poly : polys_2d) {
+    double x = X(poly.k0);
+    double y = X(poly.k1);
+    grad(poly.k0) += poly.dx(x, y) / this->strainscale(poly.k0);
+    grad(poly.k1) += poly.dy(x, y) / this->strainscale(poly.k1);
+  }
 
   return grad;
 }
@@ -87,18 +111,27 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
   if (!initialized)
     return std::make_pair(hess, grad);
 
-  // normalize strain
+  // clamp / barrier
   Vec6 X;
-  for (int i = 0; i < 6; i++)
-    if (i > 2)
-      // X(i) =
-      // std::min(std::max(strain(i),this->strain_min(i)),this->strain_max(i));
-      X(i) = strain(i);
-    else
-      X(i) = strain(i);  // TODO THIS WAS MISSING
+  for (int i = 0; i < 6;
+       i++) {  // TODO clamp only bending for 1D but all for 2D?
+               // if (i > 2)
+    X(i) =
+        std::min(std::max(strain(i), this->strain_min(i)), this->strain_max(i));
+    // X(i) = strain(i);
+    // else
+    // X(i) = strain(i);
+  }
 
+  if (use_barrier) {
+    auto ghB = gradhess_barrier(strain, X);
+    hess += ghB.first;
+    grad += ghB.second;
+  }
+
+  // normalize
   for (int i = 0; i < 6; i++)
-    X(i) = (X(i) - this->strainshift(i)) / this->strainscale(i);
+    X(i)     = (X(i) - this->strainshift(i)) / this->strainscale(i);
 
   // 1D
   for (auto &spline1d : splines_1d) {
@@ -109,10 +142,10 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
         (this->strainscale(spline1d.k) * this->strainscale(spline1d.k));
   }
 
-  // 2D
+  // 2D splines old
   for (auto &spline2d : splines_2d) {
-    if (!(spline2d.k0==0 && spline2d.k1 == 2))
-      continue;
+    // if (!(spline2d.k0==0 && spline2d.k1 == 2))
+    //   continue;
     // if (!(spline2d.k0<3 && spline2d.k1 <3))
     //   continue;
     double x = X(spline2d.k0);
@@ -135,17 +168,22 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
         (this->strainscale(spline2d.k1) * this->strainscale(spline2d.k1));
   }
 
-  // // TODO BARRIER CLAMP BEFORE EVAL
-  // if (use_barrier) {
-  //   Vec6 strainclamped;
-  //   for (int i = 0; i < 6; i++)
-  //     strainclamped(i) = std::min(std::max(strain(i), this->strain_min(i)),
-  //                                 this->strain_max(i));
+  // 2D polys
+  for (auto &poly : polys_2d) {
+    double x = X(poly.k0);
+    double y = X(poly.k1);
+    grad(poly.k0) += poly.dx(x, y) / this->strainscale(poly.k0);
+    grad(poly.k1) += poly.dy(x, y) / this->strainscale(poly.k1);
 
-  //   auto ghB = gradhess_barrier(strain, strainclamped);
-  //   hess += ghB.first;
-  //   grad += ghB.second;
-  // }
+    hess(poly.k0, poly.k0) += poly.dxdx(x, y) / (this->strainscale(poly.k0) *
+                                                 this->strainscale(poly.k0));
+    double dxdy = poly.dxdy(x, y) /
+                  (this->strainscale(poly.k0) * this->strainscale(poly.k1));
+    hess(poly.k0, poly.k1) += dxdy;
+    hess(poly.k1, poly.k0) += dxdy;
+    hess(poly.k1, poly.k1) += poly.dydy(x, y) / (this->strainscale(poly.k1) *
+                                                 this->strainscale(poly.k1));
+  }
 
   // grad(0) = 1.0;
   return std::make_pair(hess, grad);

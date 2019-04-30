@@ -7,6 +7,7 @@
 
 #include <BSplineCurve.h>
 #include <BSplineSurface.h>
+#include "Poly2D.hpp"
 
 namespace hylc {
 class SplineMaterial : public BaseMaterial {
@@ -30,6 +31,7 @@ class SplineMaterial : public BaseMaterial {
   double C0 = 0;
   std::vector<Spline1D> splines_1d;
   std::vector<Spline2D> splines_2d;
+  std::vector<Poly2D> polys_2d;
 
   Vec6 strainshift;
   Vec6 strainscale;
