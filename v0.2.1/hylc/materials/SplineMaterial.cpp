@@ -135,6 +135,9 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
 
   // 1D
   for (auto &spline1d : splines_1d) {
+    if (spline1d.k == 4)
+    continue; // DEBUG
+
     grad(spline1d.k) +=
         spline1d.spline->der(X(spline1d.k), 1) / this->strainscale(spline1d.k);
     hess(spline1d.k, spline1d.k) +=
@@ -170,6 +173,7 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
 
   // 2D polys
   for (auto &poly : polys_2d) {
+    continue; // DEBUG
     double x = X(poly.k0);
     double y = X(poly.k1);
     grad(poly.k0) += poly.dx(x, y) / this->strainscale(poly.k0);

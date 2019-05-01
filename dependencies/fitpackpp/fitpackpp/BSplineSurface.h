@@ -39,8 +39,7 @@ namespace fitpackpp
 class BSplineSurface
 {
 public:
-	// removed ambiguous constructor
-	// BSplineSurface(std::vector<double> &x, std::vector<double> &y, std::vector<double> &z, int preferredDegree=3, double smoothing=0.0);
+	BSplineSurface(std::vector<double> &x, std::vector<double> &y, std::vector<double> &z, int preferredDegree, double smoothing);
 	BSplineSurface(std::vector<double> &knotX, std::vector<double> &knotY, std::vector<double> &coefs, int degree);
 	BSplineSurface(const std::string &filename);
 

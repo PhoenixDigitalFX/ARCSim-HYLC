@@ -32,6 +32,9 @@ endif(NOT WIN32)
 set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
 set(LIBRARY_OUTPUT_PATH    "${PROJECT_BINARY_DIR}/bin")
 
+
+enable_language(Fortran) # required for fitpackpp
+
 add_subdirectory(dependencies/alglib)
 add_subdirectory(dependencies/jsoncpp)
 add_subdirectory(dependencies/fitpackpp)

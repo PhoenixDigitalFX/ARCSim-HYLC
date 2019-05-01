@@ -50,61 +50,61 @@ extern "C" {
  * The actual degree is chosen such as to be one less than the number of data points, but no higher than preferredDegree.
  * @param smoothing Smoothing factor.  Must be non-negative. Set to 0.0, i.e., no smoothing, by default.
  */
-// BSplineCurve::BSplineCurve(std::vector<double> &x, std::vector<double> &y, int preferredDegree, double smoothing)
-// {
-// 	// Number of data points
-// 	int m = (int) x.size();
+BSplineCurve::BSplineCurve(std::vector<double> &x, std::vector<double> &y, int preferredDegree, double smoothing)
+{
+	// Number of data points
+	int m = (int) x.size();
 
-// 	// The actual degree of the spline must be less than m
-// 	k = preferredDegree;
-// 	if (k >= m) {
-// 		k = m - 1;
+	// The actual degree of the spline must be less than m
+	k = preferredDegree;
+	if (k >= m) {
+		k = m - 1;
 
-// 		std::cerr << "WARNING:  Too few data points (" << m << ") to create B-Spline curve of order " << preferredDegree << ". Reducing order to " << k << "." << std::endl;
-// 	}
+		std::cerr << "WARNING:  Too few data points (" << m << ") to create B-Spline curve of order " << preferredDegree << ". Reducing order to " << k << "." << std::endl;
+	}
 
-// 	// Configure curfit() parameters
-// 	int iopt = 0;                       // Compute a smoothing spline
-// 	int nest = m + k + 1;               // Over-estimate the number of knots
+	// Configure curfit() parameters
+	int iopt = 0;                       // Compute a smoothing spline
+	int nest = m + k + 1;               // Over-estimate the number of knots
 
-// 	// Allocate weighting vector
-// 	double *w = new double[m];
-// 	std::fill(w, w + m, 1.0);
+	// Allocate weighting vector
+	double *w = new double[m];
+	std::fill(w, w + m, 1.0);
 
-// 	// Allocate memory for knots and coefficients
-// 	t = new double[nest];               // Knots
-// 	std::fill(t, t + nest, 0.0);
+	// Allocate memory for knots and coefficients
+	t = new double[nest];               // Knots
+	std::fill(t, t + nest, 0.0);
 
-// 	c = new double[nest];               // Coefficients
-// 	std::fill(c, c + nest, 0.0);
+	c = new double[nest];               // Coefficients
+	std::fill(c, c + nest, 0.0);
 
-// 	double fp = 0.0; // Weighted sum of squared residuals
+	double fp = 0.0; // Weighted sum of squared residuals
 
-// 	// Allocate working memory required by curfit
-// 	int     lwrk = (m * (k + 1) + nest * (7 + 3 * k));
-// 	double *wrk  = new double[lwrk];
-// 	std::fill(wrk, wrk + lwrk, 0.0);
+	// Allocate working memory required by curfit
+	int     lwrk = (m * (k + 1) + nest * (7 + 3 * k));
+	double *wrk  = new double[lwrk];
+	std::fill(wrk, wrk + lwrk, 0.0);
 
-// 	int    *iwrk = new int   [nest];
-// 	std::fill(iwrk, iwrk + nest, 0);
+	int    *iwrk = new int   [nest];
+	std::fill(iwrk, iwrk + nest, 0);
 
-// 	int ier = 0;
-// 	curfit(&iopt, &m, (double*) &x[0], (double*) &y[0], w, &x[0], &x[m - 1], &k, &smoothing, &nest, &n, t, c, &fp, wrk, &lwrk, iwrk, &ier);
-// 	if (ier > 0) {
-// 		if (ier >= 10) {
-// 			std::stringstream s;
-// 			s << "Error fitting B-Spline curve using curfit(): " << ier;
-// 			throw std::runtime_error(s.str());
-// 		} else {
-// 			std::cerr << "WARNING:  Non-fatal error while fitting B-Spline curve using curfit(): " << ier << std::endl;
-// 		}
-// 	}
+	int ier = 0;
+	curfit(&iopt, &m, (double*) &x[0], (double*) &y[0], w, &x[0], &x[m - 1], &k, &smoothing, &nest, &n, t, c, &fp, wrk, &lwrk, iwrk, &ier);
+	if (ier > 0) {
+		if (ier >= 10) {
+			std::stringstream s;
+			s << "Error fitting B-Spline curve using curfit(): " << ier;
+			throw std::runtime_error(s.str());
+		} else {
+			std::cerr << "WARNING:  Non-fatal error while fitting B-Spline curve using curfit(): " << ier << std::endl;
+		}
+	}
 
-// 	// De-allocate temporary memory
-// 	delete[] w;
-// 	delete[] wrk;
-// 	delete[] iwrk;
-// }
+	// De-allocate temporary memory
+	delete[] w;
+	delete[] wrk;
+	delete[] iwrk;
+}
 
 /**
  * @brief Constructor
