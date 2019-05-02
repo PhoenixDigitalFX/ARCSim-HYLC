@@ -6,6 +6,17 @@
 struct Poly2D {
   int k0, k1;
   std::vector<double> c;
+  double xmin, xmax;
+  bool clampx;
+  double ymin, ymax;
+  bool clampy;
+
+  inline void clamp(double &x, double &y) {
+    if (clampx)
+      x = std::min(std::max(x, xmin), xmax);
+    if (clampy)
+      y = std::min(std::max(y, ymin), ymax);
+  }
 
   // pows = [(1,1),(1,2),(2,1),(1,3),(2,2),(3,1)]
   double eval(double x, double y) {

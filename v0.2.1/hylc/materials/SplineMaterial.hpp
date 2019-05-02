@@ -20,6 +20,12 @@ class SplineMaterial : public BaseMaterial {
 
   struct Spline1D {
     int k;
+    double xmin, xmax;
+    bool clampx;
+    inline void clamp(double &x) {
+      if (clampx)
+        x = std::min(std::max(x, xmin), xmax);
+    }
     std::shared_ptr<fitpackpp::BSplineCurve> spline;
   };
 
@@ -35,16 +41,17 @@ class SplineMaterial : public BaseMaterial {
 
   Vec6 strainshift;
   Vec6 strainscale;
-  Vec6 strain_min, strain_max;
+  // Vec6 strain_min, strain_max;
 
   bool initialized;
 
-  double TST(Vec6 &x) {
-    double a = 0;
+  // double TST(Vec6 &x) {
+  //   double a = 0;
 
-    for (auto &spline1d : splines_1d) a += spline1d.spline->der(x(spline1d.k), 1);
-    return a;
-  }
+  //   for (auto &spline1d : splines_1d)
+  //     a += spline1d.spline->der(x(spline1d.k), 1);
+  //   return a;
+  // }
 
  private:
   double bspeed = 1e0, bscale = 1e2;

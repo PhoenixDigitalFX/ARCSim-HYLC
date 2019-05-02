@@ -1,6 +1,6 @@
 #include "hylc_conf.hpp"
-#include "materials/SplineMaterial.hpp"
 #include <fstream>
+#include "materials/SplineMaterial.hpp"
 
 using namespace hylc;
 
@@ -12,32 +12,31 @@ extern void parse(int &x, const Json::Value &json);
 extern void parse(bool &x, const Json::Value &json);
 extern void parse(std::string &x, const Json::Value &json);
 
-
 void parse(SplineMaterial::Spline1D &spline1d, const Json::Value &json);
 void parse(SplineMaterial::Spline2D &spline2d, const Json::Value &json);
 
-template <int n> void parse(Vec<n> &v, const Json::Value &json) {
+template <int n>
+void parse(Vec<n> &v, const Json::Value &json) {
   if (!json.isArray())
     complain(json, "array");
   assert(json.size() == n);
-  for (int i = 0; i < n; i++)
-    parse(v[i], json[i]);
+  for (int i = 0; i < n; i++) parse(v[i], json[i]);
 }
-template <typename T> void parse(std::vector<T> &v, const Json::Value &json) {
+template <typename T>
+void parse(std::vector<T> &v, const Json::Value &json) {
   if (!json.isArray())
     complain(json, "array");
   v.resize(json.size());
-  for (int i = 0; i < json.size(); i++)
-    parse(v[i], json[i]);
+  for (int i = 0; i < json.size(); i++) parse(v[i], json[i]);
 }
 
-template <typename T> void parse_optional(T &x, const Json::Value &json) {
+template <typename T>
+void parse_optional(T &x, const Json::Value &json) {
   if (json.isNull())
-    return; // leave x as its default value
+    return;  // leave x as its default value
   else
     parse(x, json);
 }
-
 
 void parse(SplineMaterial::Spline1D &spline1d, const Json::Value &json) {
   std::vector<double> tx, c;
@@ -47,15 +46,19 @@ void parse(SplineMaterial::Spline1D &spline1d, const Json::Value &json) {
   parse(tx, json["tx"]);
   parse(c, json["c"]);
 
-  spline1d.spline = std::make_shared<fitpackpp::BSplineCurve>(tx,c,degree);
+  spline1d.spline = std::make_shared<fitpackpp::BSplineCurve>(tx, c, degree);
 
+  parse(spline1d.clampx, json["clampx"]);
+  if (spline1d.clampx) {
+    parse(spline1d.xmin, json["xmin"]);
+    parse(spline1d.xmax, json["xmax"]);
+  }
 
   // printf("k %d\n",spline1d.k);
   // for(double a = -1; a <= 1; a+= 0.333333)
   // {
   //   printf("%f %f\n",a, spline1d.spline->eval(a));
   // }
-  
 }
 
 void parse(SplineMaterial::Spline2D &spline2d, const Json::Value &json) {
@@ -68,15 +71,28 @@ void parse(SplineMaterial::Spline2D &spline2d, const Json::Value &json) {
   parse(ty, json["ty"]);
   parse(c, json["c"]);
 
-  spline2d.spline = std::make_shared<fitpackpp::BSplineSurface>(tx,ty,c,degree);
+  // TODO clamp
+
+  spline2d.spline =
+      std::make_shared<fitpackpp::BSplineSurface>(tx, ty, c, degree);
 }
 
 void parse(Poly2D &poly, const Json::Value &json) {
   parse(poly.k0, json["k0"]);
   parse(poly.k1, json["k1"]);
   parse(poly.c, json["C"]);
-}
 
+  parse(poly.clampx, json["clampx"]);
+  if (poly.clampx) {
+    parse(poly.xmin, json["xmin"]);
+    parse(poly.xmax, json["xmax"]);
+  }
+  parse(poly.clampy, json["clampy"]);
+  if (poly.clampy) {
+    parse(poly.ymin, json["ymin"]);
+    parse(poly.ymax, json["ymax"]);
+  }
+}
 
 std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
   Json::Value json;
@@ -97,8 +113,8 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
 
   parse(material->strainscale, json["strain scale"]);
   parse(material->strainshift, json["strain shift"]);
-  parse(material->strain_min, json["strain min"]);
-  parse(material->strain_max, json["strain max"]);
+  // parse(material->strain_min, json["strain min"]);
+  // parse(material->strain_max, json["strain max"]);
 
   // for(int i = 0; i < 6; i++)
   //   printf("%.2f  ", material->strainscale(i));
@@ -130,8 +146,6 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
   //   printf("%f %f\n",a, material->TST(s));
   // }
 
-
-
   // for(double a = -60; a <= 60.0; a+= 13.3333333333333)
   // {
   //   Vec6 s(0);
@@ -143,11 +157,9 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
   //   printf("%f %f\n",a, material->TST(s));
   // }
 
-
   material->initialized = true;
   return material;
 }
-
 
 void parse(hylc::Config &params, const Json::Value &json) {
   parse_optional(params.enabled, json["enabled"]);
