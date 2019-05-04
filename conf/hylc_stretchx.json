@@ -1,7 +1,7 @@
 {
     "hylc": {
         "enabled": true,
-        "type": 0 
+        "material": "hylcmaterials/basket1.json"
     },
     "disable": ["remeshing"],
     "implicit": true, // currently explicit explodes but implicit works..
@@ -9,7 +9,7 @@
     // "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
     "frame_steps": 5, // implicit works even with 10!, explicit 500ish
-    "end_time": 0.8, // TODO
+    "end_time": 1.0, // TODO
     "cloths": [{
         /* "mesh": "meshes/square.obj", */
         /* "mesh": "meshes/hylc_square0p.obj", */

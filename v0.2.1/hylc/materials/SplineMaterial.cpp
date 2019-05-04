@@ -163,6 +163,8 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
 
   // 2D splines old
   for (auto &spline2d : splines_2d) {
+    continue;
+    // TODO CLAMP SHIT
     // if (!(spline2d.k0==0 && spline2d.k1 == 2))
     //   continue;
     // if (!(spline2d.k0<3 && spline2d.k1 <3))
@@ -190,6 +192,10 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
   // 2D polys
   for (auto &poly : polys_2d) {
     // continue; // DEBUG
+    // if (poly.k0 == 4 || poly.k1 == 4)
+    //   continue;
+    // if (poly.k0 > 2 || poly.k1 > 2)
+    //   continue;
     double x = X(poly.k0);
     double y = X(poly.k1);
     poly.clamp(x,y);
