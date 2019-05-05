@@ -20,6 +20,8 @@
         "materials": [{"data": "materials/gray-interlock.json",
                        "thicken": 1, "damping": 1e-2}]
     }],
+    "wind": {"density": 1e1},
+
     // "handles": [{"nodes": [2,3]}
     "handlespheres": [{
         "radius": 0.01,

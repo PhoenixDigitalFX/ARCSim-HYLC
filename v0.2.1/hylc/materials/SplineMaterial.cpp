@@ -37,6 +37,13 @@ double SplineMaterial::psi(const Vec6 &strain) {
   val += C0;
 
   // 1D
+  for (auto &p : polys_1d) {
+    double x=X(p.k);
+    p.clamp(x);
+    val += p.eval(x);
+  }
+
+  // 1D
   for (auto &spline1d : splines_1d) {
     double x=X(spline1d.k);
     spline1d.clamp(x);
@@ -85,6 +92,16 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
   for (int i = 0; i < 6; i++)
     X(i)     = (X(i) - this->strainshift(i)) / this->strainscale(i);
 
+
+
+  // 1D
+  for (auto &p : polys_1d) {
+    double x=X(p.k);
+    p.clamp(x);
+    grad(p.k) +=
+        p.dx(x) / this->strainscale(p.k);
+  }
+
   // 1D
   for (auto &spline1d : splines_1d) {
     double x=X(spline1d.k);
@@ -112,7 +129,7 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
     grad(poly.k1) += poly.dy(x, y) / this->strainscale(poly.k1);
   }
 
-  return grad;
+return grad;
 }
 
 std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
@@ -161,6 +178,23 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
         (this->strainscale(spline1d.k) * this->strainscale(spline1d.k));
   }
 
+  // 1D
+  for (auto &p : polys_1d) {
+    // if (spline1d.k > 2)
+    // continue;
+    // if (spline1d.k == 4)
+    // continue; // DEBUG
+
+    double x=X(p.k);
+    p.clamp(x);
+
+    grad(p.k) +=
+        p.dx(x) / this->strainscale(p.k);
+    hess(p.k, p.k) +=
+        p.dxdx(x) /
+        (this->strainscale(p.k) * this->strainscale(p.k));
+  }
+
   // 2D splines old
   for (auto &spline2d : splines_2d) {
     continue;
@@ -191,7 +225,7 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
 
   // 2D polys
   for (auto &poly : polys_2d) {
-    // continue; // DEBUG
+    continue; // DEBUG
     // if (poly.k0 == 4 || poly.k1 == 4)
     //   continue;
     // if (poly.k0 > 2 || poly.k1 > 2)

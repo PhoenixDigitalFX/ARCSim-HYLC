@@ -77,6 +77,18 @@ void parse(SplineMaterial::Spline2D &spline2d, const Json::Value &json) {
       std::make_shared<fitpackpp::BSplineSurface>(tx, ty, c, degree);
 }
 
+void parse(Poly1D &poly, const Json::Value &json) {
+  parse(poly.k, json["k"]);
+  parse(poly.c, json["c"]);
+
+  parse(poly.compr, json["compr"]);
+  parse(poly.clampx, json["clampx"]);
+  if (poly.clampx) {
+    parse(poly.xmin, json["xmin"]);
+    parse(poly.xmax, json["xmax"]);
+  }
+}
+
 void parse(Poly2D &poly, const Json::Value &json) {
   parse(poly.k0, json["k0"]);
   parse(poly.k1, json["k1"]);
@@ -131,7 +143,8 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
 
   Json::Value jsoncoeff = json["coeffs"];
   parse(material->C0, jsoncoeff["const"]);
-  parse(material->splines_1d, jsoncoeff["1D"]);
+  parse(material->polys_1d, jsoncoeff["1D"]);
+  // parse(material->splines_1d, jsoncoeff["1D"]);
   // parse(material->splines_2d, jsoncoeff["2D"]); // deprecated
   parse(material->polys_2d, jsoncoeff["2D"]);
 
