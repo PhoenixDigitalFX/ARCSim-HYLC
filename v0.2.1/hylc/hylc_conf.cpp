@@ -114,7 +114,7 @@ void parse(HermiteSpline2D &spline, const Json::Value &json) {
     parse(spline.muv, json["muv"]);
   else
     spline.muv.resize(spline.mu.size(),0);
-  parse(spline.ext, json["ext"], 3);
+  parse(spline.ext, json["ext"], 0);
 }
 
 void parse(Poly2D &poly, const Json::Value &json) {

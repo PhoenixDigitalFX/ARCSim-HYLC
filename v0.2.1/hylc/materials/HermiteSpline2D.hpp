@@ -8,7 +8,7 @@
 struct HermiteSpline2D {
   int k0, k1;
   std::vector<double> tu, tv, p, mu, mv, muv;
-  int ext = 3;
+  int ext = 0;
 
   typedef Mat<4, 4> Mat4x4;
   typedef Vec<4> Vec4;
@@ -19,7 +19,7 @@ struct HermiteSpline2D {
   //         [0,0,1,0],
   //         [1,0,0,0]
   //     ])
-  static Mat4x4 M, MT;
+  static Mat4x4 M, MT, MextL, MextR, MextLT, MextRT;
 
   double eval(double x, double y, int dx = 0, int dy = 0) {
     if (tu.size() == 0 || tv.size() == 0)
@@ -29,8 +29,8 @@ struct HermiteSpline2D {
                                 x);  // index to the right of element
     auto itv = std::upper_bound(tv.begin(), tv.end(),
                                 y);  // index to the right of element
-    int i    = itv - tv.begin();
-    int j    = itu - tu.begin();
+    int i = itv - tv.begin();
+    int j = itu - tu.begin();
 
     bool extrapol_u = false;
     bool extrapol_v = false;
@@ -85,7 +85,7 @@ struct HermiteSpline2D {
       deltas *= 1.0 / deltau;
     } else if (dx == 2) {
       U = Vec4{6 * u, 2, 0.0, 0.0};
-      deltas *= 1.0 / (deltau*deltau);
+      deltas *= 1.0 / (deltau * deltau);
     }
     if (dy == 0)
       V = Vec4{vv * v, vv, v, 1.0};
@@ -94,10 +94,11 @@ struct HermiteSpline2D {
       deltas *= 1.0 / deltav;
     } else if (dy == 2) {
       V = Vec4{6 * v, 2, 0.0, 0.0};
-      deltas *= 1.0 / (deltav*deltav);
+      deltas *= 1.0 / (deltav * deltav);
     }
 
-    // if (extrapol_u && ext > 0) {  // ext 0 keep all, ext1 keep linear, ext2 keep
+    // if (extrapol_u && ext > 0) {  // ext 0 keep all, ext1 keep linear, ext2
+    // keep
     //                               // cosnt, ext3 all 0
     //   for (int h = 0; h < ext + 1; h++) {  // 1 -> 0,1; 2->0,1,2
     //     U[h] = 0;
@@ -109,59 +110,34 @@ struct HermiteSpline2D {
     //   }
     // }
 
-  
-    // TODO GET M dep on ext (0, const, or lin)
-    /*
-     CONTINUE THIS
- U = u**np.array([3,2,1,0])
-        V = v**np.array([3,2,1,0])
-        # TEST FORCED LINEAR BUT CORRECTER
-        Mu = np.copy(M)
-        Mv = np.copy(M)
-        lin = 1 if ext == 0 else 0  #if 1 thenlinear
-        if extrapol_u:
-            if ext==2:
-                Y[k] = 0
-                continue
-                
-            if j == 0:
-                Mu = np.array([
-                    [0,0,0,0],
-                    [0,0,0,0],
-                    [0,0,lin,0],
-                    [1,0,0,0]
-                ])
-            else:
-                Mu = np.array([
-                    [0,0,0,0],
-                    [0,0,0,0],
-                    [0,0,0,lin],
-                    [0,1,0,-lin]
-                ])
-        if extrapol_v:
-            if ext==2:
-                Y[k] = 0
-                continue
+    // get Mu and Mv as ptr based on ext, remove u3 u2
+    // if const remove u1 0, if clamp set all U to 0
 
-            if i == 0:
-                Mv = np.array([
-                    [0,0,0,0],
-                    [0,0,0,0],
-                    [0,0,lin,0],
-                    [1,0,0,0]
-                ])
-            else:
-                Mv = np.array([
-                    [0,0,0,0],
-                    [0,0,0,0],
-                    [0,0,0,lin],
-                    [0,1,0,-lin]
-                ])
-
-    */
-
-    
-    
+    Mat4x4 *Mu = &M, *MvT = &MT;
+    if (extrapol_u) {
+      if (j == 0)
+        Mu = &MextL;
+      else
+        Mu = &MextR;
+      U[0] = 0;
+      U[1] = 0;
+      if (ext > 0)
+        U[2] = 0;
+      if (ext > 1)
+        U[3] = 0;
+    }
+    if (extrapol_v) {
+      if (i == 0)
+        MvT = &MextLT;
+      else
+        MvT = &MextRT;
+      V[0]  = 0;
+      V[1]  = 0;
+      if (ext > 0)
+        V[2] = 0;
+      if (ext > 1)
+        V[3] = 0;
+    }
 
     // B = np.array([
     //     [p00,p10, mv00, mv10],
@@ -183,7 +159,7 @@ struct HermiteSpline2D {
 
     // # U.T M B M.T V
     // Y[k] = np.einsum("i,ij,jk,lk,l->",U,M,B,M,V)
-    return deltas * dot(U, (M * (B * (MT * V))));
+    return deltas * dot(U, ((*Mu) * (B * ((*MvT) * V))));
   }
 
   inline double dx(double x, double y) { return eval(x, y, 1, 0); }
