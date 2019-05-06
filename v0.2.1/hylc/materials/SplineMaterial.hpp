@@ -7,6 +7,8 @@
 
 #include <BSplineCurve.h>
 #include <BSplineSurface.h>
+#include "HermiteSpline1D.hpp"
+#include "HermiteSpline2D.hpp"
 #include "Poly1D.hpp"
 #include "Poly2D.hpp"
 
@@ -36,6 +38,8 @@ class SplineMaterial : public BaseMaterial {
   };
 
   double C0 = 0;
+  std::vector<HermiteSpline1D> hsplines_1d;
+  std::vector<HermiteSpline2D> hsplines_2d;
   std::vector<Spline1D> splines_1d;
   std::vector<Spline2D> splines_2d;
   std::vector<Poly1D> polys_1d;

@@ -49,6 +49,11 @@ double SplineMaterial::psi(const Vec6 &strain) {
     spline1d.clamp(x);
     val += spline1d.spline->eval(x);
   }
+  
+  for (auto &s : hsplines_1d) {
+    double x=X(s.k);
+    val += s.eval(x);
+  }
 
   // 2D splines old
   for (auto &spline2d : splines_2d) {
@@ -61,6 +66,13 @@ double SplineMaterial::psi(const Vec6 &strain) {
     double y = X(poly.k1);
     poly.clamp(x,y);
     val += poly.eval(x, y);
+  }
+
+  // 2D splines new
+  for (auto &s : hsplines_2d) {
+    double x = X(s.k0);
+    double y = X(s.k1);
+    val += s.eval(x, y);
   }
 
   return val;
@@ -109,6 +121,12 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
     grad(spline1d.k) +=
         spline1d.spline->der(x, 1) / this->strainscale(spline1d.k);
   }
+  // 1D
+  for (auto &s : hsplines_1d) {
+    double x=X(s.k);
+    grad(s.k) +=
+        s.dx(x) / this->strainscale(s.k);
+  }
 
   // 2D splines old
   for (auto &spline2d : splines_2d) {
@@ -127,6 +145,14 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
     poly.clamp(x,y);
     grad(poly.k0) += poly.dx(x, y) / this->strainscale(poly.k0);
     grad(poly.k1) += poly.dy(x, y) / this->strainscale(poly.k1);
+  }
+
+  // 2D splines new
+  for (auto &s : hsplines_2d) {
+    double x = X(s.k0);
+    double y = X(s.k1);
+    grad(s.k0) += s.dx(x, y) / this->strainscale(s.k0);
+    grad(s.k1) += s.dy(x, y) / this->strainscale(s.k1);
   }
 
 return grad;
@@ -194,6 +220,15 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
         p.dxdx(x) /
         (this->strainscale(p.k) * this->strainscale(p.k));
   }
+  // 1D
+  for (auto &s : hsplines_1d) {
+    double x=X(s.k);
+    grad(s.k) +=
+        s.dx(x) / this->strainscale(s.k);
+    hess(s.k, s.k) +=
+        s.dxdx(x) /
+        (this->strainscale(s.k) * this->strainscale(s.k));
+  }
 
   // 2D splines old
   for (auto &spline2d : splines_2d) {
@@ -244,6 +279,23 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
     hess(poly.k1, poly.k0) += dxdy;
     hess(poly.k1, poly.k1) += poly.dydy(x, y) / (this->strainscale(poly.k1) *
                                                  this->strainscale(poly.k1));
+  }
+
+  // 2D splines new
+  for (auto &s : hsplines_2d) {
+    double x = X(s.k0);
+    double y = X(s.k1);
+    grad(s.k0) += s.dx(x, y) / this->strainscale(s.k0);
+    grad(s.k1) += s.dy(x, y) / this->strainscale(s.k1);
+
+    // hess(s.k0, s.k0) += s.dxdx(x, y) / (this->strainscale(s.k0) *
+    //                                              this->strainscale(s.k0));
+    // double dxdy = s.dxdy(x, y) /
+    //               (this->strainscale(s.k0) * this->strainscale(s.k1));
+    // hess(s.k0, s.k1) += dxdy;
+    // hess(s.k1, s.k0) += dxdy;
+    // hess(s.k1, s.k1) += s.dydy(x, y) / (this->strainscale(s.k1) *
+    //                                              this->strainscale(s.k1));
   }
 
   // grad(0) = 1.0;

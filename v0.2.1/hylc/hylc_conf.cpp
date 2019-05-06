@@ -12,6 +12,13 @@ extern void parse(int &x, const Json::Value &json);
 extern void parse(bool &x, const Json::Value &json);
 extern void parse(std::string &x, const Json::Value &json);
 
+template <typename T> void parse(T &x, const Json::Value &json, const T &x0) {
+  if (json.isNull())
+    x = x0;
+  else
+    parse(x, json);
+}
+
 void parse(SplineMaterial::Spline1D &spline1d, const Json::Value &json);
 void parse(SplineMaterial::Spline2D &spline2d, const Json::Value &json);
 
@@ -78,8 +85,7 @@ void parse(SplineMaterial::Spline2D &spline2d, const Json::Value &json) {
 }
 
 void parse(Poly1D &poly, const Json::Value &json) {
-  parse(poly.k, json["k"]);
-  parse(poly.c, json["c"]);
+  parse(poly.c, json["k"]);
 
   parse(poly.compr, json["compr"]);
   parse(poly.clampx, json["clampx"]);
@@ -87,6 +93,28 @@ void parse(Poly1D &poly, const Json::Value &json) {
     parse(poly.xmin, json["xmin"]);
     parse(poly.xmax, json["xmax"]);
   }
+}
+
+void parse(HermiteSpline1D &spline, const Json::Value &json) {
+  parse(spline.k, json["k"]);
+  parse(spline.t, json["t"]);
+  parse(spline.p, json["p"]);
+  parse(spline.m, json["m"]);
+  parse(spline.ext, json["ext"], 0);
+}
+void parse(HermiteSpline2D &spline, const Json::Value &json) {
+  parse(spline.k0, json["k0"]);
+  parse(spline.k1, json["k1"]);
+  parse(spline.tu, json["tu"]);
+  parse(spline.tv, json["tv"]);
+  parse(spline.p, json["p"]);
+  parse(spline.mu, json["mu"]);
+  parse(spline.mv, json["mv"]);
+  if (!json["muv"].isNull())
+    parse(spline.muv, json["muv"]);
+  else
+    spline.muv.resize(spline.mu.size(),0);
+  parse(spline.ext, json["ext"], 3);
 }
 
 void parse(Poly2D &poly, const Json::Value &json) {
@@ -143,10 +171,12 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
 
   Json::Value jsoncoeff = json["coeffs"];
   parse(material->C0, jsoncoeff["const"]);
-  parse(material->polys_1d, jsoncoeff["1D"]);
+  // parse(material->polys_1d, jsoncoeff["1D"]);
+  parse(material->hsplines_1d, jsoncoeff["1D"]);
   // parse(material->splines_1d, jsoncoeff["1D"]);
   // parse(material->splines_2d, jsoncoeff["2D"]); // deprecated
-  parse(material->polys_2d, jsoncoeff["2D"]);
+  // parse(material->polys_2d, jsoncoeff["2D"]);
+  parse(material->hsplines_2d, jsoncoeff["2D"]);
 
   // for(double a = 0.3; a <= 2.0; a+= 0.1888888888888)
   // {
@@ -171,6 +201,53 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
   // }
 
   material->initialized = true;
+
+
+
+  // // TEST PLOT EXTRAPOLATION
+  // Vec6 straintst(0);
+  // straintst(0) = 1.0;
+  // straintst(2) = 1.0;
+
+  // // std::cout << "\n\n\n\n";
+  // // for (int i = 0; i < 100; ++i) {
+  // //   Vec6 straincopy = straintst;
+  // //   double a = i * 1.0 / 100;
+  // //   straincopy(0) = (1 - a) * 0.1 + a * 3.5;
+  // //   double psi = global_material->psi(straincopy);
+  // //   std::cout << straincopy(0) << ", " << psi << ", ";
+  // // }
+  // // std::cout << "\n\n\n\n";
+  // // for (int i = 0; i < 100; ++i) {
+  // //   Vec6 straincopy = straintst;
+  // //   double a = i * 1.0 / 100;
+  // //   straincopy(1) = (1 - a) * -10 + a * 10;
+  // //   double psi = global_material->psi(straincopy);
+  // //   std::cout << straincopy(1) << ", " << psi << ", ";
+  // // }
+  // // std::cout << "\n\n\n\n";
+  // // for (int i = 0; i < 100; ++i) {
+  // //   Vec6 straincopy = straintst;
+  // //   double a = i * 1.0 / 100;
+  // //   straincopy(5) = (1 - a) * -150 + a * 150;
+  // //   double psi = global_material->psi(straincopy);
+  // //   std::cout << straincopy(5) << ", " << psi << ", ";
+  // // }
+  // // std::cout << "\n\n\n\n";
+  // for (int i = 0; i < 15; ++i) {
+  //   double a = i * 1.0 / 15;
+  //   for (int j = 0; j < 15; ++j) {
+  //     Vec6 straincopy = straintst;
+  //     double b = j * 1.0 / 15;
+  //     straincopy(0) = (1 - a) * 0.8 + a * 2.2;
+  //     straincopy(2) = (1 - b) * 0.8 + b * 2.2;
+  //     // straincopy(5) = (1 - b) * -150 + b * 150;
+  //     double psi = material->psi(straincopy);
+  //     printf("%.10e, %.10e, %.10e, ", straincopy(0),straincopy(2), psi);
+  //   }
+  // }
+  // std::cout << "\n\n\n\n";
+
   return material;
 }
 

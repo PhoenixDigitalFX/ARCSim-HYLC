@@ -14,52 +14,8 @@ std::shared_ptr<BaseMaterial> get_material() {
     //   global_material = std::make_shared<AnalyticMaterial>(
     //       config.a0, config.a1, config.b0, config.b1);
     // else
-    
+    // OLD CODE
     config.material = std::make_shared<FittedMaterial>(0);
-
-    // // TEST PLOT EXTRAPOLATION
-    // Vec6 straintst(0);
-    // straintst(0) = 1.0;
-    // straintst(2) = 1.0;
-
-    // std::cout << "\n\n\n\n";
-    // for (int i = 0; i < 100; ++i) {
-    //   Vec6 straincopy = straintst;
-    //   double a = i * 1.0 / 100;
-    //   straincopy(0) = (1 - a) * 0.1 + a * 3.5;
-    //   double psi = global_material->psi(straincopy);
-    //   std::cout << straincopy(0) << ", " << psi << ", ";
-    // }
-    // std::cout << "\n\n\n\n";
-    // for (int i = 0; i < 100; ++i) {
-    //   Vec6 straincopy = straintst;
-    //   double a = i * 1.0 / 100;
-    //   straincopy(1) = (1 - a) * -10 + a * 10;
-    //   double psi = global_material->psi(straincopy);
-    //   std::cout << straincopy(1) << ", " << psi << ", ";
-    // }
-    // std::cout << "\n\n\n\n";
-    // for (int i = 0; i < 100; ++i) {
-    //   Vec6 straincopy = straintst;
-    //   double a = i * 1.0 / 100;
-    //   straincopy(5) = (1 - a) * -150 + a * 150;
-    //   double psi = global_material->psi(straincopy);
-    //   std::cout << straincopy(5) << ", " << psi << ", ";
-    // }
-    // std::cout << "\n\n\n\n";
-    // for (int i = 0; i < 15; ++i) {
-    //   double a = i * 1.0 / 15;
-    //   for (int j = 0; j < 15; ++j) {
-    //     Vec6 straincopy = straintst;
-    //     double b = j * 1.0 / 15;
-    //     straincopy(0) = (1 - a) * -0.1 + a * 0.5;
-    //     straincopy(2) = (1 - b) * -0.1 + b * 0.5;
-    //     // straincopy(5) = (1 - b) * -150 + b * 150;
-    //     double psi = global_material->psi(straincopy);
-    //     printf("%.10e, %.10e, %.10e, ", straincopy(0),straincopy(2), psi);
-    //   }
-    // }
-    // std::cout << "\n\n\n\n";
   }
   return config.material;
 }

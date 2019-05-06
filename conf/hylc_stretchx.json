@@ -18,6 +18,7 @@
         "materials": [{"data": "materials/gray-interlock.json",
                        "thicken": 2, "damping": 1e-2}] // high damping for implicit
     }],
+    // "wind": {"density": 1e1}, // TODO?
     "motions": [[
         {"time": 0, "transform": {"translate": [0,0,0]}},
         {"time": 0.7, "transform": {"translate": [-0.075,0,0]}}
