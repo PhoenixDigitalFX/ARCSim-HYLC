@@ -204,10 +204,10 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
 
 
 
-  // // TEST PLOT EXTRAPOLATION
-  // Vec6 straintst(0);
-  // straintst(0) = 1.0;
-  // straintst(2) = 1.0;
+  // TEST PLOT EXTRAPOLATION
+  Vec6 straintst(0);
+  straintst(0) = 1.0;
+  straintst(2) = 1.0;
 
   // // std::cout << "\n\n\n\n";
   // // for (int i = 0; i < 100; ++i) {
@@ -234,19 +234,21 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
   // //   std::cout << straincopy(5) << ", " << psi << ", ";
   // // }
   // // std::cout << "\n\n\n\n";
-  // for (int i = 0; i < 15; ++i) {
-  //   double a = i * 1.0 / 15;
-  //   for (int j = 0; j < 15; ++j) {
-  //     Vec6 straincopy = straintst;
-  //     double b = j * 1.0 / 15;
-  //     straincopy(0) = (1 - a) * 0.8 + a * 2.2;
-  //     straincopy(2) = (1 - b) * 0.8 + b * 2.2;
-  //     // straincopy(5) = (1 - b) * -150 + b * 150;
-  //     double psi = material->psi(straincopy);
-  //     printf("%.10e, %.10e, %.10e, ", straincopy(0),straincopy(2), psi);
-  //   }
-  // }
-  // std::cout << "\n\n\n\n";
+  int k0=0,k1=2,n=25;
+  for (int i = 0; i < n; ++i) {
+    double a = i * 1.0 / n;
+    for (int j = 0; j < n; ++j) {
+      Vec6 straincopy = straintst;
+      double b = j * 1.0 / n;
+      straincopy(k0) = (1 - a) * 0.8 + a * 2.5;
+      straincopy(k1) = (1 - b) * 0.8 + b * 2.5;
+      // straincopy(k0) = (1 - a) * -160 + a * 150;
+      // straincopy(k1) = (1 - b) * -200 + b * 200;
+      double psi = material->psi(straincopy);
+      printf("%.10e, %.10e, %.10e, ", straincopy(k0),straincopy(k1), psi);
+    }
+  }
+  std::cout << "\n\n\n\n";
 
   return material;
 }

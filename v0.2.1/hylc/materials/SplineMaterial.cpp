@@ -283,19 +283,24 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
 
   // 2D splines new
   for (auto &s : hsplines_2d) {
+    // continue;
     double x = X(s.k0);
     double y = X(s.k1);
+    // if(x < 0.0)
+    //   x= 0.0;
+    // if (y < 0.0)
+    //   y = 0.0;
     grad(s.k0) += s.dx(x, y) / this->strainscale(s.k0);
     grad(s.k1) += s.dy(x, y) / this->strainscale(s.k1);
 
-    // hess(s.k0, s.k0) += s.dxdx(x, y) / (this->strainscale(s.k0) *
-    //                                              this->strainscale(s.k0));
-    // double dxdy = s.dxdy(x, y) /
-    //               (this->strainscale(s.k0) * this->strainscale(s.k1));
-    // hess(s.k0, s.k1) += dxdy;
-    // hess(s.k1, s.k0) += dxdy;
-    // hess(s.k1, s.k1) += s.dydy(x, y) / (this->strainscale(s.k1) *
-    //                                              this->strainscale(s.k1));
+    hess(s.k0, s.k0) += s.dxdx(x, y) / (this->strainscale(s.k0) *
+                                                 this->strainscale(s.k0));
+    double dxdy = s.dxdy(x, y) /
+                  (this->strainscale(s.k0) * this->strainscale(s.k1));
+    hess(s.k0, s.k1) += dxdy;
+    hess(s.k1, s.k0) += dxdy;
+    hess(s.k1, s.k1) += s.dydy(x, y) / (this->strainscale(s.k1) *
+                                                 this->strainscale(s.k1));
   }
 
   // grad(0) = 1.0;

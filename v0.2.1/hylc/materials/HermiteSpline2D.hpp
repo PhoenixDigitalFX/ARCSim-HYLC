@@ -51,7 +51,7 @@ struct HermiteSpline2D {
     double deltav = (tv[i] - tv[i - 1]);
     double v      = (y - tv[i - 1]) / deltav;
 
-    i = i - 1;
+    i = i - 1; // shift ixs to be left of x,y
     j = j - 1;
     double p00, p01, p10, p11;
     double mu00, mu01, mu10, mu11;
@@ -77,7 +77,7 @@ struct HermiteSpline2D {
     double uu = u * u, vv = v * v;
     Vec4 U, V;
     double deltas = 1.0;  // accumulate chain rule derivatives
-    assert(dx >= 0 && dx < 3 && dy >= 0 && dy < 3 && ext >= 0 && ext <= 3);
+    assert(dx >= 0 && dx < 3 && dy >= 0 && dy < 3);
     if (dx == 0)
       U = Vec4{uu * u, uu, u, 1.0};
     else if (dx == 1) {
@@ -114,22 +114,26 @@ struct HermiteSpline2D {
     // if const remove u1 0, if clamp set all U to 0
 
     Mat4x4 *Mu = &M, *MvT = &MT;
+    // Mat4x4 *Mu = &M, *MvT = &M;
+    assert(ext >= 0 && ext <= 2);
     if (extrapol_u) {
       if (j == 0)
         Mu = &MextL;
       else
         Mu = &MextR;
-      U[0] = 0;
-      U[1] = 0;
+      U[0] = 0; // u^3 -> 0
+      U[1] = 0; // u^2 -> 0
       if (ext > 0)
-        U[2] = 0;
+        U[2] = 0; // u -> 0
       if (ext > 1)
-        U[3] = 0;
+        U[3] = 0; // u^0 -> 0
     }
     if (extrapol_v) {
       if (i == 0)
+        // MvT = &MextL;
         MvT = &MextLT;
       else
+        // MvT = &MextR;
         MvT = &MextRT;
       V[0]  = 0;
       V[1]  = 0;
@@ -160,6 +164,7 @@ struct HermiteSpline2D {
     // # U.T M B M.T V
     // Y[k] = np.einsum("i,ij,jk,lk,l->",U,M,B,M,V)
     return deltas * dot(U, ((*Mu) * (B * ((*MvT) * V))));
+    // return deltas * dot(U, ((*Mu) * (B * ((*MvT).t() * V))));
   }
 
   inline double dx(double x, double y) { return eval(x, y, 1, 0); }

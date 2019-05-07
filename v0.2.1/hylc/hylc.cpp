@@ -49,6 +49,7 @@ void compute_local_information(const Face *face, Vec18 &xlocal, double &l0,
     xlocal[6 + j] = x2[j];
   }
 
+
   // potential neighbors
   Node *nn0 = nullptr, *nn1 = nullptr, *nn2 = nullptr;
   l0 = 1, l1 = 1, l2 = 1;
@@ -257,6 +258,21 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
     }
   }
   // END DEBUG
+
+  bool check_me = norm(A*g) > 1e-1;
+  if (check_me) {
+    printf("  strain %.2f %.2f %.2f %.2f %.2f %.2f\n",strain(0),strain(1),strain(2),strain(3),strain(4),strain(5));
+    printf("  |A*g| = %.2e\n",norm(A*g));
+    printf("\n");
+    check_me=false;
+
+    strain(1)=0;
+    strain(3)=0;
+    strain(4)=0;
+    strain(5)=0;
+    A=0;
+  }
+
 
   return std::make_pair(A * H, A * g);
 }
