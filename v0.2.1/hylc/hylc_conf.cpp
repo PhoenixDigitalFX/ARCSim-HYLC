@@ -240,8 +240,10 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
     for (int j = 0; j < n; ++j) {
       Vec6 straincopy = straintst;
       double b = j * 1.0 / n;
-      straincopy(k0) = (1 - a) * 0.8 + a * 2.5;
-      straincopy(k1) = (1 - b) * 0.8 + b * 2.5;
+      straincopy(k0) = (1 - a) * 0.3 + a * 1.2;
+      straincopy(k1) = (1 - b) * -0.2 + b * 0.0;
+      straincopy(k0) += 1;
+      straincopy(k1) += 1;
       // straincopy(k0) = (1 - a) * -160 + a * 150;
       // straincopy(k1) = (1 - b) * -200 + b * 200;
       double psi = material->psi(straincopy);

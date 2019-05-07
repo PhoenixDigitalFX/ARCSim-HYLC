@@ -155,7 +155,7 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
     grad(s.k1) += s.dy(x, y) / this->strainscale(s.k1);
   }
 
-return grad;
+  return grad;
 }
 
 std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
@@ -186,6 +186,11 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
   // normalize
   for (int i = 0; i < 6; i++)
     X(i)     = (X(i) - this->strainshift(i)) / this->strainscale(i);
+
+  // X(1) = 0;
+  // X(3) = 0;
+  // X(4) = 0;
+  // X(5) = 0;
 
   // 1D
   for (auto &spline1d : splines_1d) {
@@ -220,6 +225,7 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
         p.dxdx(x) /
         (this->strainscale(p.k) * this->strainscale(p.k));
   }
+  
   // 1D
   for (auto &s : hsplines_1d) {
     double x=X(s.k);

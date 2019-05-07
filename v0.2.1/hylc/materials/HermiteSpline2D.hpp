@@ -97,19 +97,6 @@ struct HermiteSpline2D {
       deltas *= 1.0 / (deltav * deltav);
     }
 
-    // if (extrapol_u && ext > 0) {  // ext 0 keep all, ext1 keep linear, ext2
-    // keep
-    //                               // cosnt, ext3 all 0
-    //   for (int h = 0; h < ext + 1; h++) {  // 1 -> 0,1; 2->0,1,2
-    //     U[h] = 0;
-    //   }
-    // }
-    // if (extrapol_v && ext > 0) {
-    //   for (int h = 0; h < ext + 1; h++) {
-    //     V[h] = 0;
-    //   }
-    // }
-
     // get Mu and Mv as ptr based on ext, remove u3 u2
     // if const remove u1 0, if clamp set all U to 0
 
