@@ -15,7 +15,7 @@ struct Poly1D {
       x = std::min(std::max(x, xmin), xmax);
   }
 
-  // pows = [(1,1),(1,2),(2,1),(1,3),(2,2),(3,1)]
+  // pows = [1,2,3,4]
   double eval(double x) {
     double xx = x*x;
     double xxx = xx * x;

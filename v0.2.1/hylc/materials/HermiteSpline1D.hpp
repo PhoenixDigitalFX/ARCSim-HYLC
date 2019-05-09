@@ -81,7 +81,6 @@ struct HermiteSpline1D {
   }
 
   double dx(double x) { return eval(x, 1); }
-
   double dxdx(double x) { return eval(x, 2); }
 };
 

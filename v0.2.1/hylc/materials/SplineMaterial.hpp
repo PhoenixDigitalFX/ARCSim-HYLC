@@ -37,9 +37,16 @@ class SplineMaterial : public BaseMaterial {
     std::shared_ptr<fitpackpp::BSplineSurface> spline;
   };
 
+  struct HSpline2Das1D {
+    int k0, k1;
+    // HermiteSpline1D fun;
+    Poly1D fun;
+  };
+
   double C0 = 0;
   std::vector<HermiteSpline1D> hsplines_1d;
   std::vector<HermiteSpline2D> hsplines_2d;
+  std::vector<HSpline2Das1D> hsplines_2d1d;
   std::vector<Spline1D> splines_1d;
   std::vector<Spline2D> splines_2d;
   std::vector<Poly1D> polys_1d;

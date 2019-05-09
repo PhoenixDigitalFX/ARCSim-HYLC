@@ -21,6 +21,7 @@ template <typename T> void parse(T &x, const Json::Value &json, const T &x0) {
 
 void parse(SplineMaterial::Spline1D &spline1d, const Json::Value &json);
 void parse(SplineMaterial::Spline2D &spline2d, const Json::Value &json);
+void parse(SplineMaterial::HSpline2Das1D &, const Json::Value &);
 
 template <int n>
 void parse(Vec<n> &v, const Json::Value &json) {
@@ -117,6 +118,18 @@ void parse(HermiteSpline2D &spline, const Json::Value &json) {
   parse(spline.ext, json["ext"], 0);
 }
 
+void parse(SplineMaterial::HSpline2Das1D &spline, const Json::Value &json) {
+  parse(spline.k0, json["k0"]);
+  parse(spline.k1, json["k1"]);
+  // parse(spline.fun.t, json["t"]);
+  // parse(spline.fun.p, json["p"]);
+  // parse(spline.fun.m, json["m"]);
+  // parse(spline.fun.ext, json["ext"], 0);
+  parse(spline.fun.c, json["c"]); // DEBUG POLY1D INSTEAD
+  // spline.fun.c[0] *= 0.5;
+  spline.fun.compr = false;
+}
+
 void parse(Poly2D &poly, const Json::Value &json) {
   parse(poly.k0, json["k0"]);
   parse(poly.k1, json["k1"]);
@@ -176,7 +189,8 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
   // parse(material->splines_1d, jsoncoeff["1D"]);
   // parse(material->splines_2d, jsoncoeff["2D"]); // deprecated
   // parse(material->polys_2d, jsoncoeff["2D"]);
-  parse(material->hsplines_2d, jsoncoeff["2D"]);
+  // parse(material->hsplines_2d, jsoncoeff["2D"]);
+  parse(material->hsplines_2d1d, jsoncoeff["2D"]);
 
   // for(double a = 0.3; a <= 2.0; a+= 0.1888888888888)
   // {
@@ -234,23 +248,23 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
   // //   std::cout << straincopy(5) << ", " << psi << ", ";
   // // }
   // // std::cout << "\n\n\n\n";
-  int k0=0,k1=2,n=25;
-  for (int i = 0; i < n; ++i) {
-    double a = i * 1.0 / n;
-    for (int j = 0; j < n; ++j) {
-      Vec6 straincopy = straintst;
-      double b = j * 1.0 / n;
-      straincopy(k0) = (1 - a) * 0.3 + a * 1.2;
-      straincopy(k1) = (1 - b) * -0.2 + b * 0.0;
-      straincopy(k0) += 1;
-      straincopy(k1) += 1;
-      // straincopy(k0) = (1 - a) * -160 + a * 150;
-      // straincopy(k1) = (1 - b) * -200 + b * 200;
-      double psi = material->psi(straincopy);
-      printf("%.10e, %.10e, %.10e, ", straincopy(k0),straincopy(k1), psi);
-    }
-  }
-  std::cout << "\n\n\n\n";
+  // int k0=0,k1=2,n=25;
+  // for (int i = 0; i < n; ++i) {
+  //   double a = i * 1.0 / n;
+  //   for (int j = 0; j < n; ++j) {
+  //     Vec6 straincopy = straintst;
+  //     double b = j * 1.0 / n;
+  //     straincopy(k0) = (1 - a) * 0.3 + a * 1.2;
+  //     straincopy(k1) = (1 - b) * -0.2 + b * 0.0;
+  //     straincopy(k0) += 1;
+  //     straincopy(k1) += 1;
+  //     // straincopy(k0) = (1 - a) * -160 + a * 150;
+  //     // straincopy(k1) = (1 - b) * -200 + b * 200;
+  //     double psi = material->psi(straincopy);
+  //     printf("%.10e, %.10e, %.10e, ", straincopy(k0),straincopy(k1), psi);
+  //   }
+  // }
+  // std::cout << "\n\n\n\n";
 
   return material;
 }

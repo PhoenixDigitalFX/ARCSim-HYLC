@@ -75,6 +75,14 @@ double SplineMaterial::psi(const Vec6 &strain) {
     val += s.eval(x, y);
   }
 
+  // 2D funcs via 1D splines
+  for (auto &s : hsplines_2d1d) {
+    // continue;
+    double x = X(s.k0);
+    double y = X(s.k1);
+    val += s.fun.eval(x*y);
+  }
+
   return val;
 }
 
@@ -153,6 +161,20 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
     double y = X(s.k1);
     grad(s.k0) += s.dx(x, y) / this->strainscale(s.k0);
     grad(s.k1) += s.dy(x, y) / this->strainscale(s.k1);
+  }
+
+  // 2D funcs via 1D splines
+  for (auto &s : hsplines_2d1d) {
+    // continue;
+    double x = X(s.k0);
+    double y = X(s.k1);
+    double xy = x*y;
+
+    //dx p(xy) = p' y
+    //dy p(xy) = p' x
+    double dp1 = s.fun.dx(xy);
+    grad(s.k0) += (dp1*y) / this->strainscale(s.k0);
+    grad(s.k1) += (dp1*x) / this->strainscale(s.k1);
   }
 
   return grad;
@@ -306,6 +328,34 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
     hess(s.k0, s.k1) += dxdy;
     hess(s.k1, s.k0) += dxdy;
     hess(s.k1, s.k1) += s.dydy(x, y) / (this->strainscale(s.k1) *
+                                                 this->strainscale(s.k1));
+  }
+
+  // 2D funcs via 1D splines
+  for (auto &s : hsplines_2d1d) {
+    // continue;
+    double x = X(s.k0);
+    double y = X(s.k1);
+    double xy = x*y;
+
+    //dx p(xy) = p' y
+    //dy p(xy) = p' x
+    double dp1 = s.fun.dx(xy);
+    double sss = 1.0;//DBG
+    grad(s.k0) += sss*(dp1*y) / this->strainscale(s.k0);
+    grad(s.k1) += sss*(dp1*x) / this->strainscale(s.k1);
+
+    //dxdx p(xy) = p'' y^2
+    //dydy p(xy) = p'' x^2
+    //dxdy p(xy) = p'' xy + p'
+    double dp2 = s.fun.dxdx(xy);
+    hess(s.k0, s.k0) += sss*dp2*y*y / (this->strainscale(s.k0) *
+                                                 this->strainscale(s.k0));
+    double dxdy = sss*(dp2 * xy + dp1) /
+                  (this->strainscale(s.k0) * this->strainscale(s.k1));
+    hess(s.k0, s.k1) += dxdy;
+    hess(s.k1, s.k0) += dxdy;
+    hess(s.k1, s.k1) += sss*dp2*x*x / (this->strainscale(s.k1) *
                                                  this->strainscale(s.k1));
   }
 
