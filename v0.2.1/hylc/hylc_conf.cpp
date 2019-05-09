@@ -121,13 +121,14 @@ void parse(HermiteSpline2D &spline, const Json::Value &json) {
 void parse(SplineMaterial::HSpline2Das1D &spline, const Json::Value &json) {
   parse(spline.k0, json["k0"]);
   parse(spline.k1, json["k1"]);
-  // parse(spline.fun.t, json["t"]);
-  // parse(spline.fun.p, json["p"]);
-  // parse(spline.fun.m, json["m"]);
-  // parse(spline.fun.ext, json["ext"], 0);
-  parse(spline.fun.c, json["c"]); // DEBUG POLY1D INSTEAD
+  parse(spline.fun.t, json["t"]);
+  parse(spline.fun.p, json["p"]);
+  parse(spline.fun.m, json["m"]);
+  parse(spline.fun.ext, json["ext"], 0);
+
+  // parse(spline.fun.c, json["c"]); // DEBUG POLY1D INSTEAD
   // spline.fun.c[0] *= 0.5;
-  spline.fun.compr = false;
+  // spline.fun.compr = false;
 }
 
 void parse(Poly2D &poly, const Json::Value &json) {

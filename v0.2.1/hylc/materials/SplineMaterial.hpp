@@ -39,8 +39,8 @@ class SplineMaterial : public BaseMaterial {
 
   struct HSpline2Das1D {
     int k0, k1;
-    // HermiteSpline1D fun;
-    Poly1D fun;
+    HermiteSpline1D fun;
+    // Poly1D fun;
   };
 
   double C0 = 0;
