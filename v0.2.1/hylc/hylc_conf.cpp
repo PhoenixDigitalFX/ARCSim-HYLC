@@ -190,8 +190,8 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
   // parse(material->splines_1d, jsoncoeff["1D"]);
   // parse(material->splines_2d, jsoncoeff["2D"]); // deprecated
   // parse(material->polys_2d, jsoncoeff["2D"]);
-  // parse(material->hsplines_2d, jsoncoeff["2D"]);
-  parse(material->hsplines_2d1d, jsoncoeff["2D"]);
+  parse(material->hsplines_2d, jsoncoeff["2D"]);
+  // parse(material->hsplines_2d1d, jsoncoeff["2D"]);
 
   // for(double a = 0.3; a <= 2.0; a+= 0.1888888888888)
   // {

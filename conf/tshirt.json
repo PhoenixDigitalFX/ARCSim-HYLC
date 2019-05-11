@@ -1,8 +1,19 @@
 // Stuffing a T-shirt into a small box
 // Narain et al. 2013, Figure 7
 {
-    "frame_time": 0.04,
-    "frame_steps": 8,
+    "hylc": {
+        "enabled": true,
+        // "material": "hylcmaterials/stockinette1.json"
+        // "material": "hylcmaterials/cartrib1.json"
+        "material": "hylcmaterials/basket1.json"
+    },
+    "implicit": true,
+
+    "frame_time": 0.0167,
+    "frame_steps": 10,//10
+
+    // "frame_time": 0.04,
+    // "frame_steps": 8,
     "end_time": 8.5,
     "cloths": [{
         "mesh": "meshes/tshirt.obj",

@@ -3,12 +3,12 @@
         "enabled": true,
         "material": "hylcmaterials/basket1.json"
     },
-    "disable": ["remeshing"],
+    // "disable": ["remeshing"],
     "implicit": true, // currently explicit explodes but implicit works..
     // "explicit_massdamping": 1e1, // high
     // "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
-    "frame_steps": 5, // implicit works even with 10!, explicit 500ish
+    "frame_steps": 15, // implicit works even with 10!, explicit 500ish
     "end_time": 1.5, // TODO
     "cloths": [{
         /* "mesh": "meshes/square.obj", */
@@ -18,14 +18,14 @@
         "transform": {"scale": 0.3, "translate": [-0.15, -0.3, 0.2]},
         "materials": [{"data": "materials/gray-interlock.json",
                        "thicken": 2, "damping": 1e-2}] // high damping for implicit,
-                      //  ,"remeshing": {
-                      //      "refine_angle": 0.3,
-                      //      "refine_compression": 0.01,
-                      //      "refine_velocity": 0.5,
-                      //      "size": [20e-3, 200e-3],
-                      //      // "size": [10e-3, 200e-3],
-                      //      "aspect_min": 0.2
-                      //  }
+        ,"remeshing": {
+            "refine_angle": 0.3,
+            "refine_compression": 0.01,
+            "refine_velocity": 0.5,
+            "size": [10e-3, 100e-3],
+            // "size": [10e-3, 200e-3],
+            "aspect_min": 0.2
+        }
     }],
     // "wind": {"density": 1e1}, // TODO?
     "motions": [[
@@ -50,6 +50,6 @@
     "gravity": [0, 0, -9.8],
     "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6,
       // "handle_stiffness": 1e6, // default 1e3
-      "fixed_high_res_mesh": true,
+      // "fixed_high_res_mesh": true,
       "relax_initial_state": false}
 }

@@ -3,11 +3,9 @@
 {
     "hylc": {
         "enabled": true,
-        "type": 3 
-        //"a0": 0,
-        //"a1": 0,
-        //"b0": 0,
-        //"b1": 0
+        // "material": "hylcmaterials/stockinette1.json"
+        // "material": "hylcmaterials/cartrib1.json"
+        "material": "hylcmaterials/basket1.json"
     },
     "implicit": true,
 

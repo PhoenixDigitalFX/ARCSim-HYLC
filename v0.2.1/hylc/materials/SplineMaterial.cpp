@@ -72,6 +72,20 @@ double SplineMaterial::psi(const Vec6 &strain) {
   for (auto &s : hsplines_2d) {
     double x = X(s.k0);
     double y = X(s.k1);
+
+
+    if (!(s.k0 == 0 && s.k0 == 2))
+    {
+      if (s.k0 == 0 || s.k0 == 2)
+        if (x < 0)
+          continue;
+
+      if (s.k1 == 0 || s.k1 == 2)
+        if (y < 0)
+          continue;
+    }
+    
+    
     val += s.eval(x, y);
   }
 
@@ -159,6 +173,19 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
   for (auto &s : hsplines_2d) {
     double x = X(s.k0);
     double y = X(s.k1);
+
+
+    if (!(s.k0 == 0 && s.k0 == 2))
+    {
+      if (s.k0 == 0 || s.k0 == 2)
+        if (x < 0)
+          continue;
+
+      if (s.k1 == 0 || s.k1 == 2)
+        if (y < 0)
+          continue;
+    }
+
     grad(s.k0) += s.dx(x, y) / this->strainscale(s.k0);
     grad(s.k1) += s.dy(x, y) / this->strainscale(s.k1);
   }
@@ -314,6 +341,18 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
     // continue;
     double x = X(s.k0);
     double y = X(s.k1);
+
+    if (!(s.k0 == 0 && s.k0 == 2))
+    {
+      if (s.k0 == 0 || s.k0 == 2)
+        if (x < 0)
+          continue;
+
+      if (s.k1 == 0 || s.k1 == 2)
+        if (y < 0)
+          continue;
+    }
+
     // if(x < 0.0)
     //   x= 0.0;
     // if (y < 0.0)
