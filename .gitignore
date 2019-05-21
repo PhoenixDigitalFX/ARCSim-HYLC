@@ -2,6 +2,7 @@
 offline_sims/
 # vscode
 .vscode*
+.VSCode*
 # compiled stuff
 build*/
 .vscode*

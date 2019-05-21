@@ -18,7 +18,9 @@
     "end_time": 10,
     "cloths": [{
         "mesh": "meshes/hylc_moebius2.obj",
-        "transform": {"translate": [-0.2,-0.1,0.6], "rotate": [90,1,-0.5,0], "scale": 0.75},
+        // "transform": {"translate": [-0.2,-0.1,0.6], "rotate": [90,1,-0.5,0], "scale": 0.75}, // with bunny
+        "transform": {"translate": [-0.1,-0.1,0.6], "rotate": [90,1,-0.5,0], "scale": 0.75},
+        
         //"transform": {"translate": [-0.3,-0.2,0.5], "rotate": [90,1,-0.5,0], "scale": 1},
         //"transform": {"translate": [0,-0.2,0.2], "rotate": [90,1,0,0]},
         "materials": [{"data": "materials/gray-interlock.json",
@@ -36,8 +38,10 @@
         "mesh": "meshes/square.obj",
         "transform": {"translate": [-0.5,-0.5,-1e-2]}
     },{
-        "mesh": "meshes/hylc_bunny.obj",
-        "transform": {"translate": [0.0,0.0,-3e-2], "rotate": [90,1,0,0]}
+        // "mesh": "meshes/hylc_bunny.obj",
+        // "transform": {"translate": [0.0,0.0,-3e-2], "rotate": [90,1,0,0]}
+        "mesh": "meshes/hylc_dragon.obj",
+        "transform": {"scale": 0.15, "translate": [0.0,0.0,-3e-2], "rotate": [90,1,0,0]}
     }],
     "gravity": [0, 0, -9.8],
     "magic": {

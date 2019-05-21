@@ -573,23 +573,25 @@ Vec6 hylc::mathematica::strain(const Vec18 &xloc, const Mat2x2 &invDm,
   out(1) =
       copt35 * (copt11 * copt40 + copt21 * copt44 + copt31 * copt48) * copt56;
   out(2) = copt55;
-  out(3) = (copt58 * copt59 * copt60 * copt61 *
-            (copt384 * copt524 * l0 * l1 + copt225 * copt381 * l0 * l2 +
-             copt222 * copt63 * l1 * l2 - copt63 * l1 * l2 * thetarest0 -
-             copt225 * l0 * l2 * thetarest1 - copt384 * l0 * l1 * thetarest2)) /
+  out(3) =
+      -(copt58 * copt59 * copt60 * copt61 *
+        (copt384 * copt524 * l0 * l1 + copt225 * copt381 * l0 * l2 +
+         copt222 * copt63 * l1 * l2 + copt63 * l1 * l2 * thetarest0 +
+         copt225 * l0 * l2 * thetarest1 + copt384 * l0 * l1 * thetarest2)) /
+      2.;
+  out(4) = -(copt58 * copt59 * copt60 * copt61 *
+             (copt383 * copt524 * copt534 * l0 * l1 +
+              copt224 * copt381 * copt531 * l0 * l2 +
+              copt222 * copt528 * copt62 * l1 * l2 +
+              copt528 * copt62 * l1 * l2 * thetarest0 +
+              copt224 * copt531 * l0 * l2 * thetarest1 +
+              copt383 * copt534 * l0 * l1 * thetarest2)) /
            2.;
-  out(4) = (copt58 * copt59 * copt60 * copt61 *
-            (copt383 * copt524 * copt534 * l0 * l1 +
-             copt224 * copt381 * copt531 * l0 * l2 +
-             copt222 * copt528 * copt62 * l1 * l2 -
-             copt528 * copt62 * l1 * l2 * thetarest0 -
-             copt224 * copt531 * l0 * l2 * thetarest1 -
-             copt383 * copt534 * l0 * l1 * thetarest2)) /
-           2.;
-  out(5) = (copt58 * copt59 * copt60 * copt61 *
-            (copt524 * copt545 * l0 * l1 + copt381 * copt542 * l0 * l2 +
-             copt222 * copt539 * l1 * l2 - copt539 * l1 * l2 * thetarest0 -
-             copt542 * l0 * l2 * thetarest1 - copt545 * l0 * l1 * thetarest2)) /
-           2.;
+  out(5) =
+      -(copt58 * copt59 * copt60 * copt61 *
+        (copt524 * copt545 * l0 * l1 + copt381 * copt542 * l0 * l2 +
+         copt222 * copt539 * l1 * l2 + copt539 * l1 * l2 * thetarest0 +
+         copt542 * l0 * l2 * thetarest1 + copt545 * l0 * l1 * thetarest2)) /
+      2.;
   return out;
 }

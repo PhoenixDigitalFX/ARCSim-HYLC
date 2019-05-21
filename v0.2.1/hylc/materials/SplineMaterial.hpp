@@ -52,8 +52,8 @@ class SplineMaterial : public BaseMaterial {
   std::vector<Poly1D> polys_1d;
   std::vector<Poly2D> polys_2d;
 
-  Vec6 strainshift;
-  Vec6 strainscale;
+  std::vector<double> strainshift;
+  std::vector<double> strainscale;
   // Vec6 strain_min, strain_max;
 
   bool initialized;
@@ -67,12 +67,15 @@ class SplineMaterial : public BaseMaterial {
   // }
 
  private:
-  double bspeed = 1e0, bscale = 1e2;
-  bool use_barrier = true;
-  double psi_barrier(const Vec6 &strain, const Vec6 &strainclamped);
-  Vec6 grad_barrier(const Vec6 &strain, const Vec6 &strainclamped);
-  std::pair<Mat6x6, Vec6> gradhess_barrier(const Vec6 &strain,
-                                           const Vec6 &strainclamped);
+
+  typedef Mat<3, 3> Mat3x3;
+  typedef Vec<3> Vec3;
+  // principal curvature stuff
+  Vec3 pc_val(double lxx, double lxy, double lyy);
+  std::tuple<Mat3x3, Vec3>
+  pc_valgrad(double lxx, double lxy, double lyy);
+  std::tuple<std::vector<Mat3x3>, Mat3x3, Vec3>
+  pc_valdrv(double lxx, double lxy, double lyy);
 };
 
 }  // namespace hylc

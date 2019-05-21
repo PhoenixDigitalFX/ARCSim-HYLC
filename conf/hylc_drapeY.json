@@ -7,6 +7,7 @@
     },
     // "disable": ["remeshing"],
     "implicit": true,
+    // "implicit": true,
     // "explicit_massdamping": 1e-1, // maybe even lower
     // "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
