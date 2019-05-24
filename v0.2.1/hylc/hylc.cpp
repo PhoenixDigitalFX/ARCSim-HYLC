@@ -428,6 +428,20 @@ void hylc::hylc_add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
   // std::chrono::high_resolution_clock::time_point t0 =
   //     std::chrono::high_resolution_clock::now();
 
+
+strain0a = 1e2;
+strain0b = -1e2;
+strain1a = 1e2;
+strain1b = -1e2;
+strain2a = 1e2;
+strain2b = -1e2;
+strain3a = 1e5;
+strain3b = -1e5;
+strain4a = 1e5;
+strain4b = -1e5;
+strain5a = 1e5;
+strain5b = -1e5;
+
 #pragma omp parallel for
   for (int i = 0; i < n_triangles; ++i) {
     local_Hg[i] = hylc_local_forces<s>(mesh.faces[i]);

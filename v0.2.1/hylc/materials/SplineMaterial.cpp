@@ -78,7 +78,6 @@ double SplineMaterial::psi(const Vec6 &strain) {
   return val;
 }
 
-// TODO MIGHT BE WRONG GRADIENTS, CURRENTLY CHECKING IN PSI_DRV
 Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
   Vec6 grad(0);
   if (!initialized)
@@ -103,7 +102,7 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
     if (s.k < 3) {  // in-plane
       double x = S(s.k);
       grad(s.k) += s.dx(x) * invsc;
-    } else if (s.k == 4) {  // x-bending
+    } else if (s.k == 3) {  // x-bending
       // d(l1,l2,cc)
       gradpc(0) += cc * s.dx(l1 * invsc) * invsc;
       gradpc(1) += (1 - cc) * s.dx(l2 * invsc) * invsc;
@@ -119,6 +118,7 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
 
   // 2D
   for (auto &s : hsplines_2d) {
+    // TODO SAME WHATEVER  DONE IN PSIDRV
     // assume sorted, k1 > k0
     assert(s.k1 > s.k0 && s.k0 < 3);
     if (s.k1 < 3) {  // in plane
@@ -129,7 +129,7 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
     } else {  // since we dont have double curve, k0 has to be in plane
       double x     = S(s.k0);
       double invsc = 1.0 / this->strainscale[s.k1];
-      if (s.k1 == 4) {
+      if (s.k1 == 3) {
         grad(s.k0) +=
             (cc * s.dx(x, l1 * invsc) + (1 - cc) * s.dx(x, l2 * invsc)) /
             this->strainscale[s.k0];
@@ -194,8 +194,8 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
 
   // printf(" From %.2f %.2f %.2f\n",strain[3], strain[4], strain[5]);
   // printf("   To %.2f %.2f %.2f\n", l1, l2, cc);
-  printf(" From (%.2f %.2f %.2f) to (%.2f %.2f %.2f)\n", strain[3], strain[4],
-         strain[5], l1, l2, cc);
+  // printf(" From (%.2f %.2f %.2f) to (%.2f %.2f %.2f)\n", strain[3], strain[4],
+  //        strain[5], l1, l2, cc);
 
   Vec3 S;
   for (int i = 0; i < 3; i++)
@@ -211,7 +211,7 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
     } else {
       double dxl1 = s.dx(l1 * invsc);
       double dxl2 = s.dx(l2 * invsc);
-      if (s.k == 4) {  // x-bending
+      if (s.k == 3) {  // x-bending
         // d(l1,l2,cc)
         gradpc(0) += cc * dxl1 * invsc;
         gradpc(1) += (1 - cc) * dxl2 * invsc;
@@ -238,7 +238,18 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
 
   // 2D
   for (auto &s : hsplines_2d) {
-    continue;  // DEBUG
+    // continue;  // DEBUG
+
+    // if (!(s.k0 == 0 && s.k0 == 2)) {
+    //   if (s.k0 == 0) 
+    //     if (S(s.k0) < 0)
+    //       continue;
+
+    //   if (s.k1 == 2)
+    //     if (S(s.k1) < 0)
+    //       continue;
+    // }
+
     double invsc0 = 1.0 / this->strainscale[s.k0];
     double invsc1 = 1.0 / this->strainscale[s.k1];
     // assume sorted, k1 > k0
@@ -259,7 +270,7 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
       double dxl2 = s.dx(x, l2 * invsc1);
       double dyl1 = s.dy(x, l1 * invsc1);
       double dyl2 = s.dy(x, l2 * invsc1);
-      if (s.k1 == 4) {
+      if (s.k1 == 3) {
         //   val += cc * s.eval(x, l1 / this->strainscale[s.k1]) +
         //          (1 - cc) * s.eval(x, l2 / this->strainscale[s.k1]);
 
@@ -315,18 +326,7 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
         hesspc(1, 2) += dyl2 * invsc1;
       }
     }
-    // double x = X(s.k0);
-    // double y     = X(s.k1);
 
-    // if (!(s.k0 == 0 && s.k0 == 2)) {
-    //   if (s.k0 == 0 || s.k0 == 2)
-    //     if (x < 0)
-    //       continue;
-
-    //   if (s.k1 == 0 || s.k1 == 2)
-    //     if (y < 0)
-    //       continue;
-    // }
   }
 
   // grad_pc Psi -> grad_pc(k) Psi . dPC(k)/dL(i)

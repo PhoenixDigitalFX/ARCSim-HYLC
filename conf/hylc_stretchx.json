@@ -8,16 +8,18 @@
     // "explicit_massdamping": 1e1, // high
     // "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
-    "frame_steps": 15, // implicit works even with 10!, explicit 500ish
+    "frame_steps": 50, // implicit works even with 10!, explicit 500ish
     "end_time": 1.5, // TODO 0.7
     "cloths": [{
         // "mesh": "meshes/square.obj",
         /* "mesh": "meshes/hylc_square0p.obj", */
         // "mesh": "meshes/hylc_square2p.obj",
-        "mesh": "meshes/hylc_square2p.obj",
+        "mesh": "meshes/hylc_square1p.obj",
         "transform": {"scale": 0.3, "translate": [-0.15, -0.3, 0.2]},
         "materials": [{"data": "materials/gray-interlock.json",
-                       "thicken": 2, "damping": 1e-2}] // high damping for implicit,
+                       "thicken": 2,
+                      //  "strain_limits": [0.8, 10.0],
+                       "damping": 1e-3}] // high damping for implicit,
         ,"remeshing": {
             "refine_angle": 0.3,
             "refine_compression": 0.01,
@@ -31,12 +33,14 @@
     "wind": {"density": 1e1}, // TODO?
     "motions": [[
         {"time": 0, "transform": {"translate": [0,0,0]}},
-        // {"time": 0.7, "transform": {"translate": [-0.075,0,0]}}
-        {"time": 0.4, "transform": {"translate": [-0.035,0,0]}}
+        // {"time": 0.1, "transform": {"translate": [0,0,0]}},
+        {"time": 0.5, "transform": {"translate": [-0.1,0,0]}}
+        // {"time": 0.4, "transform": {"translate": [-0.035,0,0]}}
     ], [
         {"time": 0, "transform": {"translate": [0,0,0]}},
-        // {"time": 0.7, "transform": {"translate": [0.075,0,0]}}
-        {"time": 0.4, "transform": {"translate": [0.035,0,0]}}
+        // {"time": 0.1, "transform": {"translate": [0,0,0]}},
+        {"time": 0.5, "transform": {"translate": [0.1,0,0]}}
+        // {"time": 0.4, "transform": {"translate": [0.035,0,0]}}
     ]],
     /* "handles": [
       {"nodes": [3,0], "motion": 0},
