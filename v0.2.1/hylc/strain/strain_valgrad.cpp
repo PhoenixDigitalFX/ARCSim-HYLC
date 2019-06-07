@@ -1,4 +1,5 @@
 #include "strain.hpp"
+#ifndef hylc_strain_II
 
 using namespace hylc;
 using namespace hylc::mathematica;
@@ -2135,3 +2136,4 @@ std::tuple<Mat6x18, Vec6> hylc::mathematica::strain_valgrad(
   return std::make_tuple(grad, val);
 }
 
+#endif // hylc_strain_II

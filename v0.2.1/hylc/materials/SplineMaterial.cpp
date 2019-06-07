@@ -1,3 +1,6 @@
+#define PC_CURVATURE
+#ifdef PC_CURVATURE
+
 #include "SplineMaterial.hpp"
 #include <memory>
 #include <vector>
@@ -5,7 +8,14 @@
 using namespace hylc;
 using namespace fitpackpp;
 
-SplineMaterial::SplineMaterial() {}
+SplineMaterial::SplineMaterial() {
+  s_kx=1e-2;
+  s_ky=1e-2;
+  s_kx=1e1;
+  s_ky=1e1;
+  s_kx=1.0;
+  s_ky=1.0;
+}
 
 double SplineMaterial::psi(const Vec6 &strain) {
   double val = 0;
@@ -15,6 +25,8 @@ double SplineMaterial::psi(const Vec6 &strain) {
   // PC is a vector of (k1,k2,c^2),
   // where k1,k2 are principal curvatures and c^2 is the squared cos of the
   // angle between x axis and first eigenvector
+  // double ss=0.25;
+  // Vec3 PC_val = pc_val(ss*strain[3], ss*strain[4], ss*strain[5]);
   Vec3 PC_val = pc_val(strain[3], strain[4], strain[5]);
   double l1   = PC_val(0);
   double l2   = PC_val(1);
@@ -34,11 +46,12 @@ double SplineMaterial::psi(const Vec6 &strain) {
     if (s.k < 3) {  // in-plane
       double x = S(s.k);
       val += s.eval(x);
-    } else if (s.k == 4) {  // x-bending
-      val += cc * s.eval(l1 / this->strainscale[s.k]) +
+    } 
+    else if (s.k == 3) {  // x-bending
+      val += s_kx * cc * s.eval(l1 / this->strainscale[s.k]) +
              (1 - cc) * s.eval(l2 / this->strainscale[s.k]);
     } else {  // y-bending
-      val += cc * s.eval(l2 / this->strainscale[s.k]) +
+      val += s_ky * cc * s.eval(l2 / this->strainscale[s.k]) +
              (1 - cc) * s.eval(l1 / this->strainscale[s.k]);
     }
   }
@@ -65,12 +78,12 @@ double SplineMaterial::psi(const Vec6 &strain) {
       val += s.eval(x, y);
     } else {  // since we dont have double curve, k0 has to be in plane
       double x = S(s.k0);
-      if (s.k1 == 4) {
-        val += cc * s.eval(x, l1 / this->strainscale[s.k1]) +
-               (1 - cc) * s.eval(x, l2 / this->strainscale[s.k1]);
+      if (s.k1 == 3) {
+        val += s_kx *(cc * s.eval(x, l1 / this->strainscale[s.k1]) +
+               (1 - cc) * s.eval(x, l2 / this->strainscale[s.k1]));
       } else {
-        val += cc * s.eval(x, l2 / this->strainscale[s.k1]) +
-               (1 - cc) * s.eval(x, l1 / this->strainscale[s.k1]);
+        val += s_ky * (cc * s.eval(x, l2 / this->strainscale[s.k1]) +
+               (1 - cc) * s.eval(x, l1 / this->strainscale[s.k1]));
       }
     }
   }
@@ -104,15 +117,15 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
       grad(s.k) += s.dx(x) * invsc;
     } else if (s.k == 3) {  // x-bending
       // d(l1,l2,cc)
-      gradpc(0) += cc * s.dx(l1 * invsc) * invsc;
-      gradpc(1) += (1 - cc) * s.dx(l2 * invsc) * invsc;
-      gradpc(2) += s.eval(l1 * invsc) - s.eval(l2 * invsc);
+      gradpc(0) += s_kx * cc * s.dx(l1 * invsc) * invsc;
+      gradpc(1) += s_kx * (1 - cc) * s.dx(l2 * invsc) * invsc;
+      gradpc(2) += s_kx * (s.eval(l1 * invsc) - s.eval(l2 * invsc));
 
     } else {  // y-bending
       // d(l1,l2,cc)
-      gradpc(0) += (1 - cc) * s.dx(l1 * invsc) / this->strainscale[s.k];
-      gradpc(1) += cc * s.dx(l2 * invsc) * invsc;
-      gradpc(2) += s.eval(l2 * invsc) - s.eval(l1 * invsc);
+      gradpc(0) += s_ky * (1 - cc) * s.dx(l1 * invsc) * invsc;
+      gradpc(1) += s_ky * cc * s.dx(l2 * invsc) * invsc;
+      gradpc(2) += s_ky * (s.eval(l2 * invsc) - s.eval(l1 * invsc));
     }
   }
 
@@ -131,18 +144,18 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
       double invsc = 1.0 / this->strainscale[s.k1];
       if (s.k1 == 3) {
         grad(s.k0) +=
-            (cc * s.dx(x, l1 * invsc) + (1 - cc) * s.dx(x, l2 * invsc)) /
+            s_kx * (cc * s.dx(x, l1 * invsc) + (1 - cc) * s.dx(x, l2 * invsc)) /
             this->strainscale[s.k0];
-        gradpc(0) += cc * s.dy(x, l1 * invsc) * invsc;
-        gradpc(1) += (1 - cc) * s.dy(x, l2 * invsc) * invsc;
-        gradpc(2) += s.eval(x, l1 * invsc) - s.eval(x, l2 * invsc);
+        gradpc(0) += s_kx * cc * s.dy(x, l1 * invsc) * invsc;
+        gradpc(1) += s_kx * (1 - cc) * s.dy(x, l2 * invsc) * invsc;
+        gradpc(2) += s_kx * (s.eval(x, l1 * invsc) - s.eval(x, l2 * invsc));
       } else {
         grad(s.k0) +=
-            (cc * s.dx(x, l2 * invsc) + (1 - cc) * s.dx(x, l1 * invsc)) /
+            s_ky * (cc * s.dx(x, l2 * invsc) + (1 - cc) * s.dx(x, l1 * invsc)) /
             this->strainscale[s.k0];
-        gradpc(0) += (1 - cc) * s.dy(x, l1 * invsc) * invsc;
-        gradpc(1) += cc * s.dy(x, l2 * invsc) * invsc;
-        gradpc(2) += s.eval(x, l2 * invsc) - s.eval(x, l1 * invsc);
+        gradpc(0) += s_ky * (1 - cc) * s.dy(x, l1 * invsc) * invsc;
+        gradpc(1) += s_ky * cc * s.dy(x, l2 * invsc) * invsc;
+        gradpc(2) += s_ky * (s.eval(x, l2 * invsc) - s.eval(x, l1 * invsc));
       }
     }
     // double x = X(s.k0);
@@ -179,11 +192,9 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
   Mat3x3 hesspc(0);     // d2 / dpc dpc
   Mat3x3 hessmixed(0);  // d2 / ds dpc
 
-  // TODO FIX 0 curvature making nans, probs because mathmatica simplified
-  // something to division by zero, disregarding eps
-  // double DEBUG = (strain[3] < 0) ? -1 : 1;
-
-  auto PC = pc_valdrv(strain[3], strain[4], strain[5]);
+  double ss=1;
+  // double ss=0.25;
+  auto PC = pc_valdrv(ss*strain[3], ss*strain[4], ss*strain[5]);
   // auto PC                      = pc_valdrv(strain[3], strain[4], strain[5]);
   std::vector<Mat3x3> &PC_hess = std::get<0>(PC);
   Mat3x3 &PC_grad              = std::get<1>(PC);
@@ -213,32 +224,32 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
       double dxl2 = s.dx(l2 * invsc);
       if (s.k == 3) {  // x-bending
         // d(l1,l2,cc)
-        gradpc(0) += cc * dxl1 * invsc;
-        gradpc(1) += (1 - cc) * dxl2 * invsc;
-        gradpc(2) += s.eval(l1 * invsc) - s.eval(l2 * invsc);
+        gradpc(0) += s_kx * cc * dxl1 * invsc;
+        gradpc(1) += s_kx * (1 - cc) * dxl2 * invsc;
+        gradpc(2) += s_kx * (s.eval(l1 * invsc) - s.eval(l2 * invsc));
         // only filling nonzero upper triangular
-        hesspc(0, 0) += cc * s.dxdx(l1 * invsc) * invsc * invsc;
+        hesspc(0, 0) += s_kx * cc * s.dxdx(l1 * invsc) * invsc * invsc;
         // hesspc(0, 1) += 0;
-        hesspc(0, 2) += dxl1 * invsc;
-        hesspc(1, 1) += (1 - cc) * s.dxdx(l2 * invsc) * invsc * invsc;
-        hesspc(1, 2) += -dxl2 * invsc;
+        hesspc(0, 2) += s_kx * dxl1 * invsc;
+        hesspc(1, 1) += s_kx * (1 - cc) * s.dxdx(l2 * invsc) * invsc * invsc;
+        hesspc(1, 2) += s_kx * -dxl2 * invsc;
         // hesspc(2, 2) += 0;
       } else {  // y-bending
         // d(l1,l2,cc)
-        gradpc(0) += (1 - cc) * dxl1 * invsc;
-        gradpc(1) += cc * dxl2 * invsc;
-        gradpc(2) += s.eval(l2 * invsc) - s.eval(l1 * invsc);
-        hesspc(0, 0) += (1 - cc) * s.dxdx(l1 * invsc) * invsc * invsc;
-        hesspc(0, 2) += -dxl1 * invsc;
-        hesspc(1, 1) += cc * s.dxdx(l2 * invsc) * invsc * invsc;
-        hesspc(1, 2) += dxl2 * invsc;
+        gradpc(0) += s_ky * (1 - cc) * dxl1 * invsc;
+        gradpc(1) += s_ky * cc * dxl2 * invsc;
+        gradpc(2) += s_ky * (s.eval(l2 * invsc) - s.eval(l1 * invsc));
+        hesspc(0, 0) += s_ky * (1 - cc) * s.dxdx(l1 * invsc) * invsc * invsc;
+        hesspc(0, 2) += s_ky * -dxl1 * invsc;
+        hesspc(1, 1) += s_ky * cc * s.dxdx(l2 * invsc) * invsc * invsc;
+        hesspc(1, 2) += s_ky * dxl2 * invsc;
       }
     }
   }
 
   // 2D
   for (auto &s : hsplines_2d) {
-    // continue;  // DEBUG
+    continue;  // DEBUG
 
     // if (!(s.k0 == 0 && s.k0 == 2)) {
     //   if (s.k0 == 0) 
@@ -274,56 +285,56 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
         //   val += cc * s.eval(x, l1 / this->strainscale[s.k1]) +
         //          (1 - cc) * s.eval(x, l2 / this->strainscale[s.k1]);
 
-        grad(s.k0) += (cc * dxl1 + (1 - cc) * dxl2) * invsc0;
-        gradpc(0) += cc * dyl1 * invsc1;
-        gradpc(1) += (1 - cc) * dyl2 * invsc1;
-        gradpc(2) += s.eval(x, l1 * invsc1) - s.eval(x, l2 * invsc1);
+        grad(s.k0) += s_kx * (cc * dxl1 + (1 - cc) * dxl2) * invsc0;
+        gradpc(0) += s_kx * cc * dyl1 * invsc1;
+        gradpc(1) += s_kx * (1 - cc) * dyl2 * invsc1;
+        gradpc(2) += s_kx * (s.eval(x, l1 * invsc1) - s.eval(x, l2 * invsc1));
 
         hess(s.k0, s.k0) +=
-            (cc * s.dxdx(x, l1 * invsc1) + (1 - cc) * s.dxdx(x, l2 * invsc1)) *
+            s_kx * (cc * s.dxdx(x, l1 * invsc1) + (1 - cc) * s.dxdx(x, l2 * invsc1)) *
             invsc0 * invsc0;
 
         // hessmixed adds jitter 
-        double tmp0 = cc * s.dxdy(x, l1 * invsc1) * invsc1 * invsc0;
+        double tmp0 = s_kx * cc * s.dxdy(x, l1 * invsc1) * invsc1 * invsc0;
         hessmixed(s.k0, 0) += tmp0;
         hessmixed(0, s.k0) += tmp0;
-        double tmp1 = (1 - cc) * s.dxdy(x, l2 * invsc1) * invsc1 * invsc0;
+        double tmp1 = s_kx * (1 - cc) * s.dxdy(x, l2 * invsc1) * invsc1 * invsc0;
         hessmixed(s.k0, 1) += tmp1;
         hessmixed(1, s.k0) += tmp1;
-        double tmp2 = (dxl1 - dxl2) * invsc0;
+        double tmp2 = s_kx * (dxl1 - dxl2) * invsc0;
         hessmixed(s.k0, 2) += tmp2;
         hessmixed(2, s.k0) += tmp2;
 
-        hesspc(0, 0) += cc * s.dydy(x, l1 * invsc1) * invsc1 * invsc1;
-        hesspc(0, 2) += dyl1 * invsc1;
-        hesspc(1, 1) += (1 - cc) * s.dydy(x, l2 * invsc1) * invsc1 * invsc1;
-        hesspc(1, 2) += -dyl2 * invsc1;
+        hesspc(0, 0) += s_kx * cc * s.dydy(x, l1 * invsc1) * invsc1 * invsc1;
+        hesspc(0, 2) += s_kx * dyl1 * invsc1;
+        hesspc(1, 1) += s_kx * (1 - cc) * s.dydy(x, l2 * invsc1) * invsc1 * invsc1;
+        hesspc(1, 2) += s_kx * -dyl2 * invsc1;
       } else {
       //   val += cc * s.eval(x, l2 / this->strainscale[s.k1]) +
       //          (1 - cc) * s.eval(x, l1 / this->strainscale[s.k1]);
-        grad(s.k0) += (cc * dxl2 + (1 - cc) * dxl1) * invsc0;
-        gradpc(0) += (1 - cc) * dyl1 * invsc1; // this adds jitter..?
-        gradpc(1) += cc * dyl2 * invsc1;
-        gradpc(2) += s.eval(x, l2 * invsc1) - s.eval(x, l1 * invsc1);
+        grad(s.k0) += s_ky * (cc * dxl2 + (1 - cc) * dxl1) * invsc0;
+        gradpc(0) += s_ky * (1 - cc) * dyl1 * invsc1; // this adds jitter..?
+        gradpc(1) += s_ky * cc * dyl2 * invsc1;
+        gradpc(2) += s_ky * (s.eval(x, l2 * invsc1) - s.eval(x, l1 * invsc1));
 
         hess(s.k0, s.k0) +=
-            (cc * s.dxdx(x, l2 * invsc1) + (1 - cc) * s.dxdx(x, l1 * invsc1)) *
+            s_ky * (cc * s.dxdx(x, l2 * invsc1) + (1 - cc) * s.dxdx(x, l1 * invsc1)) *
             invsc0 * invsc0;
 
-        double tmp0 = (1 - cc) * s.dxdy(x, l1 * invsc1) * invsc0 * invsc1;
+        double tmp0 = s_ky * (1 - cc) * s.dxdy(x, l1 * invsc1) * invsc0 * invsc1;
         hessmixed(s.k0, 0) += tmp0;
         hessmixed(0, s.k0) += tmp0;
-        double tmp1 = cc * s.dxdy(x, l2 * invsc1) * invsc0 * invsc1;
+        double tmp1 = s_ky * cc * s.dxdy(x, l2 * invsc1) * invsc0 * invsc1;
         hessmixed(s.k0, 1) += tmp1;
         hessmixed(1, s.k0) += tmp1;
-        double tmp2 = (dxl2 - dxl1) * invsc0;
+        double tmp2 = s_ky * (dxl2 - dxl1) * invsc0;
         hessmixed(s.k0, 2) += tmp2;
         hessmixed(2, s.k0) += tmp2;
 
-        hesspc(0, 0) += (1 - cc) * s.dydy(x, l1 * invsc1) * invsc1 * invsc1;
-        hesspc(0, 2) += -dyl1 * invsc1;
-        hesspc(1, 1) += cc * s.dydy(x, l2 * invsc1) * invsc1 * invsc1;
-        hesspc(1, 2) += dyl2 * invsc1;
+        hesspc(0, 0) += s_ky * (1 - cc) * s.dydy(x, l1 * invsc1) * invsc1 * invsc1;
+        hesspc(0, 2) += s_ky * -dyl1 * invsc1;
+        hesspc(1, 1) += s_ky * cc * s.dydy(x, l2 * invsc1) * invsc1 * invsc1;
+        hesspc(1, 2) += s_ky * dyl2 * invsc1;
       }
     }
 
@@ -694,3 +705,5 @@ std::tuple<std::vector<Mat3x3>, Mat3x3, Vec3> SplineMaterial::pc_valdrv(
 
   return std::make_tuple(hess, grad, val);
 }
+
+#endif //PC_CURVATURE

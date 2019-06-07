@@ -3,13 +3,13 @@
         "enabled": true,
         "material": "hylcmaterials/basket1.json"
     },
-    "disable": ["remeshing"],
+    // "disable": ["remeshing"],
     "implicit": true, // currently explicit explodes but implicit works..
     // "explicit_massdamping": 1e1, // high
     // "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
     "frame_steps": 50, // implicit works even with 10!, explicit 500ish
-    "end_time": 1.5, // TODO 0.7
+    "end_time": 2.0, // TODO 0.7
     "cloths": [{
         // "mesh": "meshes/square.obj",
         /* "mesh": "meshes/hylc_square0p.obj", */
@@ -30,11 +30,13 @@
             "aspect_min": 0.2
         }
     }],
-    "wind": {"density": 1e1}, // TODO?
+    "wind": {"density": 3e1}, // TODO?
+    // "wind": {"density": 1e1}, // TODO?
     "handlebars": [
       {"side": 0, "lengthp": 1.1, "widthp": 0.26, "insetp": 0.0, "motion": 0}
+    //   ,{"side": 3, "lengthp": 1.1, "widthp": 0.26, "insetp": 0.0, "motion": 0}
     ],
-    "gravity": [0, 0, -9.8],
+    "gravity": [0, 0, 9.8],
     "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6,
       // "handle_stiffness": 1e6, // default 1e3
       // "fixed_high_res_mesh": true,

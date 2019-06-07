@@ -9,7 +9,7 @@
     // "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
     "frame_steps": 50, // implicit works even with 10!, explicit 500ish
-    "end_time": 1.5, // TODO 0.7
+    "end_time": 2.0, // TODO 0.7
     "cloths": [{
         // "mesh": "meshes/square.obj",
         /* "mesh": "meshes/hylc_square0p.obj", */

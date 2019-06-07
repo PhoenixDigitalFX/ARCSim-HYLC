@@ -1,4 +1,6 @@
 #include "strain.hpp"
+#ifndef hylc_strain_II
+
 
 using namespace hylc;
 using namespace hylc::mathematica;
@@ -595,3 +597,5 @@ Vec6 hylc::mathematica::strain(const Vec18 &xloc, const Mat2x2 &invDm,
       2.;
   return out;
 }
+
+#endif // hylc_strain_II

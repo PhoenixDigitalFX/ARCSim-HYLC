@@ -12,7 +12,8 @@ extern void parse(int &x, const Json::Value &json);
 extern void parse(bool &x, const Json::Value &json);
 extern void parse(std::string &x, const Json::Value &json);
 
-template <typename T> void parse(T &x, const Json::Value &json, const T &x0) {
+template <typename T>
+void parse(T &x, const Json::Value &json, const T &x0) {
   if (json.isNull())
     x = x0;
   else
@@ -114,7 +115,7 @@ void parse(HermiteSpline2D &spline, const Json::Value &json) {
   if (!json["muv"].isNull())
     parse(spline.muv, json["muv"]);
   else
-    spline.muv.resize(spline.mu.size(),0);
+    spline.muv.resize(spline.mu.size(), 0);
   parse(spline.ext, json["ext"], 0);
 }
 
@@ -146,6 +147,92 @@ void parse(Poly2D &poly, const Json::Value &json) {
     parse(poly.ymin, json["ymin"]);
     parse(poly.ymax, json["ymax"]);
   }
+}
+
+#include <random>
+void testmat(std::shared_ptr<SplineMaterial> mat) {
+  // TEST PLOT EXTRAPOLATION
+  Vec6 straintst(0);
+  straintst(0) = 1.0;
+  straintst(2) = 1.0;
+
+  // // std::cout << "\n\n\n\n";
+  // // for (int i = 0; i < 100; ++i) {
+  // //   Vec6 straincopy = straintst;
+  // //   double a = i * 1.0 / 100;
+  // //   straincopy(0) = (1 - a) * 0.1 + a * 3.5;
+  // //   double psi = global_material->psi(straincopy);
+  // //   std::cout << straincopy(0) << ", " << psi << ", ";
+  // // }
+  // // std::cout << "\n\n\n\n";
+  // // for (int i = 0; i < 100; ++i) {
+  // //   Vec6 straincopy = straintst;
+  // //   double a = i * 1.0 / 100;
+  // //   straincopy(1) = (1 - a) * -10 + a * 10;
+  // //   double psi = global_material->psi(straincopy);
+  // //   std::cout << straincopy(1) << ", " << psi << ", ";
+  // // }
+  // // std::cout << "\n\n\n\n";
+  // // for (int i = 0; i < 100; ++i) {
+  // //   Vec6 straincopy = straintst;
+  // //   double a = i * 1.0 / 100;
+  // //   straincopy(5) = (1 - a) * -150 + a * 150;
+  // //   double psi = global_material->psi(straincopy);
+  // //   std::cout << straincopy(5) << ", " << psi << ", ";
+  // // }
+  // // std::cout << "\n\n\n\n";
+  // int k0=0,k1=2,n=25;
+  // for (int i = 0; i < n; ++i) {
+  //   double a = i * 1.0 / n;
+  //   for (int j = 0; j < n; ++j) {
+  //     Vec6 straincopy = straintst;
+  //     double b = j * 1.0 / n;
+  //     straincopy(k0) = (1 - a) * 0.3 + a * 1.2;
+  //     straincopy(k1) = (1 - b) * -0.2 + b * 0.0;
+  //     straincopy(k0) += 1;
+  //     straincopy(k1) += 1;
+  //     // straincopy(k0) = (1 - a) * -160 + a * 150;
+  //     // straincopy(k1) = (1 - b) * -200 + b * 200;
+  //     double psi = material->psi(straincopy);
+  //     printf("%.10e, %.10e, %.10e, ", straincopy(k0),straincopy(k1), psi);
+  //   }
+  // }
+  // std::cout << "\n\n\n\n";
+
+  // TEST GRADIENTS
+  // std::mt19937 rng(1991);
+  // std::uniform_real_distribution<> rnd(-0.5, 0.5);
+
+  // std::cout << "\n\n\n\n<clip>";
+  // for (float p = -9; p < -1.01; p += 0.1f) {
+  //   Vec6 x;
+  //   for (int i = 0; i < 6; i++) x(i) = rnd(rng) * (i < 3 ? 1 : 200);
+  //   x(0) += 1.0;
+  //   x(2) += 1.0;
+
+  //   Vec6 dx;
+  //   for (int i = 0; i < 6; i++)
+  //     // dx(i) = rnd(rng) * (i < 3 ? 1 : 200);
+  //     dx(i) = rnd(rng);
+
+  //   // for (int i = 3; i < 6; i++) {
+  //   //   dx(i) = 0;
+  //   //   x(i)  = 0;
+  //   // }
+  //   dx = dx * 1.0 / norm(dx);
+
+  //   double eps = std::pow(10, p);
+
+  //   // psi (s + eps ds) - [psi(s) + eps ds dpsids(s)] ~~ O(eps^2)
+  //   double psi0 = mat->psi(x);
+  //   double psi1 = mat->psi(x + eps * dx);
+
+  //   std::pair<Mat6x6, Vec6> drv = mat->psi_drv(x);
+  //   double epsdsdpsids          = eps * dot(dx, drv.second);
+  //   double err                  = std::abs(psi0 + epsdsdpsids - psi1);
+  //   printf("%.2e, %.10e, ", eps, err);
+  // }
+  // std::cout << "<clip>\n\n\n\n";
 }
 
 std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
@@ -217,55 +304,7 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
 
   material->initialized = true;
 
-
-
-  // TEST PLOT EXTRAPOLATION
-  Vec6 straintst(0);
-  straintst(0) = 1.0;
-  straintst(2) = 1.0;
-
-  // // std::cout << "\n\n\n\n";
-  // // for (int i = 0; i < 100; ++i) {
-  // //   Vec6 straincopy = straintst;
-  // //   double a = i * 1.0 / 100;
-  // //   straincopy(0) = (1 - a) * 0.1 + a * 3.5;
-  // //   double psi = global_material->psi(straincopy);
-  // //   std::cout << straincopy(0) << ", " << psi << ", ";
-  // // }
-  // // std::cout << "\n\n\n\n";
-  // // for (int i = 0; i < 100; ++i) {
-  // //   Vec6 straincopy = straintst;
-  // //   double a = i * 1.0 / 100;
-  // //   straincopy(1) = (1 - a) * -10 + a * 10;
-  // //   double psi = global_material->psi(straincopy);
-  // //   std::cout << straincopy(1) << ", " << psi << ", ";
-  // // }
-  // // std::cout << "\n\n\n\n";
-  // // for (int i = 0; i < 100; ++i) {
-  // //   Vec6 straincopy = straintst;
-  // //   double a = i * 1.0 / 100;
-  // //   straincopy(5) = (1 - a) * -150 + a * 150;
-  // //   double psi = global_material->psi(straincopy);
-  // //   std::cout << straincopy(5) << ", " << psi << ", ";
-  // // }
-  // // std::cout << "\n\n\n\n";
-  // int k0=0,k1=2,n=25;
-  // for (int i = 0; i < n; ++i) {
-  //   double a = i * 1.0 / n;
-  //   for (int j = 0; j < n; ++j) {
-  //     Vec6 straincopy = straintst;
-  //     double b = j * 1.0 / n;
-  //     straincopy(k0) = (1 - a) * 0.3 + a * 1.2;
-  //     straincopy(k1) = (1 - b) * -0.2 + b * 0.0;
-  //     straincopy(k0) += 1;
-  //     straincopy(k1) += 1;
-  //     // straincopy(k0) = (1 - a) * -160 + a * 150;
-  //     // straincopy(k1) = (1 - b) * -200 + b * 200;
-  //     double psi = material->psi(straincopy);
-  //     printf("%.10e, %.10e, %.10e, ", straincopy(k0),straincopy(k1), psi);
-  //   }
-  // }
-  // std::cout << "\n\n\n\n";
+  testmat(material);
 
   return material;
 }

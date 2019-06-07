@@ -67,6 +67,7 @@ class SplineMaterial : public BaseMaterial {
   // }
 
  private:
+  double s_kx,s_ky;
 
   typedef Mat<3, 3> Mat3x3;
   typedef Vec<3> Vec3;

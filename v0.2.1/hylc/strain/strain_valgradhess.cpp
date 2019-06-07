@@ -1,4 +1,5 @@
 #include "strain.hpp"
+#ifndef hylc_strain_II
 
 using namespace hylc;
 using namespace hylc::mathematica;
@@ -12002,3 +12003,4 @@ hylc::mathematica::strain_valdrv(const Vec18 &xloc, const Mat2x2 &invDm,
 
   return std::make_tuple(hess, grad, val);
 }
+#endif // hylc_strain_II

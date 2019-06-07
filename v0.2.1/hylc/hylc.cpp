@@ -1,7 +1,7 @@
-
-
 #include "hylc.hpp"
 #include "../blockvectors.hpp"
+#include "seamforce.hpp"
+double seam_stiffness =  0*1e3; // TODO JSON PARAM
 
 namespace hylc {
 
@@ -48,7 +48,6 @@ void compute_local_information(const Face *face, Vec18 &xlocal, double &l0,
     xlocal[3 + j] = x1[j];
     xlocal[6 + j] = x2[j];
   }
-
 
   // potential neighbors
   Node *nn0 = nullptr, *nn1 = nullptr, *nn2 = nullptr;
@@ -123,6 +122,25 @@ double hylc_local_energy(const Face *face) {
   double E = get_material()->psi(strain);
   // psi is energy density, constant over triangle
   E *= A;
+
+  // SEAM FORCES
+  // spring for each boundary/seam-edge in a face
+  // (seams shared by two faces will get two forces!)
+  // TODO
+  // for each edge
+  // if edge is seam
+  // get L matspace, get x0 x1, compute and add
+  if (seam_stiffness > 0)
+    for (int i = 0; i < 3; i++) {
+      Edge *e = face->adje[i];
+      if (!is_seam_or_boundary(e))
+        continue;
+      Vec3 x0  = e->n[0]->x;
+      Vec3 x1  = e->n[1]->x;
+      double L = e->l;
+      E += seam_stiffness*seamforce_val(x0, x1, L);
+    }
+
   return E;
 
   // NOTE: probably not optimal recomputing normals within mmcpp of strains
@@ -157,12 +175,12 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
 
   double Acpy         = A;
   bool debug_localize = false;  // TODO also other methods
-  Mat2x2 tile;
-  tile(0, 0) = 0.032;
-  tile(1, 0) = 0.0;
-  tile(0, 1) = 0.0;
-  tile(1, 1) = 0.02;
   if (debug_localize) {
+    Mat2x2 tile;
+    tile(0, 0) = 0.032;
+    tile(1, 0) = 0.0;
+    tile(0, 1) = 0.0;
+    tile(1, 1) = 0.02;
     if (nn0_exists) {
       t0 = normalize(t0);
       l0 = norm(tile * t0);
@@ -218,6 +236,42 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   // first part 1x6 * 6x18x18
   for (int i = 0; i < 6; ++i) H += psidrv.second[i] * strain_hess[i];
 
+
+  g = g * A;
+  H = H * A;
+  // SEAM FORCES
+  // spring for each boundary/seam-edge in a face
+  // (seams shared by two faces will get two forces!)
+  if (seam_stiffness > 0)
+    for (int i = 0; i < 3; i++) {
+      Edge *e = face->adje[i];
+      if (!is_seam_or_boundary(e))
+        continue;
+      Vec3 x0  = e->n[0]->x;
+      Vec3 x1  = e->n[1]->x;
+      double L = e->l;
+      auto drv = seamforce_drv(x0, x1, L);
+
+      // GET CORRECT INDEX, there might be a simpler prior structure
+      auto getIndexInFace = [&](Node *n) {
+        return n == face->v[0]->node ? 0 : (n == face->v[1]->node ? 1 : 2);
+      };
+      int i0 = getIndexInFace(e->n[0]);
+      int i1 = getIndexInFace(e->n[1]);
+
+      for (int j = 0; j < 3; j++) {
+        g(i0*3 + j) += seam_stiffness*drv.second(j);
+        g(i1*3 + j) += seam_stiffness*drv.second(3+j);
+        for (int k = 0; k < 3; k++) {
+          H(i0*3 + j, i0*3 + k) += seam_stiffness*drv.first(j,k);
+          H(i1*3 + j, i0*3 + k) += seam_stiffness*drv.first(3+j,k);
+          H(i0*3 + j, i1*3 + k) += seam_stiffness*drv.first(j,3+k);
+          H(i1*3 + j, i1*3 + k) += seam_stiffness*drv.first(3+j,3+k);
+        }
+      }
+    }
+  // TODO PUT IN LOCALNOJAC ALSO A thingie refactor
+
   // DEBUG SPDify 18x18 matrix
   // TODO maybe deal with the boundary triangles with < 18 dof
   // make Eigen map to H.. cant, need to copy...
@@ -261,7 +315,8 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
 
   // bool check_me = norm(A*g) > 5e-1;
   // if (check_me) {
-  //   printf("  strain= [%.2f, %.2f, %.2f, %.2f, %.2f, %.2f]\n",strain(0),strain(1),strain(2),strain(3),strain(4),strain(5));
+  //   printf("  strain= [%.2f, %.2f, %.2f, %.2f, %.2f,
+  //   %.2f]\n",strain(0),strain(1),strain(2),strain(3),strain(4),strain(5));
   //   printf("  |A*g| = %.2e\n",norm(A*g));
   //   printf("\n");
   //   // strain(1)=0;
@@ -271,8 +326,7 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   //   // A=0;
   // }
 
-
-  return std::make_pair(A * H, A * g);
+  return std::make_pair(H, g);
 }
 
 template <Space s>
@@ -322,7 +376,35 @@ Vec18 hylc_local_forces_nojac(const Face *face) {
   Vec6 psi_grad = get_material()->psi_grad(strain);
   Vec18 g       = transpose(strain_grad) * psi_grad;
 
-  return A * g;
+
+  g = g * A;
+  // SEAM FORCES
+  // spring for each boundary/seam-edge in a face
+  // (seams shared by two faces will get two forces!)
+  if (seam_stiffness > 0)
+    for (int i = 0; i < 3; i++) {
+      Edge *e = face->adje[i];
+      if (!is_seam_or_boundary(e))
+        continue;
+      Vec3 x0  = e->n[0]->x;
+      Vec3 x1  = e->n[1]->x;
+      double L = e->l;
+      Vec6 drv = seamforce_grad(x0, x1, L);
+
+      // GET CORRECT INDEX, there might be a simpler prior structure
+      auto getIndexInFace = [&](Node *n) {
+        return n == face->v[0]->node ? 0 : (n == face->v[1]->node ? 1 : 2);
+      };
+      int i0 = getIndexInFace(e->n[0]);
+      int i1 = getIndexInFace(e->n[1]);
+
+      for (int j = 0; j < 3; j++) {
+        g(i0*3 + j) += seam_stiffness*drv(j);
+        g(i1*3 + j) += seam_stiffness*drv(3+j);
+      }
+    }
+
+  return g;
 }
 
 template <int m, int n>
@@ -428,19 +510,18 @@ void hylc::hylc_add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
   // std::chrono::high_resolution_clock::time_point t0 =
   //     std::chrono::high_resolution_clock::now();
 
-
-strain0a = 1e2;
-strain0b = -1e2;
-strain1a = 1e2;
-strain1b = -1e2;
-strain2a = 1e2;
-strain2b = -1e2;
-strain3a = 1e5;
-strain3b = -1e5;
-strain4a = 1e5;
-strain4b = -1e5;
-strain5a = 1e5;
-strain5b = -1e5;
+  strain0a = 1e2;
+  strain0b = -1e2;
+  strain1a = 1e2;
+  strain1b = -1e2;
+  strain2a = 1e2;
+  strain2b = -1e2;
+  strain3a = 1e5;
+  strain3b = -1e5;
+  strain4a = 1e5;
+  strain4b = -1e5;
+  strain5a = 1e5;
+  strain5b = -1e5;
 
 #pragma omp parallel for
   for (int i = 0; i < n_triangles; ++i) {
