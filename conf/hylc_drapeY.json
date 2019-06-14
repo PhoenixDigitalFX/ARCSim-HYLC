@@ -10,7 +10,7 @@
     // "explicit_massdamping": 1e-1, // maybe even lower
     // "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
-    "frame_steps": 50,
+    "frame_steps": 35,
     "end_time": 10,
     "cloths": [{
         "mesh": "meshes/hylc_square0p.obj",
@@ -44,10 +44,14 @@
         "transform": {"scale": 0.03,"translate": [0.0,0.0,-0.04]}
     }],
     "gravity": [0, 0, -9.8],
-    "obs_friction": 0.052, // TODO this should be pretty low for basket/stock bc we had friction low at those YLC, cartrib is being redone with higher friction because it sagged away so it needs it
-
-    "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6,
-        // "fixed_high_res_mesh": true,
-        "relax_initial_state": false
-    }
+    "obs_friction": 0.052,// TODO this should be pretty low for basket/stock bc we had friction low at those YLC, cartrib is being redone with higher friction because it sagged away so it needs it
+    "magic": {
+        // "repulsion_thickness": 1e-4, 
+        "repulsion_thickness": 1e-3, 
+        // "repulsion_thickness": 5e-3, 
+        "collision_stiffness": 1e6,
+	      "relax_initial_state": false
+        //   ,"fixed_high_res_mesh": true
+            }
+}
 }

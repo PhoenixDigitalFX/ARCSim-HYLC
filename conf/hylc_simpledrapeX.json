@@ -36,7 +36,7 @@
       {"side": 0, "lengthp": 1.1, "widthp": 0.26, "insetp": 0.0, "motion": 0}
     //   ,{"side": 3, "lengthp": 1.1, "widthp": 0.26, "insetp": 0.0, "motion": 0}
     ],
-    "gravity": [0, 0, 9.8],
+    "gravity": [0, 0, -9.8],
     "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6,
       // "handle_stiffness": 1e6, // default 1e3
       // "fixed_high_res_mesh": true,

@@ -249,7 +249,7 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
 
   // 2D
   for (auto &s : hsplines_2d) {
-    continue;  // DEBUG
+    // continue;  // DEBUG
 
     // if (!(s.k0 == 0 && s.k0 == 2)) {
     //   if (s.k0 == 0) 

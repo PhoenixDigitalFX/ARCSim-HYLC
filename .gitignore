@@ -15,3 +15,5 @@ __pycache__
 *.tags*
 *TAGS*
 *tags*
+
+*XDG_CACHE_HOME*

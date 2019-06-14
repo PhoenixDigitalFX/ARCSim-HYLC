@@ -3,34 +3,41 @@
         "enabled": true,
         "material": "hylcmaterials/basket1.json"
     },
-    "disable": ["remeshing"],
+    // "disable": ["remeshing"],
     "implicit": true,
     // "explicit_massdamping": 1e1, // high
     // "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
-    "frame_steps": 10,
+    "frame_steps": 50,
     "end_time": 1.0, // TODO
     "cloths": [{
-        "remeshing": {
-            "refine_angle": 0.3,
-            "refine_compression": 0.005,
-            "refine_velocity": 0.5,
-            //"size": [10e-3, 200e-3],
-            "size": [1e-2, 1e-2],
-            "aspect_min": 0.2
-        },
+        // "mesh": "meshes/square.obj",
         /* "mesh": "meshes/hylc_square0p.obj", */
-        "mesh": "meshes/hylc_square1p.obj",
+        // "mesh": "meshes/hylc_square2p.obj",
+        "mesh": "meshes/hylc_square2p.obj",
         "transform": {"scale": 0.3, "translate": [-0.15, -0.3, 0.2]},
         "materials": [{"data": "materials/gray-interlock.json",
-                       "thicken": 2, "damping": 1e-2}]
+                       "thicken": 2,
+                      //  "strain_limits": [0.8, 10.0],
+                       "damping": 1e-2}] // high damping for implicit,
+        ,"remeshing": {
+            "refine_angle": 0.3,
+            "refine_compression": 0.01,
+            "refine_velocity": 0.5,
+            "size": [10e-3, 50e-3],
+            // "size": [10e-3, 100e-3],
+            // "size": [10e-3, 200e-3],
+            "aspect_min": 0.2
+        }
     }],
     "motions": [[
         {"time": 0, "transform": {"translate": [0,0,0]}},
-        {"time": 0.7, "transform": {"translate": [0,-0.075,0]}}
+        // {"time": 0.7, "transform": {"translate": [0,-0.075,0]}}
+        {"time": 0.4, "transform": {"translate": [0,-0.045,0]}} // rib
     ], [
         {"time": 0, "transform": {"translate": [0,0,0]}},
-        {"time": 0.7, "transform": {"translate": [0,0.075,0]}}
+        // {"time": 0.7, "transform": {"translate": [0,0.075,0]}}
+        {"time": 0.4, "transform": {"translate": [0,0.045,0]}} // rib
     ]],
     /* "handles": [
       {"nodes": [3], "motion": 1},
@@ -39,13 +46,14 @@
       {"nodes": [1], "motion": 0}
     ], */
     "handlebars": [
-        {"side": 1, "lengthp": 0.75, "widthp": 0.25, "insetp": 0.0, "motion": 0},
-        {"side": 3, "lengthp": 0.75, "widthp": 0.25, "insetp": 0.0, "motion": 1}
+        // {"side": 1, "lengthp": 0.75, "widthp": 0.25, "insetp": 0.0, "motion": 0},
+        // {"side": 3, "lengthp": 0.75, "widthp": 0.25, "insetp": 0.0, "motion": 1}
+        {"side": 1, "lengthp": 0.67, "widthp": 0.07, "insetp": 0.16, "motion": 0}, 
+        {"side": 3, "lengthp": 0.67, "widthp": 0.07, "insetp": 0.16, "motion": 1}
       ],
     "gravity": [0, 0, -9.8],
     "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6,
-        // "handle_stiffness": 1e6, // default 1e3
-	      "relax_initial_state": false,
-              "fixed_high_res_mesh": true
-            }
+      // "handle_stiffness": 1e6, // default 1e3
+      // "fixed_high_res_mesh": true,
+      "relax_initial_state": false}
 }
