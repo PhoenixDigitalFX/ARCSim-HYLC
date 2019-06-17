@@ -46,9 +46,10 @@ executable = os.path.join(builddir, "bin", "arcsim_0.2.1")
 op = "simulateoffline"
 
 conffolder = os.path.join(os.getcwd(),"conf") 
+os.makedirs(os.path.join(os.getcwd(),"sims"), exist_ok=True)
 
 try:
-    for conf in os.listdir("conf"):
+    for conf in sorted(os.listdir("conf")):
         if not conf.endswith(".json"):
             continue
 
@@ -61,4 +62,4 @@ except KeyboardInterrupt:
     print("PY: Aborting execution")
 
 
-# && gnome-session-quit --power-off --force --no-prompt
+# python3 run.py && gnome-session-quit --power-off --force --no-prompt
