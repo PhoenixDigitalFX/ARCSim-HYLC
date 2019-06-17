@@ -54,8 +54,11 @@ try:
 
         simname = os.path.splitext(os.path.basename(conf))[0]
         confpath = os.path.join(os.getcwd(),"conf",conf) 
-        outputfolder = os.path.join(os.getcwd(),simname) 
+        outputfolder = os.path.join(os.getcwd(),"sims",simname) 
 
         subprocess.check_call([executable, op, confpath, outputfolder], cwd=workdir)
 except KeyboardInterrupt:
     print("PY: Aborting execution")
+
+
+# && gnome-session-quit --power-off --force --no-prompt

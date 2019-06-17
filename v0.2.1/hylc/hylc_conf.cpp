@@ -250,6 +250,7 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
   auto material = std::make_shared<SplineMaterial>();
 
   parse(material->density, json["density"]);
+  // material->density *= 2.0;
   // TODO damping (mass,stretch for expl and stiffness for impl)
 
   parse(material->strainscale, json["strain scale"]);

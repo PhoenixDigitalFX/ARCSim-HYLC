@@ -17,3 +17,5 @@ __pycache__
 *tags*
 
 *XDG_CACHE_HOME*
+# run_tests/*/*
+# rib_no*
