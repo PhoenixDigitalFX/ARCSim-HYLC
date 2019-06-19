@@ -14,18 +14,17 @@
         "mesh": "meshes/hylc_square2p.obj",
         "transform": {"scale": 0.3, "translate": [-0.15, -0.15, 0.0]},
         "materials": [{"data": "materials/gray-interlock.json",
-                       "thicken": 1, "damping": 3e-3}] // was 1e-3
+                       "thicken": 1, "damping": 5e-3}] // was 3e-3
                        ,"remeshing": {
                            "refine_angle": 0.3,
                            "refine_compression": 0.01,
                            "refine_velocity": 0.5,
-                           "size": [3e-3, 100e-3],
-                           // "size": [10e-3, 200e-3],
+                           "size": [3e-3, 60e-3],
+                           // "size": [10e-3, 100e-3],
                            "aspect_min": 0.2
                        }
     }],
-    "wind": {"density": 3e0}, // was 1e1
-
+    "wind": {"density": 0.8e1}, // was 1e1
     // "handles": [{"nodes": [2,3]}
     "handlespheres": [{
         "radius": 0.01,
@@ -38,11 +37,11 @@
         "mesh": "meshes/sphere.obj",
         "transform": {"scale": 0.03,"translate": [0.0,0.0,-0.04]}
     }],
-    "gravity": [0, 0, -9.8],
+    "gravity": [0, 0, -9.81],
     "obs_friction": 0.052,// TODO this should be pretty low for basket/stock bc we had friction low at those YLC, cartrib is being redone with higher friction because it sagged away so it needs it
     "magic": {
         // "repulsion_thickness": 1e-4, 
-        "repulsion_thickness": 1e-3, 
+        "repulsion_thickness": 5e-3, 
         // "repulsion_thickness": 5e-3, 
         "collision_stiffness": 1e6,
 	      "relax_initial_state": false

@@ -11,6 +11,7 @@ namespace hylc {
 struct Config {
   bool enabled = false; // false .. use arcsim material, true .. use hylc
   std::shared_ptr<BaseMaterial> material = nullptr;
+  double seam_stiffness = 0.0;
 };
 
 extern Config config; // global struct, defined in cpp, meh.. should try and use arcsim stuff instead.

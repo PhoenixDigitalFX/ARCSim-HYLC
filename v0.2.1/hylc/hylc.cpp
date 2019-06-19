@@ -1,7 +1,6 @@
 #include "hylc.hpp"
 #include "../blockvectors.hpp"
 #include "seamforce.hpp"
-double seam_stiffness =  0*1e3; // TODO JSON PARAM
 
 namespace hylc {
 
@@ -130,7 +129,7 @@ double hylc_local_energy(const Face *face) {
   // for each edge
   // if edge is seam
   // get L matspace, get x0 x1, compute and add
-  if (seam_stiffness > 0)
+  if (config.seam_stiffness > 0)
     for (int i = 0; i < 3; i++) {
       Edge *e = face->adje[i];
       if (!is_seam_or_boundary(e))
@@ -138,7 +137,7 @@ double hylc_local_energy(const Face *face) {
       Vec3 x0  = e->n[0]->x;
       Vec3 x1  = e->n[1]->x;
       double L = e->l;
-      E += seam_stiffness*seamforce_val(x0, x1, L);
+      E += config.seam_stiffness*seamforce_val(x0, x1, L);
     }
 
   return E;
@@ -242,7 +241,7 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   // SEAM FORCES
   // spring for each boundary/seam-edge in a face
   // (seams shared by two faces will get two forces!)
-  if (seam_stiffness > 0)
+  if (config.seam_stiffness > 0)
     for (int i = 0; i < 3; i++) {
       Edge *e = face->adje[i];
       if (!is_seam_or_boundary(e))
@@ -260,13 +259,13 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
       int i1 = getIndexInFace(e->n[1]);
 
       for (int j = 0; j < 3; j++) {
-        g(i0*3 + j) += seam_stiffness*drv.second(j);
-        g(i1*3 + j) += seam_stiffness*drv.second(3+j);
+        g(i0*3 + j) += config.seam_stiffness*drv.second(j);
+        g(i1*3 + j) += config.seam_stiffness*drv.second(3+j);
         for (int k = 0; k < 3; k++) {
-          H(i0*3 + j, i0*3 + k) += seam_stiffness*drv.first(j,k);
-          H(i1*3 + j, i0*3 + k) += seam_stiffness*drv.first(3+j,k);
-          H(i0*3 + j, i1*3 + k) += seam_stiffness*drv.first(j,3+k);
-          H(i1*3 + j, i1*3 + k) += seam_stiffness*drv.first(3+j,3+k);
+          H(i0*3 + j, i0*3 + k) += config.seam_stiffness*drv.first(j,k);
+          H(i1*3 + j, i0*3 + k) += config.seam_stiffness*drv.first(3+j,k);
+          H(i0*3 + j, i1*3 + k) += config.seam_stiffness*drv.first(j,3+k);
+          H(i1*3 + j, i1*3 + k) += config.seam_stiffness*drv.first(3+j,3+k);
         }
       }
     }
@@ -381,7 +380,7 @@ Vec18 hylc_local_forces_nojac(const Face *face) {
   // SEAM FORCES
   // spring for each boundary/seam-edge in a face
   // (seams shared by two faces will get two forces!)
-  if (seam_stiffness > 0)
+  if (config.seam_stiffness > 0)
     for (int i = 0; i < 3; i++) {
       Edge *e = face->adje[i];
       if (!is_seam_or_boundary(e))
@@ -399,8 +398,8 @@ Vec18 hylc_local_forces_nojac(const Face *face) {
       int i1 = getIndexInFace(e->n[1]);
 
       for (int j = 0; j < 3; j++) {
-        g(i0*3 + j) += seam_stiffness*drv(j);
-        g(i1*3 + j) += seam_stiffness*drv(3+j);
+        g(i0*3 + j) += config.seam_stiffness*drv(j);
+        g(i1*3 + j) += config.seam_stiffness*drv(3+j);
       }
     }
 

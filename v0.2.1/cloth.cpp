@@ -29,6 +29,7 @@
 using namespace std;
 
 void compute_masses(Cloth &cloth) {
+  double dbg_totalMass = 0;
   for (int v = 0; v < cloth.mesh.verts.size(); v++)
     cloth.mesh.verts[v]->m = 0;
   for (int n = 0; n < cloth.mesh.nodes.size(); n++)
@@ -41,9 +42,11 @@ void compute_masses(Cloth &cloth) {
     else
       density = cloth.materials[face->label]->density;
     face->m = face->a * density;
+    dbg_totalMass += face->m;
     for (int v = 0; v < 3; v++) {
       face->v[v]->m += face->m / 3.;
       face->v[v]->node->m += face->m / 3.;
     }
   }
+  printf("Total Mass: %.2e\n",dbg_totalMass);
 }
