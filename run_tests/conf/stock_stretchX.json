@@ -24,7 +24,7 @@
                            "aspect_min": 0.2
                        }
     }],
-    "wind": {"density": 5e0}, // was 1e1
+    "wind": {"density": 1e1}, // 5e0 was underdamped
     "motions": [[
         {"time": 0, "transform": {"translate": [0,0,0]}},
         // {"time": 0.1, "transform": {"translate": [0,0,0]}},

@@ -1,8 +1,8 @@
 {
     "hylc": {
         "enabled": true,
-        "material": "hylcmaterials/rib1.json"
-        //,"seam_stiffness": 1e2
+        "material": "hylcmaterials/rib12.json"
+        ,"seam_stiffness": 1e-4
     },
     // "disable": ["remeshing"],
     "implicit": true, // currently explicit explodes but implicit works..
@@ -15,19 +15,19 @@
         "mesh": "meshes/hylc_square2p.obj",
         "transform": {"scale": 0.3, "translate": [-0.15, -0.15, 0.0]},
         "materials": [{"data": "materials/gray-interlock.json",
-                       "thicken": 1, "damping": 5e-3}] // was 3e-3
+                       "thicken": 1, "damping": 3e-3}] // was 3e-3
                        ,"remeshing": {
                            "refine_angle": 0.3,
                            "refine_compression": 0.01,
                            "refine_velocity": 0.5,
-                           "size": [3e-3, 60e-3],
+                           "size": [10e-3, 60e-3],
                            // "size": [10e-3, 100e-3],
                            "aspect_min": 0.2
                        }
     }],
-    "wind": {"density": 1.5e1}, // was 1e1
+    "wind": {"density": 1.0e1}, // was 1e1
     "handlebars": [
-      {"side": 0, "lengthp": 0.67, "widthp": 0.07, "insetp": 0.16}
+      {"side": 0, "lengthp": 1.05, "widthp": 0.07, "insetp": 0.16}
     ],
     "gravity": [9.81, 0, 0],
     "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6,
