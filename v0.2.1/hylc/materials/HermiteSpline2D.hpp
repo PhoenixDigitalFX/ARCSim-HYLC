@@ -34,22 +34,33 @@ struct HermiteSpline2D {
 
     bool extrapol_u = false;
     bool extrapol_v = false;
+    bool extrapol_u_right = false;
+    bool extrapol_v_right = false;
 
     int ntv = (int)tv.size();
     int ntu = (int)tu.size();
 
-    if (i == 0 || i == ntv) {
+    if (i <= 0 || i >= ntv) {
       extrapol_v = true;
+      extrapol_v_right = i >= ntv;
       i          = std::max(1, std::min(ntv - 1, i));
     }
-    if (j == 0 || j == ntu) {
+    if (j <= 0 || j >= ntu) {
       extrapol_u = true;
+      extrapol_u_right = j >= ntu;
       j          = std::max(1, std::min(ntu - 1, j));
     }
     double deltau = (tu[j] - tu[j - 1]);
-    double u      = (x - tu[j - 1]) / deltau;
     double deltav = (tv[i] - tv[i - 1]);
-    double v      = (y - tv[i - 1]) / deltav;
+    double u,v;
+    if (extrapol_u_right)
+     u      = (x - tu[j]) / deltau;
+     else
+     u      = (x - tu[j - 1]) / deltau;
+    if (extrapol_v_right)
+     v      = (y - tv[i]) / deltav;
+    else
+     v      = (y - tv[i - 1]) / deltav;
 
     i = i - 1; // shift ixs to be left of x,y
     j = j - 1;
@@ -104,7 +115,7 @@ struct HermiteSpline2D {
     // Mat4x4 *Mu = &M, *MvT = &M;
     assert(ext >= 0 && ext <= 2);
     if (extrapol_u) {
-      if (j == 0)
+      if (!extrapol_u_right)
         Mu = &MextL;
       else
         Mu = &MextR;
@@ -116,7 +127,7 @@ struct HermiteSpline2D {
         U[3] = 0; // u^0 -> 0
     }
     if (extrapol_v) {
-      if (i == 0)
+      if (!extrapol_v_right)
         // MvT = &MextL;
         MvT = &MextLT;
       else

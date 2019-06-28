@@ -20,6 +20,7 @@
                            "refine_compression": 0.01,
                            "refine_velocity": 0.5,
                            "size": [3e-3, 60e-3],
+                           //"size": [13e-3, 60e-3], // WARNING TESTING
                            // "size": [10e-3, 100e-3],
                            "aspect_min": 0.2
                        }
@@ -48,5 +49,4 @@
 	      "relax_initial_state": false
         //   ,"fixed_high_res_mesh": true
             }
-}
 }

@@ -14,17 +14,18 @@
         "mesh": "meshes/hylc_square2p.obj",
         "transform": {"scale": 0.3, "translate": [-0.15, -0.15, 0.0]},
         "materials": [{"data": "materials/gray-interlock.json",
-                       "thicken": 1, "damping": 3e-3}] // was 3e-3
+                       "thicken": 1, "damping": 3e-3}] // somewhere in 1e-3 to 5e-3
                        ,"remeshing": {
                            "refine_angle": 0.3,
                            "refine_compression": 0.01,
                            "refine_velocity": 0.5,
-                           "size": [3e-3, 60e-3],
+                           "size": [6e-3, 40e-3], // because 2 rib sims failed to converge at remeshing steps
+                           //"size": [3e-3, 60e-3],
                            // "size": [10e-3, 100e-3],
                            "aspect_min": 0.2
                        }
     }],
-    "wind": {"density": 0.8e1}, // was 1e1
+    "wind": {"density": 5e0}, // 5e0 is sweet spot currently (4e0 and 6e0 too slow/fast) // NOTE TO SELF, 5e0 seems slow in falling but still jitters, maybe go for 3e0 but increase stiffdamp to 6e-3 or more
     // "handles": [{"nodes": [2,3]}
     "handlespheres": [{
         "radius": 0.01,

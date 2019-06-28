@@ -9,7 +9,7 @@
     // "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
     "frame_steps": 50,
-    "end_time": 1.0, // TODO
+    "end_time": 1.0, // 0.75
     "cloths": [{
         "mesh": "meshes/hylc_square2p.obj",
         "transform": {"scale": 0.3, "translate": [-0.15, -0.15, 0.0]},
@@ -20,6 +20,7 @@
                            "refine_compression": 0.01,
                            "refine_velocity": 0.5,
                            "size": [3e-3, 60e-3],
+                           //"size": [13e-3, 60e-3], // WARNING TESTING
                            // "size": [10e-3, 100e-3],
                            "aspect_min": 0.2
                        }
@@ -32,15 +33,7 @@
         {"time": 0, "transform": {"translate": [0,0,0]}},
         {"time": 0.4, "transform": {"translate": [0,0.035,0]}} // stock
     ]],
-    /* "handles": [
-      {"nodes": [3], "motion": 1},
-      {"nodes": [2], "motion": 1},
-      {"nodes": [0], "motion": 0},
-      {"nodes": [1], "motion": 0}
-    ], */
     "handlebars": [
-        // {"side": 1, "lengthp": 0.75, "widthp": 0.25, "insetp": 0.0, "motion": 0},
-        // {"side": 3, "lengthp": 0.75, "widthp": 0.25, "insetp": 0.0, "motion": 1}
         {"side": 1, "lengthp": 0.67, "widthp": 0.07, "insetp": 0.16, "motion": 0}, 
         {"side": 3, "lengthp": 0.67, "widthp": 0.07, "insetp": 0.16, "motion": 1}
       ],

@@ -24,8 +24,8 @@ auto makeMextR = [](){
     // [0,0,0,0],
     // [0,0,0,0],
     // [0,0,0,lin],
-    // [0,1,0,-lin]
-    return (Mat4x4 {Vec4{0,0,0,0},Vec4{0,0,0,1},Vec4{0,0,0,0},Vec4{0,0,1,-1}});
+    // [0,1,0,0]
+    return (Mat4x4 {Vec4{0,0,0,0},Vec4{0,0,0,1},Vec4{0,0,0,0},Vec4{0,0,1,0}});
 };
 
 Mat4x4 HermiteSpline2D::M = makeM();

@@ -9,7 +9,7 @@
     // "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
     "frame_steps": 50,
-    "end_time": 0.7, // TODO
+    "end_time": 1.0, // TODO
     "cloths": [{
         "mesh": "meshes/hylc_square2p.obj",
         "transform": {"scale": 0.3, "translate": [-0.15, -0.15, 0.0]},

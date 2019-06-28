@@ -126,10 +126,11 @@ struct Face {
   // plasticity data
   Mat2x2 S_plastic; // plastic strain
   double damage;    // accumulated norm of S_plastic/S_yield
+  Vec3 hylc_in_range; // DEBUG
   // constructors
   Face() {}
   explicit Face(Vert *vert0, Vert *vert1, Vert *vert2, int label = 0)
-      : label(label), a(0), m(0), S_plastic(0), damage(0) {
+      : label(label), a(0), m(0), S_plastic(0), damage(0),hylc_in_range(0) {
     v[0] = vert0;
     v[1] = vert1;
     v[2] = vert2;

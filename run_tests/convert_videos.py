@@ -11,6 +11,8 @@ try:
         inputfmt = "anims/%s/" % anim + "%4d.jpg"
         output = "vids/%s.mp4" % anim
         #os.makedirs("vids")
+        if not "basket_stretch" in anim:
+            continue
 
         # command = "ffmpeg -r 25 -start_number 0 -i " + inputfmt + " -vcodec libx264 -pix_fmt yuv420p" + output
         # command = "ffmpeg -r 25 -i " + inputfmt + " " + output # YLC

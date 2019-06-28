@@ -6,6 +6,7 @@ import argparse
 # workdir = os.path.join(os.getcwd(),"..") 
 
 folder1 = "/media/gsperl/Elements/HYLC/final_sim_copies/vids"
+# folder1 = "/media/gsperl/Elements/HYLC/2019-06-24-hwrib/vids"
 folder2 = "/home/gsperl/Projects/arcsim-hylc/run_tests/vids"
 output = "vids_merged"
 os.makedirs(output, exist_ok=True)
@@ -45,6 +46,8 @@ try:
     for i,(f1,f2) in enumerate(zip(files1,files2)):
 
         name = namingfun(f1)
+        # if not "rib" in name:
+        #     continue
 
         print(name)
         outfile = os.path.join(output,"%s.mp4" % name)

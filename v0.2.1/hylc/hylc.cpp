@@ -153,7 +153,7 @@ double strain0a = 10, strain0b = 0, strain1a = 10, strain1b = -10,
 double strain3a = 1e5, strain3b = -1e5, strain4a = 1e5, strain4b = -1e5,
        strain5a = 1e5, strain5b = -1e5;
 template <Space s>
-std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
+std::pair<Mat18x18, Vec18> hylc_local_forces(/* const*/ Face *face) {
   namespace mm = hylc::mathematica;
   using namespace hylc::mathematica;
   // 0. compute local primitive values
@@ -234,6 +234,21 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(const Face *face) {
   Mat18x18 H = transpose(strain_grad) * psidrv.first * strain_grad;
   // first part 1x6 * 6x18x18
   for (int i = 0; i < 6; ++i) H += psidrv.second[i] * strain_hess[i];
+
+
+  // DEBUG face color strain in range
+  face->hylc_in_range(0) = strain(0) > 0.5 && strain(0) < 1.8
+                          && strain(2) > 0.5 && strain(2) < 1.8
+                          && strain(1) > -0.7 && strain(1) < 0.7;
+
+  float lam1 = (strain(3)+strain(5))*0.5 + std::sqrt((strain(3)-strain(5))*(strain(3)-strain(5))*0.25 + strain(4)*strain(4));
+  float lam2 = (strain(3)+strain(5))*0.5 - std::sqrt((strain(3)-strain(5))*(strain(3)-strain(5))*0.25 + strain(4)*strain(4));
+  face->hylc_in_range(1) = lam1 > -200 && lam1 < 200 && lam2 > -200 && lam2 < 200;
+  // if (std::abs(lam1) > 200 || std::abs(lam2)>200)
+  // printf("%.2e %.2e\n",lam1,lam2);
+  bool special_range = (strain(2) < 1.8*0.9*0.9 && std::abs(lam1) < 200*0.9*0.9 && std::abs(lam2) < 200*0.9*0.9);
+  face->hylc_in_range(2) = special_range;
+
 
 
   g = g * A;
