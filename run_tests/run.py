@@ -52,8 +52,8 @@ try:
     for conf in sorted(os.listdir("conf")):
         if not conf.endswith(".json"):
             continue
-        if not "basket_stretch" in conf:
-            continue
+        # if not "basket_stretch" in conf:
+        #     continue
         simname = os.path.splitext(os.path.basename(conf))[0]
         confpath = os.path.join(os.getcwd(),"conf",conf) 
         outputfolder = os.path.join(os.getcwd(),"sims",simname) 
