@@ -3,9 +3,9 @@
 {
     "hylc": {
         "enabled": true,
-        // "material": "hylcmaterials/stockinette1.json"
-        // "material": "hylcmaterials/cartrib1.json"
-        "material": "hylcmaterials/basket1.json"
+        // "material": "hylcmaterials/stock1.json"
+        "material": "hylcmaterials/rib1.json"
+        // "material": "hylcmaterials/basket1.json"
     },
     "implicit": true,
 
@@ -16,7 +16,8 @@
     "cloths": [{
         "mesh": "meshes/dress2_uv.obj",
         "transform": {"rotate": [90, 1, 0, 0]},
-        "materials": [{"data": "materials/navy-sparkle-sweat.json", "bending_mult": 0.1}],
+        "materials": [{"data": "materials/navy-sparkle-sweat.json", "bending_mult": 0.1,
+            "damping": 1e-3}], // ?
         "remeshing": {
             "refine_angle": 0.3,
             "refine_compression": 0.01,
@@ -26,6 +27,7 @@
             "aspect_min": 0.2
         }
     }],
+    "wind": {"density": 1e1}, // ?
     "motions": {
         "motfile": "meshes/dance-paused.mot",
         "fps": 30,
