@@ -20,9 +20,9 @@ int sgn(double x) {
   return (x > 0) - (x < 0);
 }
 
-bool skip_2D(int k0, int k1) {
-  return false;
-  // return true;
+bool select_2D(int k0, int k1) {
+  return true; // use all
+  // return false; // use none
 
   // bool keep = k1 <= 2 || (k0 == 0 && k1 == 4) || (k0 == 2 && k1 == 3); //stock sy still weird
   // bool keep = k1 <= 2 || (k0 == 2 && k1 == 3); //stock sy still weird
@@ -30,7 +30,7 @@ bool skip_2D(int k0, int k1) {
   // bool keep = (k0 == 2 && k1 == 3); // this is also fine alone ??
   bool keep = (k0 == 0 && k1 == 2) || (k0 == 2 && k1 == 3); // this is bad
   // bool keep = (k0 == 0 && k1 == 2); // fine alone
-  return !keep;
+  return keep;
 }
 
 SplineMaterial::SplineMaterial() {
@@ -103,7 +103,7 @@ double SplineMaterial::psi(const Vec6 &strain) {
 
   // 2D
   for (auto &s : hsplines_2d) {
-    if (skip_2D(s.k0,s.k1))
+    if (!select_2D(s.k0,s.k1))
       continue;
     // // double x = X(s.k0);
     // // double y = X(s.k1);
@@ -213,7 +213,7 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
 
   // 2D
   for (auto &s : hsplines_2d) {
-    if (skip_2D(s.k0,s.k1))
+    if (!select_2D(s.k0,s.k1))
       continue;
     // TODO SAME WHATEVER  DONE IN PSIDRV
     // assume sorted, k1 > k0
@@ -372,7 +372,7 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
 
   // 2D
   for (auto &s : hsplines_2d) {
-    if (skip_2D(s.k0,s.k1))
+    if (!select_2D(s.k0,s.k1))
       continue;
     // continue;  // DEBUG
 
