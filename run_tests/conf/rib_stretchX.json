@@ -11,10 +11,10 @@
     "frame_steps": 50, // implicit works even with 10!, explicit 500ish
     "end_time": 1.0, 
     "cloths": [{
-        "mesh": "meshes/hylc_square2p.obj",
+        "mesh": "meshes/hylc_square.obj",
         "transform": {"scale": 0.3, "translate": [-0.15, -0.15, 0.0]},
         "materials": [{"data": "materials/gray-interlock.json",
-                       "thicken": 1, "damping": 3e-3}] // somewhere in 1e-3 to 5e-3
+                       "thicken": 1, "damping": 3.6e-3}] // somewhere in 1e-3 to 5e-3
                        ,"remeshing": {
                            "refine_angle": 0.3,
                            "refine_compression": 0.01,
@@ -51,5 +51,6 @@
     "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6,
       // "handle_stiffness": 1e6, // default 1e3
       // "fixed_high_res_mesh": true,
-      "relax_initial_state": false}
+        "handle_stiffness": 1e5,
+        "relax_initial_state": false}
 }
