@@ -237,17 +237,41 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(/* const*/ Face *face) {
 
 
   // DEBUG face color strain in range
-  face->hylc_in_range(0) = strain(0) > 0.5 && strain(0) < 1.8
-                          && strain(2) > 0.5 && strain(2) < 1.8
-                          && strain(1) > -0.7 && strain(1) < 0.7;
+  // face->hylc_in_range(0) = strain(0) > 0.5 && strain(0) < 1.8
+  //                         && strain(2) > 0.5 && strain(2) < 1.8
+  //                         && strain(1) > -0.7 && strain(1) < 0.7;
 
-  float lam1 = (strain(3)+strain(5))*0.5 + std::sqrt((strain(3)-strain(5))*(strain(3)-strain(5))*0.25 + strain(4)*strain(4));
-  float lam2 = (strain(3)+strain(5))*0.5 - std::sqrt((strain(3)-strain(5))*(strain(3)-strain(5))*0.25 + strain(4)*strain(4));
-  face->hylc_in_range(1) = lam1 > -200 && lam1 < 200 && lam2 > -200 && lam2 < 200;
-  // if (std::abs(lam1) > 200 || std::abs(lam2)>200)
-  // printf("%.2e %.2e\n",lam1,lam2);
-  bool special_range = (strain(2) < 1.8*0.9*0.9 && std::abs(lam1) < 200*0.9*0.9 && std::abs(lam2) < 200*0.9*0.9);
-  face->hylc_in_range(2) = special_range;
+  // float lam1 = (strain(3)+strain(5))*0.5 + std::sqrt((strain(3)-strain(5))*(strain(3)-strain(5))*0.25 + strain(4)*strain(4));
+  // float lam2 = (strain(3)+strain(5))*0.5 - std::sqrt((strain(3)-strain(5))*(strain(3)-strain(5))*0.25 + strain(4)*strain(4));
+  // face->hylc_in_range(1) = lam1 > -200 && lam1 < 200 && lam2 > -200 && lam2 < 200;
+  // // if (std::abs(lam1) > 200 || std::abs(lam2)>200)
+  // // printf("%.2e %.2e\n",lam1,lam2);
+  // bool special_range = (strain(2) < 1.8*0.9*0.9 && std::abs(lam1) < 200*0.9*0.9 && std::abs(lam2) < 200*0.9*0.9);
+  // face->hylc_in_range(2) = special_range;
+
+  if (debug.debug_color != 0) {
+    std::vector<int> shifts = {1,0,1,0,0};
+    std::vector<double> norms = {1.0,1.0,1.0,200.0,200.0};
+    int i = debug.debug_color-1;
+    double x;
+    if (i < 3)
+      x = (strain(i) - shifts[i])/norms[i];
+    else {
+      double lam1 = (strain(3)+strain(5))*0.5 + std::sqrt((strain(3)-strain(5))*(strain(3)-strain(5))*0.25 + strain(4)*strain(4));
+      double lam2 = (strain(3)+strain(5))*0.5 - std::sqrt((strain(3)-strain(5))*(strain(3)-strain(5))*0.25 + strain(4)*strain(4));
+      double l1, l2;
+      if (std::abs(lam1) > std::abs(lam2)) {
+        l1 = lam1;
+        l2 = lam2;
+      } else {
+        l1 = lam2;
+        l2 = lam1;
+      }
+      x = std::vector<double>{l1,l2}[i-3] / norms[3];
+    }
+
+    face->hylc_in_range(0) = x;
+  }
 
 
 
@@ -700,3 +724,54 @@ template void hylc::hylc_add_internal_forces<WS>(const Cloth &,
 template void hylc::hylc_add_internal_forces<PS>(const Cloth &,
                                                  std::vector<Vec3> &, double,
                                                  double);
+
+#include <fstream>
+void hylc::hylc_write_strains(const std::string & filename, const Cloth &cloth) {
+  namespace mm = hylc::mathematica;
+
+  const Mesh &mesh = cloth.mesh;
+  int n_triangles  = mesh.faces.size();
+  std::vector<Vec6> strains(n_triangles);
+  std::vector<Vec2> uvs(n_triangles);
+#pragma omp parallel for
+  for (int i = 0; i < n_triangles; ++i) {
+    Face *face = mesh.faces[i];
+    // 0. compute local primitive values
+    Vec18 xlocal;
+    double l0, l1, l2;
+    double theta_rest0, theta_rest1, theta_rest2;
+    bool nn0_exists, nn1_exists, nn2_exists;
+    compute_local_information<WS>(face, xlocal, l0, l1, l2, theta_rest0,
+                                theta_rest1, theta_rest2, nn0_exists, nn1_exists,
+                                nn2_exists);
+
+    double A     = face->a;      // material space / reference config area
+    Mat2x2 invDm = face->invDm;  // shape matrix
+    Vec2 t0 = face->t0, t1 = face->t1, t2 = face->t2;
+
+    t0 *= (double)nn0_exists;
+    t1 *= (double)nn1_exists;
+    t2 *= (double)nn2_exists;
+
+    // 1. mmcpp compute epsilon(x),kappa(x) as vec6
+    strains[i] = mm::strain(xlocal, invDm, A, theta_rest0, theta_rest1, theta_rest2,
+                        l0, l1, l2, t0, t1, t2);
+
+    // centroid in uv for filtering
+    const Vert *v0 = face->v[0], *v1 = face->v[1],
+              *v2 = face->v[2];
+    uvs[i] = 1.0/3.0 * (v0->u + v1->u + v2->u);
+  }
+
+  std::ofstream myfile;
+  myfile.open (filename);
+  for (int i = 0; i < n_triangles; ++i) {
+    for  (int j = 0; j < 6; ++j)
+      myfile << strains[i][j] << " ";
+    for  (int j = 0; j < 2; ++j)
+      myfile << uvs[i][j] << " ";
+    myfile << "\n";
+  }
+  myfile.close();
+
+}

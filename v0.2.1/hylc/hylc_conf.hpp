@@ -17,6 +17,12 @@ struct Config {
 extern Config config; // global struct, defined in cpp, meh.. should try and use arcsim stuff instead.
 // like actually make my material a replacement for arcsim material
 
+
+struct Debug {
+  int debug_color = 0; // cycle through colorcoded strain rendering (0 = none) 
+};
+extern Debug debug;
+
 void parse_hylc(const Json::Value &json);
 } // namespace hylc
 

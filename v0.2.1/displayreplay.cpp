@@ -26,6 +26,9 @@
 
 #include "displayreplay.hpp"
 
+#include "hylc/hylc_conf.hpp"
+#include "hylc/hylc.hpp"
+
 #include "conf.hpp"
 #include "display.hpp"
 #include "io.hpp"
@@ -79,6 +82,13 @@ static void keyboard (unsigned char key, int x, int y) {
         exit(0);
     } else if (key == space) {
         running = !running;
+    } else if (key == 'p') {
+        std::string filename = "TMP_c";
+        int c = 0;
+        for (auto & cloth : sim.cloths) {
+            hylc::hylc_write_strains(filename + std::to_string(c) + ".txt", cloth);
+            c++;
+        }
     }
 }
 

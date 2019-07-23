@@ -5,6 +5,7 @@
 using namespace hylc;
 
 hylc::Config hylc::config{};
+hylc::Debug hylc::debug{};
 
 extern void complain(const Json::Value &json, const std::string &expected);
 extern void parse(double &x, const Json::Value &json);

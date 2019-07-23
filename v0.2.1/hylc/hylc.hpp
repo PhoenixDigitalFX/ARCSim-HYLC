@@ -18,6 +18,7 @@
 #include "strain/strain.hpp"
 
 #include <iostream>
+#include <string>
 
 #define USE_SPARSE3
 
@@ -35,5 +36,7 @@ void hylc_add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
 template <Space s>
 void hylc_add_internal_forces(const Cloth &cloth, std::vector<Vec3> &b,
                               double dt, double stretchdamping);
+
+void hylc_write_strains(const std::string & filename, const Cloth &cloth);
 } // namespace hylc
 #endif /* end of include guard: _HYLC_H_ */

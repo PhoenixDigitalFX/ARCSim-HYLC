@@ -222,6 +222,24 @@ void draw_meshes_ps (bool set_color=false) {
         draw_mesh_ps(*meshes[m], set_color);
 }
 
+#include "hylc/hylc_conf.hpp"
+Vec3 hylc_colormap(double a) {
+    // a in -1 to 1
+    if (a < 0) {
+        a = std::min(1.0, -a);
+        if (a < 0.99)
+            return (1-a) * Vec3(0.9,0.9,0.9) + a * Vec3(0.1,0.1,0.9);
+        else
+            return Vec3(0.0,0.0,1.0);
+    } else {
+        a = std::min(1.0, a);
+        if (a < 0.99)
+            return (1-a) * Vec3(0.9,0.9,0.9) + a * Vec3(0.9,0.1,0.1);
+        else
+            return Vec3(1.0,0.0,0.0);
+    }
+}
+
 template <Space s>
 void draw_mesh (const Mesh &mesh, bool set_color=false) {
     if (set_color)
@@ -242,11 +260,15 @@ void draw_mesh (const Mesh &mesh, bool set_color=false) {
 
             static Vec3 a = Vec3(0.92, -0.39, 0), b = Vec3(0.05, 0.12, -0.99);
             Vec3 frt = Vec3(0.7,0.7,0.7) + (a*cos(hue) + b*sin(hue))*0.3;
-            // frt(0) =  (1 - face->hylc_in_range(0)) +frt(0) * face->hylc_in_range(0);
-            // frt(2) =  (1 - face->hylc_in_range(1)) + frt(2) *face->hylc_in_range(1);
-            if (face->hylc_in_range(0)<1 || face->hylc_in_range(1)<1) {
-                frt = Vec3(1-face->hylc_in_range(0),1-face->hylc_in_range(2),1-face->hylc_in_range(1));
-            }
+            // // frt(0) =  (1 - face->hylc_in_range(0)) +frt(0) * face->hylc_in_range(0);
+            // // frt(2) =  (1 - face->hylc_in_range(1)) + frt(2) *face->hylc_in_range(1);
+            // if (face->hylc_in_range(0)<1 || face->hylc_in_range(1)<1) {
+            //     frt = Vec3(1-face->hylc_in_range(0),1-face->hylc_in_range(2),1-face->hylc_in_range(1));
+            // }
+
+            if (hylc::debug.debug_color != 0)
+                frt = hylc_colormap(face->hylc_in_range(0));
+
             Vec3 bak = frt*0.5 + Vec3(0.5,0.5,0.5);
             float front[4] = {frt[0], frt[1], frt[2], 1},
                   back[4] = {bak[0], bak[1], bak[2], 1};
