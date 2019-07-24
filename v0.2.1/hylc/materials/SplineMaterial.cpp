@@ -20,17 +20,24 @@ int sgn(double x) {
   return (x > 0) - (x < 0);
 }
 
+
 bool select_2D(int k0, int k1) {
   return true; // use all
   // return false; // use none
 
+  // testing for drapeX
+  // return (k1 == 4 || k1 == 3) && (k0 == 2);
+  // return k1 >= 3 && (k0 == 2);
+  // return k1 >= 3 && (k0 == 0 || k0 == 1 || k0 == 2);
+
+  // testing for stretchX
   // bool keep = k1 <= 2 || (k0 == 0 && k1 == 4) || (k0 == 2 && k1 == 3); //stock sy still weird
   // bool keep = k1 <= 2 || (k0 == 2 && k1 == 3); //stock sy still weird
   // bool keep = k1 <= 2;// || (k0 == 2 && k1 == 3); // now its fine..
   // bool keep = (k0 == 2 && k1 == 3); // this is also fine alone ??
-  bool keep = (k0 == 0 && k1 == 2) || (k0 == 2 && k1 == 3); // this is bad
+  // bool keep = (k0 == 0 && k1 == 2) || (k0 == 2 && k1 == 3); // this is bad
   // bool keep = (k0 == 0 && k1 == 2); // fine alone
-  return keep;
+  // return keep;
 }
 
 SplineMaterial::SplineMaterial() {
