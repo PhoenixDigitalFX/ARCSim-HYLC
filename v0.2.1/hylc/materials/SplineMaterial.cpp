@@ -41,10 +41,10 @@ bool select_2D(int k0, int k1) {
 }
 
 SplineMaterial::SplineMaterial() {
-  s_kx = 1e-2;
-  s_ky = 1e-2;
-  s_kx = 1e1;
-  s_ky = 1e1;
+  // s_kx = 1e-2;
+  // s_ky = 1e-2;
+  // s_kx = 1e1;
+  // s_ky = 1e1;
   s_kx = 1.0;
   s_ky = 1.0;
 }
@@ -160,6 +160,7 @@ double SplineMaterial::psi(const Vec6 &strain) {
   return val;
 }
 
+// TODO DEBUG redo this after fixing psi_drv, because it seems like this is doing even weirder things..
 Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
   Vec6 grad(0);
   if (!initialized)
@@ -352,6 +353,23 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
     } else {
       double dxl1 = s.dx(l1 * invsc);
       double dxl2 = s.dx(l2 * invsc);
+
+      // DEBUG
+      // gradpc(0) += (1-cc) * l2;
+      // gradpc(1) += (1-cc) * l1;
+      // gradpc(2) += -l1*l2;
+      // hesspc(0, 0) += 0;
+      // hesspc(0, 1) += (1-cc);
+      // hesspc(0, 2) += -l2;
+      // hesspc(1, 1) += 0;
+      // hesspc(1, 2) += -l1;
+      // hesspc(2, 2) += 0;
+
+      // // hesspc(1, 0) += 0;
+      // // hesspc(2, 0) += 0;
+      // // hesspc(2, 1) += 0;
+      // continue;
+
       if (s.k == 3) {  // x-bending
         // d(l1,l2,cc)
         gradpc(0) += s_kx * cc * dxl1 * invsc;
@@ -381,19 +399,6 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
   for (auto &s : hsplines_2d) {
     if (!select_2D(s.k0,s.k1))
       continue;
-    // continue;  // DEBUG
-
-    // if (!(s.k0 == 0 && s.k0 == 2)) {
-    //   if (s.k0 == 0)
-    //     if (S(s.k0) < 0)
-    //       continue;
-
-    //   if (s.k1 == 2)
-    //     if (S(s.k1) < 0)
-    //       continue;
-    // }
-    // if(s.k1 > 2)
-    //   continue;
 
     double invsc0 = 1.0 / this->strainscale[s.k0];
     double invsc1 = 1.0 / this->strainscale[s.k1];
@@ -410,7 +415,59 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
       hess(s.k1, s.k0) += dxdy;
       hess(s.k1, s.k1) += s.dydy(x, y) * invsc1 * invsc1;
     } else {  // since we dont have double curve, k0 has to be in plane
+
       double x    = S(s.k0);
+
+    //DEBUG FAKE ENERGY
+      // grad(s.k0) += s.dx(x, l1) * invsc0; // s(x,l1)
+      // gradpc(0) += s.dy(x, l1);
+      // gradpc(1) += 0;
+      // gradpc(2) += 0;
+      // hess(s.k0, s.k0) += s.dxdx(x, l1) * invsc0 * invsc0;
+      // hessmixed(s.k0, 0) += s.dxdy(x, l1) * invsc0;
+      // hessmixed(s.k0, 1) += 0;
+      // hessmixed(s.k0, 2) += 0;
+      // hesspc(0, 0) += s.dydy(x, l1);
+      // hesspc(0, 1) += 0;
+      // hesspc(0, 2) += 0;
+      // hesspc(1, 1) += 0;
+      // hesspc(1, 2) += 0;
+      // hesspc(2, 2) += 0;
+
+      // // s(x,l1) -> (x+l1)^2; dx = 2(x+l1) * insvc0; dy = 2(x+l1); dxdy = 2 * invsc0
+      // grad(s.k0) += 2*(x+l1) * invsc0; // s(x,l1)
+      // gradpc(0) += 2*(x+l1);
+      // gradpc(1) += 0;
+      // gradpc(2) += 0;
+      // hess(s.k0, s.k0) += 2 * invsc0 * invsc0;
+      // hessmixed(s.k0, 0) += 2 * invsc0;
+      // hessmixed(s.k0, 1) += 0;
+      // hessmixed(s.k0, 2) += 0;
+      // hesspc(0, 0) += 2;
+      // hesspc(0, 1) += 0;
+      // hesspc(0, 2) += 0;
+      // hesspc(1, 1) += 0;
+      // hesspc(1, 2) += 0;
+      // hesspc(2, 2) += 0;
+      
+      // // x l1 -> dx = l1 insvc0, dy = x
+      // grad(s.k0) += l1 * invsc0; // s(x,l1)
+      // gradpc(0) += x;
+      // gradpc(1) += 0;
+      // gradpc(2) += 0;
+      // hess(s.k0, s.k0) += 0;
+      // hessmixed(s.k0, 0) += invsc0;
+      // hessmixed(s.k0, 1) += 0;
+      // hessmixed(s.k0, 2) += 0;
+      // hesspc(0, 0) += 0;
+      // hesspc(0, 1) += 0;
+      // hesspc(0, 2) += 0;
+      // hesspc(1, 1) += 0;
+      // hesspc(1, 2) += 0;
+      // hesspc(2, 2) += 0;
+
+      // continue; 
+
       double dxl1 = s.dx(x, l1 * invsc1);
       double dxl2 = s.dx(x, l2 * invsc1);
       double dyl1 = s.dy(x, l1 * invsc1);
@@ -429,17 +486,9 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
             (cc * s.dxdx(x, l1 * invsc1) + (1 - cc) * s.dxdx(x, l2 * invsc1)) *
             invsc0 * invsc0;
 
-        // hessmixed adds jitter
-        double tmp0 = s_kx * cc * s.dxdy(x, l1 * invsc1) * invsc1 * invsc0;
-        hessmixed(s.k0, 0) += tmp0;
-        hessmixed(0, s.k0) += tmp0;
-        double tmp1 =
-            s_kx * (1 - cc) * s.dxdy(x, l2 * invsc1) * invsc1 * invsc0;
-        hessmixed(s.k0, 1) += tmp1;
-        hessmixed(1, s.k0) += tmp1;
-        double tmp2 = s_kx * (dxl1 - dxl2) * invsc0;
-        hessmixed(s.k0, 2) += tmp2;
-        hessmixed(2, s.k0) += tmp2;
+        hessmixed(s.k0, 0) += s_kx * cc * s.dxdy(x, l1 * invsc1) * invsc1 * invsc0;
+        hessmixed(s.k0, 1) += s_kx * (1 - cc) * s.dxdy(x, l2 * invsc1) * invsc1 * invsc0;
+        hessmixed(s.k0, 2) += s_kx * (dxl1 - dxl2) * invsc0;
 
         hesspc(0, 0) += s_kx * cc * s.dydy(x, l1 * invsc1) * invsc1 * invsc1;
         hesspc(0, 2) += s_kx * dyl1 * invsc1;
@@ -459,16 +508,9 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
             (cc * s.dxdx(x, l2 * invsc1) + (1 - cc) * s.dxdx(x, l1 * invsc1)) *
             invsc0 * invsc0;
 
-        double tmp0 =
-            s_ky * (1 - cc) * s.dxdy(x, l1 * invsc1) * invsc0 * invsc1;
-        hessmixed(s.k0, 0) += tmp0;
-        hessmixed(0, s.k0) += tmp0;
-        double tmp1 = s_ky * cc * s.dxdy(x, l2 * invsc1) * invsc0 * invsc1;
-        hessmixed(s.k0, 1) += tmp1;
-        hessmixed(1, s.k0) += tmp1;
-        double tmp2 = s_ky * (dxl2 - dxl1) * invsc0;
-        hessmixed(s.k0, 2) += tmp2;
-        hessmixed(2, s.k0) += tmp2;
+        hessmixed(s.k0, 0) += s_ky * (1 - cc) * s.dxdy(x, l1 * invsc1) * invsc0 * invsc1;
+        hessmixed(s.k0, 1) += s_ky * cc * s.dxdy(x, l2 * invsc1) * invsc0 * invsc1;
+        hessmixed(s.k0, 2) += s_ky * (dxl2 - dxl1) * invsc0;
 
         hesspc(0, 0) +=
             s_ky * (1 - cc) * s.dydy(x, l1 * invsc1) * invsc1 * invsc1;
@@ -478,7 +520,6 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
       }
     }
   }
-
 
 #ifdef BENDBARRIER
   double mult = BENDPOWER; 
@@ -512,11 +553,12 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < 3; ++j) {
       for (int k = 0; k < 3; ++k) {
+
         // dS(i)dL(j) = dS(i)dPC(k) . dPC(k)/dL(j)
         hess(i, 3 + j) += hessmixed(i, k) * PC_grad(k, j);
 
-        if (i < j)
-          continue;  // symmetrize later
+        if (i > j) // upper tri, symmetrize later
+          continue;
 
         // dL(i)dL(j) = dPC(k) . dPC(k)/dL(i)dL(j)
         //           + dPC(k)dPC(l) . dPC(k)/dL(i) . dPC(l)/dL(j)
@@ -530,14 +572,13 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
   }
 
   // symmetrize
-  for (int i = 0; i < 6; ++i) {
-    for (int j = i + 1; j < 6; ++j) {
-      hess(j, i) = hess(i, j);
-    }
-  }
+  for (int i = 0; i < 6; ++i)
+    for (int j = i + 1; j < 6; ++j)
+      hess(j,i) = hess(i,j);
 
-  // printf("   Force %.2e %.2e %.2e %.2e %.2e
-  // %.2e\n",grad(0),grad(1),grad(2),grad(3),grad(4),grad(5));
+
+  // for (int i = 0; i < 6; ++i)
+  //   hess(i,i)+= (i<3)? 1e-3 : 1e-3;
 
   return std::make_pair(hess, grad);
 }
@@ -634,7 +675,7 @@ std::tuple<Mat3x3, Vec3> SplineMaterial::pc_valgrad(double lxx, double lxy,
 
 std::tuple<std::vector<Mat3x3>, Mat3x3, Vec3> SplineMaterial::pc_valdrv(
     double lxx, double lxy, double lyy) {
-  std::vector<Mat3x3> hess(6);  // 6x18x18
+  std::vector<Mat3x3> hess(3);  // 6x18x18
   Mat3x3 grad(0);
   Vec3 val(0);
   auto out1 = [&](int i) -> Real & { return val[i]; };

@@ -72,6 +72,12 @@ struct HermiteSpline1D {
         h10  = (6 * tt - 4);
         h01  = (-12 * tt + 6);
         h11  = (6 * tt - 2);
+      } else if (der == 3) {
+        dtdx = invdt * invdt * invdt;
+        h00  = 12;
+        h10  = 6;
+        h01  = -12;
+        h11  = 6;
       } else {
         return 0;
       }
