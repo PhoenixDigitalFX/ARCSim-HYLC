@@ -337,7 +337,7 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(/* const*/ Face *face) {
   // double emax = slv.eigenvalues().cwiseAbs().maxCoeff();
   // double emin = slv.eigenvalues().cwiseAbs().minCoeff();
   // printf("%.2e %.2e\n", emin, emax);
-  double mineig = 1e-10;
+  double mineig = 1e-8;
   if (slv.eigenvalues()(0) < mineig) {
     evec18 D = slv.eigenvalues().cwiseMax(mineig);
 

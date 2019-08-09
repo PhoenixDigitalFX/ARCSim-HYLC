@@ -61,7 +61,7 @@ else:
 simargs = unknownargs # remaining args
 print("Executing:", executable)
 try:
-    if op == "replay":
+    if op in ["replay","resume"]:
         subprocess.check_call([executable, op] + simargs, cwd=workdir)
     else:
         subprocess.check_call([executable, op, conf] + simargs, cwd=workdir)

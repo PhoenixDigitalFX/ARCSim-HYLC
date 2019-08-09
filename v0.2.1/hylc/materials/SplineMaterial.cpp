@@ -223,45 +223,34 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
   for (auto &s : hsplines_2d) {
     if (!select_2D(s.k0,s.k1))
       continue;
-    // TODO SAME WHATEVER  DONE IN PSIDRV
+
+    double invsc0 = 1.0 / this->strainscale[s.k0];
+    double invsc1 = 1.0 / this->strainscale[s.k1];
     // assume sorted, k1 > k0
     assert(s.k1 > s.k0 && s.k0 < 3);
     if (s.k1 < 3) {  // in plane
       double x = S(s.k0);
       double y = S(s.k1);
-      grad(s.k0) += s.dx(x, y) / this->strainscale[s.k0];
-      grad(s.k1) += s.dy(x, y) / this->strainscale[s.k1];
+      grad(s.k0) += s.dx(x, y) * invsc0;
+      grad(s.k1) += s.dy(x, y) * invsc1;
     } else {  // since we dont have double curve, k0 has to be in plane
       double x     = S(s.k0);
-      double invsc = 1.0 / this->strainscale[s.k1];
+      double dxl1 = s.dx(x, l1 * invsc1);
+      double dxl2 = s.dx(x, l2 * invsc1);
+      double dyl1 = s.dy(x, l1 * invsc1);
+      double dyl2 = s.dy(x, l2 * invsc1);
       if (s.k1 == 3) {
-        grad(s.k0) +=
-            s_kx * (cc * s.dx(x, l1 * invsc) + (1 - cc) * s.dx(x, l2 * invsc)) /
-            this->strainscale[s.k0];
-        gradpc(0) += s_kx * cc * s.dy(x, l1 * invsc) * invsc;
-        gradpc(1) += s_kx * (1 - cc) * s.dy(x, l2 * invsc) * invsc;
-        gradpc(2) += s_kx * (s.eval(x, l1 * invsc) - s.eval(x, l2 * invsc));
+        grad(s.k0) += s_kx * (cc * dxl1 + (1 - cc) * dxl2) * invsc0;
+        gradpc(0) += s_kx * cc * dyl1 * invsc1;
+        gradpc(1) += s_kx * (1 - cc) * dyl2 * invsc1;
+        gradpc(2) += s_kx * (s.eval(x, l1 * invsc1) - s.eval(x, l2 * invsc1));
       } else {
-        grad(s.k0) +=
-            s_ky * (cc * s.dx(x, l2 * invsc) + (1 - cc) * s.dx(x, l1 * invsc)) /
-            this->strainscale[s.k0];
-        gradpc(0) += s_ky * (1 - cc) * s.dy(x, l1 * invsc) * invsc;
-        gradpc(1) += s_ky * cc * s.dy(x, l2 * invsc) * invsc;
-        gradpc(2) += s_ky * (s.eval(x, l2 * invsc) - s.eval(x, l1 * invsc));
+        grad(s.k0) += s_ky * (cc * dxl2 + (1 - cc) * dxl1) * invsc0;
+        gradpc(0) += s_ky * (1 - cc) * dyl1 * invsc1;
+        gradpc(1) += s_ky * cc * dyl2 * invsc1;
+        gradpc(2) += s_ky * (s.eval(x, l2 * invsc1) - s.eval(x, l1 * invsc1));
       }
     }
-    // double x = X(s.k0);
-    // double y     = X(s.k1);
-
-    // if (!(s.k0 == 0 && s.k0 == 2)) {
-    //   if (s.k0 == 0 || s.k0 == 2)
-    //     if (x < 0)
-    //       continue;
-
-    //   if (s.k1 == 0 || s.k1 == 2)
-    //     if (y < 0)
-    //       continue;
-    // }
   }
 
 
