@@ -16,6 +16,10 @@ using namespace fitpackpp;
 // #define BENDCLAMPINGPC
 #define BENDCLAMPLIMIT 230
 
+// #define DOUBLECURVEPENALTY 1e-6
+
+// #define NO1D
+
 int sgn(double x) {
   return (x > 0) - (x < 0);
 }
@@ -23,7 +27,11 @@ int sgn(double x) {
 
 bool select_2D(int k0, int k1) {
   return true; // use all
-  // return false; // use none
+  return false; // use none
+
+
+  // return k1 <= 2 || (k0 == 0 && k1 == 4) || (k0 == 2 && k1 == 3); 
+  //!(k0 == 0 && k1 == 3)&& !(k0 == 2 && k1 == 4);
 
   // testing for drapeX
   // return (k1 == 4 || k1 == 3) && (k0 == 2);
@@ -95,6 +103,7 @@ double SplineMaterial::psi(const Vec6 &strain) {
   val += C0;
 
   // 1D
+  #ifndef NO1D
   for (auto &s : hsplines_1d) {
     if (s.k < 3) {  // in-plane
       double x = S(s.k);
@@ -107,6 +116,7 @@ double SplineMaterial::psi(const Vec6 &strain) {
              (1 - cc) * s.eval(l1 / this->strainscale[s.k]);
     }
   }
+  #endif
 
   // 2D
   for (auto &s : hsplines_2d) {
@@ -157,6 +167,11 @@ double SplineMaterial::psi(const Vec6 &strain) {
   }
 #endif  // BENDBARRIER
 
+
+#ifdef DOUBLECURVEPENALTY
+  double k = (sbend[0]*sbend[2] - sbend[1]*sbend[1]);
+  val += DOUBLECURVEPENALTY*k*k;
+#endif
   return val;
 }
 
@@ -200,6 +215,7 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
     S(i) = (strain(i) - this->strainshift[i]) / this->strainscale[i];
 
   // 1D
+  #ifndef NO1D
   for (auto &s : hsplines_1d) {
     double invsc = 1.0 / this->strainscale[s.k];
     if (s.k < 3) {  // in-plane
@@ -218,6 +234,7 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
       gradpc(2) += s_ky * (s.eval(l2 * invsc) - s.eval(l1 * invsc));
     }
   }
+  #endif
 
   // 2D
   for (auto &s : hsplines_2d) {
@@ -276,6 +293,15 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
     }
   }
 
+
+#ifdef DOUBLECURVEPENALTY
+  double k = (sbend[0]*sbend[2] - sbend[1]*sbend[1]);
+  // val += DOUBLECURVEPENALTY*k*k;
+  grad(3) += DOUBLECURVEPENALTY * 2 * k * sbend[2];
+  grad(4) += DOUBLECURVEPENALTY * 2 * k * -2*sbend[1];
+  grad(5) += DOUBLECURVEPENALTY * 2 * k * sbend[0] + 10;
+#endif
+
   return grad;
 }
 
@@ -333,6 +359,7 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
     S(i) = (strain(i) - this->strainshift[i]) / this->strainscale[i];
 
   // 1D
+  #ifndef NO1D
   for (auto &s : hsplines_1d) {
     double invsc = 1.0 / this->strainscale[s.k];
     if (s.k < 3) {  // in-plane
@@ -383,6 +410,7 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
       }
     }
   }
+  #endif
 
   // 2D
   for (auto &s : hsplines_2d) {
@@ -560,11 +588,26 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
     }
   }
 
+
+
+#ifdef DOUBLECURVEPENALTY
+  double k = (sbend[0]*sbend[2] - sbend[1]*sbend[1]);
+  // val += DOUBLECURVEPENALTY*k*k;
+  grad(3) += DOUBLECURVEPENALTY * 2 * k * sbend[2];
+  grad(4) += DOUBLECURVEPENALTY * 2 * k * -2*sbend[1];
+  grad(5) += DOUBLECURVEPENALTY * 2 * k * sbend[0];
+  hess(3,3) += DOUBLECURVEPENALTY * 2 * sbend[2]*sbend[2];
+  hess(3,4) += DOUBLECURVEPENALTY * -4 * sbend[1]*sbend[2];
+  hess(3,5) += DOUBLECURVEPENALTY * -2 * (sbend[1] * sbend[1] - 2*sbend[0]*sbend[2]);
+  hess(4,4) += DOUBLECURVEPENALTY * 4 * (3 * sbend[1] * sbend[1] - sbend[0]*sbend[2]);
+  hess(4,5) += DOUBLECURVEPENALTY * -4 * sbend[1]*sbend[0];
+  hess(5,5) += DOUBLECURVEPENALTY * 2 * sbend[0]*sbend[0];
+#endif
+
   // symmetrize
   for (int i = 0; i < 6; ++i)
     for (int j = i + 1; j < 6; ++j)
       hess(j,i) = hess(i,j);
-
 
   // for (int i = 0; i < 6; ++i)
   //   hess(i,i)+= (i<3)? 1e-3 : 1e-3;

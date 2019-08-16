@@ -200,6 +200,30 @@ void testmat(std::shared_ptr<SplineMaterial> mat) {
   // }
   // std::cout << "\n\n\n\n";
 
+  // // TEST VALUES
+  // std::mt19937 rng(1991);
+  // std::uniform_real_distribution<> rnd(-0.5, 0.5);
+
+  // std::cout << "\n\n\n\n<clip>";
+  // for (int k = 0; k < 100; k++) {
+  //   Vec6 x;
+  //   for (int i = 0; i < 6; i++)
+  //   // x(i) = rnd(rng) * (i < 3 ? 1 : 200);
+  //   x(i) = rnd(rng) * (i < 3 ? 0.2 : 400);
+  //   // x(i) = rnd(rng) * 1e-3; // zeroish
+  //   // x(i) = rnd(rng) * (i < 3 ? 1 : 0);
+  //   // x(i) = rnd(rng) * (i < 3 ? 0 : 1);
+  //   x(0) += 1.0;
+  //   x(2) += 1.0;
+  //   x(4) = 0;
+  //   // x(5) = 0;
+  //   double psi0 = mat->psi(x);
+
+  //   printf("%.4e, %.4e, %.4e, %.4e, %.4e, %.4e, %.15e,", x(0), x(1), x(2), x(3),
+  //          x(4), x(5), psi0);
+  // }
+  // std::cout << "<clip>\n\n\n\n";
+
   // TEST GRADIENTS
   std::mt19937 rng;
   // std::mt19937 rng(1991);
@@ -210,8 +234,8 @@ void testmat(std::shared_ptr<SplineMaterial> mat) {
   for (float p = -8; p < -4.01; p += 0.025f) {
     Vec6 x;
     for (int i = 0; i < 6; i++)
-      x(i) = rnd(rng) * (i < 3 ? 1 : 200); // *10;
-      // x(i) = rnd(rng) * 1e-3; // zeroish
+      // x(i) = rnd(rng) * (i < 3 ? 1 : 200); // *10;
+      x(i) = rnd(rng) * 1e-3; // zeroish
       // x(i) = rnd(rng) * (i < 3 ? 1 : 0);
       // x(i) = rnd(rng) * (i < 3 ? 0 : 1);
     x(0) += 1.0;
@@ -237,8 +261,10 @@ void testmat(std::shared_ptr<SplineMaterial> mat) {
 
     // psi (s + eps ds) - [psi(s) + eps ds dpsids(s)] ~~ O(eps^2)
     // or centered diff...
-    // printf("\nx:  %.2e, %.2e, %.2e,   %.2e, %.2e, %.2e\n", x(0),x(1),x(2), x(3),x(4),x(5));
-    // printf("dx: %.2e, %.2e, %.2e,   %.2e, %.2e, %.2e\n", dx(0),dx(1),dx(2), dx(3),dx(4),dx(5));
+    // printf("\nx:  %.2e, %.2e, %.2e,   %.2e, %.2e, %.2e\n", x(0),x(1),x(2),
+    // x(3),x(4),x(5));
+    // printf("dx: %.2e, %.2e, %.2e,   %.2e, %.2e, %.2e\n",
+    // dx(0),dx(1),dx(2), dx(3),dx(4),dx(5));
     bool gradients=false;
     if (gradients) {
       double psi0 = mat->psi(x - eps * dx);
@@ -278,8 +304,10 @@ void testmat(std::shared_ptr<SplineMaterial> mat) {
       // if (relerr > 1) {
       //   auto x2 = x + eps * dx;
       //   auto x1 = x - eps * dx;
-      //   printf("\n%.4e, %.4e, %.4e,    %.4e, %.4e, %.4e\n", x1(0),x1(1),x1(2),x1(3),x1(4),x1(5));
-      //   printf("%.4e, %.4e, %.4e,    %.4e, %.4e, %.4e\n", x2(0),x2(1),x2(2),x2(3),x2(4),x2(5));
+      //   printf("\n%.4e, %.4e, %.4e,    %.4e, %.4e, %.4e\n",
+      // x1(0),x1(1),x1(2),x1(3),x1(4),x1(5));
+      //   printf("%.4e, %.4e, %.4e,    %.4e, %.4e, %.4e\n",
+      // x2(0),x2(1),x2(2),x2(3),x2(4),x2(5));
       //   printf("%.4e, %.4e, %.4e, %.4e\n", q1,q2,err,relerr);
       //   printf("%.4e, %.4e, %.4e, %.4e\n", q1,q2,err,relerr);
       // }
