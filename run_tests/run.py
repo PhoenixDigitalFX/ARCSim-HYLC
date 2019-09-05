@@ -4,6 +4,9 @@ import subprocess
 import argparse
 
 
+
+outputfolder = "sims"
+
 def build(sourcedir, builddir, debug=False):
     cfg = 'Debug' if debug else 'Release'
     cmake_args = ['-DCMAKE_BUILD_TYPE=' + cfg]
@@ -46,7 +49,7 @@ executable = os.path.join(builddir, "bin", "arcsim_0.2.1")
 op = "simulateoffline"
 
 conffolder = os.path.join(os.getcwd(),"conf") 
-os.makedirs(os.path.join(os.getcwd(),"sims"), exist_ok=True)
+os.makedirs(os.path.join(os.getcwd(),outputfolder), exist_ok=True)
 
 try:
     for conf in sorted(os.listdir("conf")):
@@ -58,7 +61,7 @@ try:
         #     continue
         simname = os.path.splitext(os.path.basename(conf))[0]
         confpath = os.path.join(os.getcwd(),"conf",conf) 
-        outputfolder = os.path.join(os.getcwd(),"sims",simname) 
+        outputfolder = os.path.join(os.getcwd(),outputfolder,simname) 
         if os.path.isdir(outputfolder):
             continue
 

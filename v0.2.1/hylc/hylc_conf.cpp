@@ -224,96 +224,96 @@ void testmat(std::shared_ptr<SplineMaterial> mat) {
   // }
   // std::cout << "<clip>\n\n\n\n";
 
-  // TEST GRADIENTS
-  std::mt19937 rng;
-  // std::mt19937 rng(1991);
-  std::uniform_real_distribution<> rnd(-0.5, 0.5);
+  // // TEST GRADIENTS
+  // std::mt19937 rng;
+  // // std::mt19937 rng(1991);
+  // std::uniform_real_distribution<> rnd(-0.5, 0.5);
 
-  std::cout << "\n\n\n\n<clip>";
-  // for (float p = -9; p < -1.01; p += 0.05f) {
-  for (float p = -8; p < -4.01; p += 0.025f) {
-    Vec6 x;
-    for (int i = 0; i < 6; i++)
-      // x(i) = rnd(rng) * (i < 3 ? 1 : 200); // *10;
-      x(i) = rnd(rng) * 1e-3; // zeroish
-      // x(i) = rnd(rng) * (i < 3 ? 1 : 0);
-      // x(i) = rnd(rng) * (i < 3 ? 0 : 1);
-    x(0) += 1.0;
-    x(2) += 1.0;
+  // std::cout << "\n\n\n\n<clip>";
+  // // for (float p = -9; p < -1.01; p += 0.05f) {
+  // for (float p = -8; p < -4.01; p += 0.025f) {
+  //   Vec6 x;
+  //   for (int i = 0; i < 6; i++)
+  //     // x(i) = rnd(rng) * (i < 3 ? 1 : 200); // *10;
+  //     x(i) = rnd(rng) * 1e-3; // zeroish
+  //     // x(i) = rnd(rng) * (i < 3 ? 1 : 0);
+  //     // x(i) = rnd(rng) * (i < 3 ? 0 : 1);
+  //   x(0) += 1.0;
+  //   x(2) += 1.0;
 
-    Vec6 dx;
-    for (int i = 0; i < 6; i++)
-      dx(i) = rnd(rng) * (i < 3 ? 1 : 200);
-      // dx(i) = rnd(rng) * (i < 3 ? 1 : 0);
-      // dx(i) = rnd(rng) * (i < 3 ? 0 : 1);
-      // dx(i) = rnd(rng);
+  //   Vec6 dx;
+  //   for (int i = 0; i < 6; i++)
+  //     dx(i) = rnd(rng) * (i < 3 ? 1 : 200);
+  //     // dx(i) = rnd(rng) * (i < 3 ? 1 : 0);
+  //     // dx(i) = rnd(rng) * (i < 3 ? 0 : 1);
+  //     // dx(i) = rnd(rng);
 
-    dx(1) *= 0.2;
-    // dx(3) = std::abs(dx(3));
-    // dx(4) = 0;
-    // dx(5) = 0;
-    // x(3) = std::abs(x(3));
-    // x(4) = 0;
-    // x(5) = 0;
-    dx = dx * 1.0 / norm(dx);
+  //   dx(1) *= 0.2;
+  //   // dx(3) = std::abs(dx(3));
+  //   // dx(4) = 0;
+  //   // dx(5) = 0;
+  //   // x(3) = std::abs(x(3));
+  //   // x(4) = 0;
+  //   // x(5) = 0;
+  //   dx = dx * 1.0 / norm(dx);
 
-    double eps = std::pow(10, p);
+  //   double eps = std::pow(10, p);
 
-    // psi (s + eps ds) - [psi(s) + eps ds dpsids(s)] ~~ O(eps^2)
-    // or centered diff...
-    // printf("\nx:  %.2e, %.2e, %.2e,   %.2e, %.2e, %.2e\n", x(0),x(1),x(2),
-    // x(3),x(4),x(5));
-    // printf("dx: %.2e, %.2e, %.2e,   %.2e, %.2e, %.2e\n",
-    // dx(0),dx(1),dx(2), dx(3),dx(4),dx(5));
-    bool gradients=false;
-    if (gradients) {
-      double psi0 = mat->psi(x - eps * dx);
-      double psi2 = mat->psi(x + eps * dx);
+  //   // psi (s + eps ds) - [psi(s) + eps ds dpsids(s)] ~~ O(eps^2)
+  //   // or centered diff...
+  //   // printf("\nx:  %.2e, %.2e, %.2e,   %.2e, %.2e, %.2e\n", x(0),x(1),x(2),
+  //   // x(3),x(4),x(5));
+  //   // printf("dx: %.2e, %.2e, %.2e,   %.2e, %.2e, %.2e\n",
+  //   // dx(0),dx(1),dx(2), dx(3),dx(4),dx(5));
+  //   bool gradients=false;
+  //   if (gradients) {
+  //     double psi0 = mat->psi(x - eps * dx);
+  //     double psi2 = mat->psi(x + eps * dx);
 
-      // Vec6 drv0 = mat->psi_drv(x - eps * dx).second;
-      // Vec6 drv2 = mat->psi_drv(x + eps * dx).second;
-      Vec6 drv0 = mat->psi_grad(x - eps * dx);
-      Vec6 drv2 = mat->psi_grad(x + eps * dx);
-      Vec6 drv1 = 0.5*(drv0+drv2);
-      // Vec6 drv1 = mat->psi_drv(x).second;
-      double epsdsdpsids          = 2 * eps * dot(dx, drv1);
+  //     // Vec6 drv0 = mat->psi_drv(x - eps * dx).second;
+  //     // Vec6 drv2 = mat->psi_drv(x + eps * dx).second;
+  //     Vec6 drv0 = mat->psi_grad(x - eps * dx);
+  //     Vec6 drv2 = mat->psi_grad(x + eps * dx);
+  //     Vec6 drv1 = 0.5*(drv0+drv2);
+  //     // Vec6 drv1 = mat->psi_drv(x).second;
+  //     double epsdsdpsids          = 2 * eps * dot(dx, drv1);
 
-      double q1 = std::abs(psi2-psi0);
-      double q2 = std::abs(epsdsdpsids);
-      double err                  = std::abs(psi2 - psi0 - epsdsdpsids);
-      double relerr                  = err/(std::max(q1,q2)+1e-30);
-      printf("%.4e, %.15e, %.15e, ", eps, err,relerr);
-    }
-    // TEST HESSIAN AGAINST GRADIENTS
-    else {
-      auto gh0 = mat->psi_drv(x - eps * dx);
-      auto gh2 = mat->psi_drv(x + eps * dx);
-      Vec6 psi0 = gh0.second;
-      Vec6 psi2 = gh2.second;
-      Mat6x6 drv0 = gh0.first;
-      Mat6x6 drv2 = gh2.first;
-      Mat6x6 drv1 = 0.5*(drv0+drv2);
-      // Mat6x6 drv1 = mat->psi_drv(x).first;
+  //     double q1 = std::abs(psi2-psi0);
+  //     double q2 = std::abs(epsdsdpsids);
+  //     double err                  = std::abs(psi2 - psi0 - epsdsdpsids);
+  //     double relerr                  = err/(std::max(q1,q2)+1e-30);
+  //     printf("%.4e, %.15e, %.15e, ", eps, err,relerr);
+  //   }
+  //   // TEST HESSIAN AGAINST GRADIENTS
+  //   else {
+  //     auto gh0 = mat->psi_drv(x - eps * dx);
+  //     auto gh2 = mat->psi_drv(x + eps * dx);
+  //     Vec6 psi0 = gh0.second;
+  //     Vec6 psi2 = gh2.second;
+  //     Mat6x6 drv0 = gh0.first;
+  //     Mat6x6 drv2 = gh2.first;
+  //     Mat6x6 drv1 = 0.5*(drv0+drv2);
+  //     // Mat6x6 drv1 = mat->psi_drv(x).first;
 
-      Vec6 epsdsdpsids          = 2 * eps * drv1 * dx;
-      double q1 = norm(psi2-psi0);
-      double q2 = norm(epsdsdpsids);
-      double err                  = norm(psi2 - psi0 - epsdsdpsids);
-      double relerr                  = err/(std::max(q1,q2)+1e-30);
-      printf("%.4e, %.15e, %.15e, ", eps, err,relerr);
-      // if (relerr > 1) {
-      //   auto x2 = x + eps * dx;
-      //   auto x1 = x - eps * dx;
-      //   printf("\n%.4e, %.4e, %.4e,    %.4e, %.4e, %.4e\n",
-      // x1(0),x1(1),x1(2),x1(3),x1(4),x1(5));
-      //   printf("%.4e, %.4e, %.4e,    %.4e, %.4e, %.4e\n",
-      // x2(0),x2(1),x2(2),x2(3),x2(4),x2(5));
-      //   printf("%.4e, %.4e, %.4e, %.4e\n", q1,q2,err,relerr);
-      //   printf("%.4e, %.4e, %.4e, %.4e\n", q1,q2,err,relerr);
-      // }
-    }
-  }
-  std::cout << "<clip>\n\n\n\n";
+  //     Vec6 epsdsdpsids          = 2 * eps * drv1 * dx;
+  //     double q1 = norm(psi2-psi0);
+  //     double q2 = norm(epsdsdpsids);
+  //     double err                  = norm(psi2 - psi0 - epsdsdpsids);
+  //     double relerr                  = err/(std::max(q1,q2)+1e-30);
+  //     printf("%.4e, %.15e, %.15e, ", eps, err,relerr);
+  //     // if (relerr > 1) {
+  //     //   auto x2 = x + eps * dx;
+  //     //   auto x1 = x - eps * dx;
+  //     //   printf("\n%.4e, %.4e, %.4e,    %.4e, %.4e, %.4e\n",
+  //     // x1(0),x1(1),x1(2),x1(3),x1(4),x1(5));
+  //     //   printf("%.4e, %.4e, %.4e,    %.4e, %.4e, %.4e\n",
+  //     // x2(0),x2(1),x2(2),x2(3),x2(4),x2(5));
+  //     //   printf("%.4e, %.4e, %.4e, %.4e\n", q1,q2,err,relerr);
+  //     //   printf("%.4e, %.4e, %.4e, %.4e\n", q1,q2,err,relerr);
+  //     // }
+  //   }
+  // }
+  // std::cout << "<clip>\n\n\n\n";
 }
 
 std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {

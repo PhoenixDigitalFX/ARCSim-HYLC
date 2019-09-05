@@ -26,7 +26,7 @@ int sgn(double x) {
 
 
 bool select_2D(int k0, int k1) {
-  return true; // use all
+  // return true; // use all
   return false; // use none
 
 
