@@ -57,15 +57,17 @@ try:
             continue
         if "tmp" in conf:
             continue
+        # if not ("stock" in conf or "satin_stretch" in conf):
+        #     continue
         # if not "basket_stretch" in conf:
         #     continue
         simname = os.path.splitext(os.path.basename(conf))[0]
         confpath = os.path.join(os.getcwd(),"conf",conf) 
-        outputfolder = os.path.join(os.getcwd(),outputfolder,simname) 
-        if os.path.isdir(outputfolder):
+        outputdir = os.path.join(os.getcwd(),outputfolder,simname) 
+        if os.path.isdir(outputdir):
             continue
 
-        subprocess.check_call([executable, op, confpath, outputfolder], cwd=workdir)
+        subprocess.check_call([executable, op, confpath, outputdir], cwd=workdir)
 except KeyboardInterrupt:
     print("PY: Aborting execution")
 
