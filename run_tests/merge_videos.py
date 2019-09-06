@@ -5,8 +5,9 @@ import argparse
 
 # workdir = os.path.join(os.getcwd(),"..") 
 
-folder1 = "/media/gsperl/Elements/HYLC/final_sim_copies/vids"
-folder1 = "/media/gsperl/Elements/HYLC/2019-07-05-YLC/vids"
+# folder1 = "/media/gsperl/Elements/HYLC/final_sim_copies/vids"
+# folder1 = "/media/gsperl/Elements/HYLC/2019-07-05-YLC/vids"
+folder1 = "/media/gsperl/Elements/HYLC/final_ylc_copies"
 folder2 = "/home/gsperl/Projects/arcsim-hylc/run_tests/vids"
 output = "vids_merged"
 os.makedirs(output, exist_ok=True)
@@ -33,6 +34,10 @@ def namingfun(f):
         mat = "rib"
     elif "basket" in f.lower():
         mat = "basket"
+    elif "satin" in f.lower():
+        mat = "satin"
+    elif "honey" in f.lower():
+        mat = "honey"
     else:
         mat = "other"
 
