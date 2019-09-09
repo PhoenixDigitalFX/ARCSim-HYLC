@@ -19,12 +19,12 @@
                            "refine_angle": 0.3,
                            "refine_compression": 0.01,
                            "refine_velocity": 0.5,
-                           "size": [3e-3, 40e-3],
-                           // "size": [10e-3, 100e-3],
+                           "size": [3e-3, 60e-3],
+                           "boundary_detail_mult": 0.25,
                            "aspect_min": 0.2
                        }
     }],
-    "wind": {"density": 1e1}, // 5e0 was underdamped
+    "wind": {"density": 1.2e1}, // 5e0 was underdamped
     "motions": [[
         {"time": 0, "transform": {"translate": [0,0,0]}},
          {"time": 0.4, "transform": {"translate": [-0.035,0,0]}}

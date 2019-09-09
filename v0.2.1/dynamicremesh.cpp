@@ -197,9 +197,12 @@ Sizing compute_face_sizing (const Face *face, const vector<Plane> &planes) {
     s.M = ::magic.combine_tensors ? tensor_max(Ms)
         : Ms[0] + Ms[1] + Ms[2] + Ms[3] + Ms[4] + Ms[5];
     Eig<2> eig = eigen_decomposition(s.M);
+    bool boundary = is_seam_or_boundary(face);
     for (int i = 0; i < 2; i++)
         eig.l[i] = clamp(eig.l[i],
-                         1.f/sq(remeshing->size_max),
+                         1.f/sq(boundary
+                            ? remeshing->size_max_boundary
+                            : remeshing->size_max),
                          1.f/sq(remeshing->size_min));
     double lmax = max(eig.l[0], eig.l[1]);
     double lmin = lmax*sq(remeshing->aspect_min);

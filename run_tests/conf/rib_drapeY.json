@@ -19,13 +19,12 @@
                            "refine_angle": 0.3,
                            "refine_compression": 0.01,
                            "refine_velocity": 0.5,
-                           "size": [6e-3, 40e-3],
-                           //"size": [3e-3, 60e-3],
-                           // "size": [10e-3, 100e-3],
+                           "size": [3e-3, 60e-3],
+                           "boundary_detail_mult": 0.25,
                            "aspect_min": 0.2
                        }
     }],
-    "wind": {"density": 5e0},
+    "wind": {"density": 6e0},
     // "handles": [{"nodes": [2,3]}
     "handlespheres": [{
         "radius": 0.01,

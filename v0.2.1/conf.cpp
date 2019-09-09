@@ -295,6 +295,10 @@ void parse(Cloth::Remeshing &remeshing, const Json::Value &json) {
   parse(remeshing.refine_velocity, json["refine_velocity"], infinity);
   parse(Range(remeshing.size_min, remeshing.size_max), json["size"],
         Vec2(-infinity, infinity));
+  double mult;
+  parse(mult, json["boundary_detail_mult"], 1.0);
+  remeshing.size_max_boundary = std::max(remeshing.size_max * mult,
+                                         remeshing.size_min);
   parse(remeshing.aspect_min, json["aspect_min"], -infinity);
 }
 

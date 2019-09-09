@@ -26,7 +26,9 @@ int sgn(double x) {
 
 
 bool select_2D(int k0, int k1) {
-  // return true; // use all
+  // return k0 == 0 && k1 == 2; // only poisson
+  // return k1 < 3; // no bending 2D terms
+  return true; // use all
   return false; // use none
 
 
