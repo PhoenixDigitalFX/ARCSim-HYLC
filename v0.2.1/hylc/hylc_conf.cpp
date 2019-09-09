@@ -392,6 +392,8 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
 }
 
 void parse(hylc::Config &params, const Json::Value &json) {
+  if (json.isNull())
+    return;  
   parse_optional(params.enabled, json["enabled"]);
 
   std::string filename;

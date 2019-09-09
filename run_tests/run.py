@@ -22,23 +22,30 @@ def build(sourcedir, builddir, debug=False):
 
 
 
+
 # get command line arguments
-# ap = argparse.ArgumentParser()
-# ap.add_argument("-d", "--debug", action='store_true',
-#                 help="...")
-# ap.add_argument("-c", "--conf", default="0",
-#                 help="...")
-# ap.add_argument("-o", "--op", default="simulate",
-#                 help="...")
-# args, unknownargs = ap.parse_known_args()
-# args = vars(args)
+ap = argparse.ArgumentParser()
+ap.add_argument("-b", "--build", default="1",
+                help="...")
+ap.add_argument("-r", "--run", default="1",
+                help="...")
+args, unknownargs = ap.parse_known_args()
+args = vars(args)
+args['build'] = args['build'] != "0"
+args['run'] = args['run'] != "0"
 
 # BUILD
 sourcedir = os.path.join(os.getcwd(),"..") 
 builddir = os.path.join(
     os.getcwd(), "..", "build-Release")
 
-build(sourcedir=sourcedir, builddir=builddir, debug=False)
+
+
+if args['build']:
+    build(sourcedir=sourcedir, builddir=builddir, debug=False)
+
+if not args['run']:
+    exit()
 
 # RUN
 workdir = os.path.join(os.getcwd(),"..") 
