@@ -21,6 +21,10 @@ def build(sourcedir, builddir, debug=False):
 
 # get command line arguments
 ap = argparse.ArgumentParser()
+ap.add_argument("-b", "--build", default="1",
+                help="...")
+ap.add_argument("-r", "--run", default="1",
+                help="...")
 ap.add_argument("-d", "--debug", action='store_true',
                 help="...")
 ap.add_argument("-c", "--conf", default="0",
@@ -30,14 +34,20 @@ ap.add_argument("-o", "--op", default="simulate",
 # TODO add a  no compilation flag
 args, unknownargs = ap.parse_known_args()
 args = vars(args)
+args['build'] = args['build'] != "0"
+args['run'] = args['run'] != "0"
 
 # BUILD
 sourcedir = os.getcwd()  # where the main CMakeLists.txt is
 builddir = os.path.join(
     os.getcwd(), "build-Debug" if args['debug'] else "build-Release")
 
-build(sourcedir=sourcedir, builddir=builddir, debug=args['debug'])
 
+if args['build']:
+    build(sourcedir=sourcedir, builddir=builddir, debug=args['debug'])
+
+if not args['run']:
+    exit()
 # RUN
 workdir = os.getcwd()
 executable = os.path.join(builddir, "bin", "arcsim_0.2.1")
@@ -64,6 +74,7 @@ try:
     if op in ["replay","resume"]:
         subprocess.check_call([executable, op] + simargs, cwd=workdir)
     else:
+        print([executable, op, conf] + simargs)
         subprocess.check_call([executable, op, conf] + simargs, cwd=workdir)
 except KeyboardInterrupt:
     print("PY: Aborting execution")
