@@ -33,10 +33,7 @@ Node *find_across(const Edge *edge, const Node *oppv1) {
 }
 
 template <Space s>
-void compute_local_information(const Face *face, Vec18 &xlocal, double &l0,
-                               double &l1, double &l2, double &theta_rest0,
-                               double &theta_rest1, double &theta_rest2,
-                               bool &nn0_exists, bool &nn1_exists,
+void compute_local_information(const Face *face, Vec18 &xlocal, bool &nn0_exists, bool &nn1_exists,
                                bool &nn2_exists) {
   xlocal         = Vec18(0);
   const Node *n0 = face->v[0]->node, *n1 = face->v[1]->node,
@@ -50,8 +47,6 @@ void compute_local_information(const Face *face, Vec18 &xlocal, double &l0,
 
   // potential neighbors
   Node *nn0 = nullptr, *nn1 = nullptr, *nn2 = nullptr;
-  l0 = 1, l1 = 1, l2 = 1;
-  theta_rest0 = 0, theta_rest1 = 0, theta_rest2 = 0;
   {
     Edge *e = get_edge(n0, n1);
     nn0     = find_across(e, n2);  // vtx opposite of n2 across edge n0n1
@@ -59,8 +54,6 @@ void compute_local_information(const Face *face, Vec18 &xlocal, double &l0,
       Vec3 x = pos<s>(nn0);
       for (int j = 0; j < 3; ++j) xlocal[9 + j] = x[j];
     }
-    l0          = e->l;
-    theta_rest0 = e->theta_ideal;
   }
   {
     Edge *e = get_edge(n1, n2);
@@ -69,8 +62,6 @@ void compute_local_information(const Face *face, Vec18 &xlocal, double &l0,
       Vec3 x = pos<s>(nn1);
       for (int j = 0; j < 3; ++j) xlocal[12 + j] = x[j];
     }
-    l1          = e->l;
-    theta_rest1 = e->theta_ideal;
   }
   {
     Edge *e = get_edge(n2, n0);
@@ -79,8 +70,6 @@ void compute_local_information(const Face *face, Vec18 &xlocal, double &l0,
       Vec3 x = pos<s>(nn2);
       for (int j = 0; j < 3; ++j) xlocal[15 + j] = x[j];
     }
-    l2          = e->l;
-    theta_rest2 = e->theta_ideal;
   }
 
   nn0_exists = nn0 ? true : false;
@@ -93,25 +82,18 @@ double hylc_local_energy(const Face *face) {
   namespace mm = hylc::mathematica;
   // 0. compute local primitive values
   Vec18 xlocal;
-  double l0, l1, l2;
-  double theta_rest0, theta_rest1, theta_rest2;
+  // double l0, l1, l2;
+  // double theta_rest0, theta_rest1, theta_rest2;
   bool nn0_exists, nn1_exists, nn2_exists;
-  compute_local_information<s>(face, xlocal, l0, l1, l2, theta_rest0,
-                               theta_rest1, theta_rest2, nn0_exists, nn1_exists,
+  compute_local_information<s>(face, xlocal, nn0_exists, nn1_exists,
                                nn2_exists);
 
   double A     = face->a;      // material space / reference config area
   Mat2x2 invDm = face->invDm;  // shape matrix
-  Vec2 t0 = face->t0, t1 = face->t1, t2 = face->t2;
-
-  t0 *= (double)nn0_exists;
-  t1 *= (double)nn1_exists;
-  t2 *= (double)nn2_exists;
 
   // 1. mmcpp compute epsilon(x),kappa(x) as vec6
   Vec6 strain;
-  strain = mm::strain(xlocal, invDm, A, theta_rest0, theta_rest1, theta_rest2,
-                      l0, l1, l2, t0, t1, t2);
+  strain = mm::strain(xlocal, invDm, Vec3(nn0_exists, nn1_exists, nn2_exists));
 
   // std::cout<<"strain\n"<<strain<<"\n\n";
   // std::cout<<"t\n"<<t0<<"\n"<<t1<<"\n"<<t2<<"\n\n";
@@ -158,52 +140,19 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(/* const*/ Face *face) {
   using namespace hylc::mathematica;
   // 0. compute local primitive values
   Vec18 xlocal;
-  double l0, l1, l2;
-  double theta_rest0, theta_rest1, theta_rest2;
+  // double l0, l1, l2;
+  // double theta_rest0, theta_rest1, theta_rest2;
   bool nn0_exists, nn1_exists, nn2_exists;
-  compute_local_information<s>(face, xlocal, l0, l1, l2, theta_rest0,
-                               theta_rest1, theta_rest2, nn0_exists, nn1_exists,
+  compute_local_information<s>(face, xlocal, nn0_exists, nn1_exists,
                                nn2_exists);
 
   double A     = face->a;      // material space / reference config area
   Mat2x2 invDm = face->invDm;  // shape matrix
-  Vec2 t0 = face->t0, t1 = face->t1, t2 = face->t2;
-  t0 *= (double)nn0_exists;
-  t1 *= (double)nn1_exists;
-  t2 *= (double)nn2_exists;
-
-  double Acpy         = A;
-  bool debug_localize = false;  // TODO also other methods
-  if (debug_localize) {
-    Mat2x2 tile;
-    tile(0, 0) = 0.032;
-    tile(1, 0) = 0.0;
-    tile(0, 1) = 0.0;
-    tile(1, 1) = 0.02;
-    if (nn0_exists) {
-      t0 = normalize(t0);
-      l0 = norm(tile * t0);
-    }
-    if (nn1_exists) {
-      t1 = normalize(t1);
-      l1 = norm(tile * t1);
-    }
-    if (nn2_exists) {
-      t2 = normalize(t2);
-      l2 = norm(tile * t2);
-    }
-    Acpy = 1.0;  // sum
-    // Acpy = 1.0/3.0; // avg
-  }
-
-  // std::cout<<"TRI INFO\n"<<l0<<" "<<norm(t0)<<", "<<l1<<" "<<norm(t1)<<",
-  // "<<l2<<" "<<norm(t2)<<"; "<<A<<"\n\n";
-
+ 
   // 1. mmcpp compute epsilon, kappa as vec6 strain, and simulatenous grad and
   // hess
   std::tuple<std::vector<Mat18x18>, Mat6x18, Vec6> strain_hgv;
-  strain_hgv = mm::strain_valdrv(xlocal, invDm, Acpy, theta_rest0, theta_rest1,
-                                 theta_rest2, l0, l1, l2, t0, t1, t2);
+  strain_hgv = mm::strain_valdrv(xlocal, invDm, Vec3(nn0_exists, nn1_exists, nn2_exists));
 
   Vec6 &strain                       = std::get<2>(strain_hgv);
   Mat6x18 &strain_grad               = std::get<1>(strain_hgv);
@@ -224,6 +173,16 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(/* const*/ Face *face) {
     strain5a = std::min(strain5a, strain[5]);
     strain5b = std::max(strain5b, strain[5]);
   }
+
+  // for (int i = 0; i < 6; ++i)
+  // std::cout<<"  "<<strain[i];
+  // std::cout<<"\n\n";
+
+  //   for (int i = 0; i < 6; ++i)
+  //   for (int k = 0; k < 18; ++i)
+  // std::cout<<"  "<<strain_grad(i,k);
+  // std::cout<<"\n\n";
+
 
   // 2. mmcpp compute dpsidek(ek),d2psidekdek(ek) at the same time
   std::pair<Mat6x6, Vec6> psidrv = get_material()->psi_drv(strain);
@@ -373,24 +332,18 @@ Vec18 hylc_local_forces_nojac(const Face *face) {
   using namespace hylc::mathematica;
   // 0. compute local primitive values
   Vec18 xlocal;
-  double l0, l1, l2;
-  double theta_rest0, theta_rest1, theta_rest2;
+  // double l0, l1, l2;
+  // double theta_rest0, theta_rest1, theta_rest2;
   bool nn0_exists, nn1_exists, nn2_exists;
-  compute_local_information<s>(face, xlocal, l0, l1, l2, theta_rest0,
-                               theta_rest1, theta_rest2, nn0_exists, nn1_exists,
+  compute_local_information<s>(face, xlocal, nn0_exists, nn1_exists,
                                nn2_exists);
 
   double A     = face->a;      // material space / reference config area
   Mat2x2 invDm = face->invDm;  // shape matrix
-  Vec2 t0 = face->t0, t1 = face->t1, t2 = face->t2;
-  t0 *= (double)nn0_exists;
-  t1 *= (double)nn1_exists;
-  t2 *= (double)nn2_exists;
 
   // 1. mmcpp compute epsilon, kappa as vec6 ek, and simulatenous grad and hess
   std::tuple<Mat6x18, Vec6> strain_gv;
-  strain_gv = mm::strain_valgrad(xlocal, invDm, A, theta_rest0, theta_rest1,
-                                 theta_rest2, l0, l1, l2, t0, t1, t2);
+  strain_gv = mm::strain_valgrad(xlocal, invDm, Vec3(nn0_exists, nn1_exists, nn2_exists));
 
   Vec6 &strain         = std::get<1>(strain_gv);
   Mat6x18 &strain_grad = std::get<0>(strain_gv);
@@ -738,24 +691,22 @@ void hylc::hylc_write_strains(const std::string & filename, const Cloth &cloth) 
     Face *face = mesh.faces[i];
     // 0. compute local primitive values
     Vec18 xlocal;
-    double l0, l1, l2;
-    double theta_rest0, theta_rest1, theta_rest2;
+    // double l0, l1, l2;
+    // double theta_rest0, theta_rest1, theta_rest2;
     bool nn0_exists, nn1_exists, nn2_exists;
-    compute_local_information<WS>(face, xlocal, l0, l1, l2, theta_rest0,
-                                theta_rest1, theta_rest2, nn0_exists, nn1_exists,
+    compute_local_information<WS>(face, xlocal, nn0_exists, nn1_exists,
                                 nn2_exists);
 
-    double A     = face->a;      // material space / reference config area
+    // double A     = face->a;      // material space / reference config area
     Mat2x2 invDm = face->invDm;  // shape matrix
-    Vec2 t0 = face->t0, t1 = face->t1, t2 = face->t2;
+    // Vec2 t0 = face->t0, t1 = face->t1, t2 = face->t2;
 
-    t0 *= (double)nn0_exists;
-    t1 *= (double)nn1_exists;
-    t2 *= (double)nn2_exists;
+    // t0 *= (double)nn0_exists;
+    // t1 *= (double)nn1_exists;
+    // t2 *= (double)nn2_exists;
 
     // 1. mmcpp compute epsilon(x),kappa(x) as vec6
-    strains[i] = mm::strain(xlocal, invDm, A, theta_rest0, theta_rest1, theta_rest2,
-                        l0, l1, l2, t0, t1, t2);
+    strains[i] = mm::strain(xlocal, invDm, Vec3(nn0_exists, nn1_exists, nn2_exists));
 
     // centroid in uv for filtering
     const Vert *v0 = face->v[0], *v1 = face->v[1],

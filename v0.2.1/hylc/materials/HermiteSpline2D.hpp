@@ -113,6 +113,17 @@ struct HermiteSpline2D {
 
     Mat4x4 *Mu = &M, *MvT = &MT;
     // Mat4x4 *Mu = &M, *MvT = &M;
+
+//     Mat4x4 Mu_dbg, MvT_dbg;
+//     if (!(k0 == 0 && k1 == 2)) { // DEBUG
+//       // linear else
+//  Mu_dbg = Mat4x4 {Vec4{0,0,-1,1},Vec4{0,0,1,0},Vec4{0,0,0,0},Vec4{0,0,0,0}};
+//  MvT_dbg = Mu_dbg.t();
+//       Mu = &Mu_dbg;
+//       MvT = &MvT_dbg;
+//     }
+
+
     assert(ext >= 0 && ext <= 2);
     if (extrapol_u) {
       if (!extrapol_u_right)

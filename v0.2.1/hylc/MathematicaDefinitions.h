@@ -32,6 +32,8 @@ inline Real ArcCos(Real A) { return std::acos(A); }
 inline Real ArcTan(Real X, const Real Y) { return std::atan2(Y, X); }
 inline Real Tan(Real X) { return std::tan(X); }
 inline Real Sec(Real X) { return 1.0/std::cos(X); }
+inline Real RealAbs(Real X) { return std::abs(X); }
+inline Real Sign(Real X) { return (X > 0) ? 1 : (X < 0 ? -1 : 0); }
 
 } // namespace Mathematica
 } // namespace HYLC
