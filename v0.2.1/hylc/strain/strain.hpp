@@ -1,6 +1,7 @@
 #ifndef _STRAIN_HPP_
 #define _STRAIN_HPP_
-// #define hylc_strain_II
+#define hylc_strain_II
+#warning using strain II
 
 #include "../../vectors.hpp"
 #include "../MathematicaDefinitions.h"

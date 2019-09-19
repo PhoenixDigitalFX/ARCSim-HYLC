@@ -27,27 +27,17 @@ int sgn(double x) {
 
 bool select_2D(int k0, int k1) {
   // return k0 == 0 && k1 == 2; // only poisson
+
+
+  // return k1 < 3 || ((k0==0&&k1==4)||(k0==1&&k1==3)); // only sx lyy and sa lxx (werid combo but it works....)
+
+  // return k1 < 3 || ((k0==0&&k1==4)||(k0==2&&k1==3)); // only sx lyy and sy lxx //  also weird.. idk
+  // return !(k0==1 && k1 >= 3); // not sa lxx, sa lyy // slightly bumpy but not sheared, i think all sa,lam make sheared boundary and all sx,lam make bumps?
+  // return !((k0==0&&k1==3)||(k0==2&&k1==4)); // not sx lxx and not sy lyy  // not completely bad but still weird boundary shape
   // return k1 < 3; // no bending 2D terms
+
   return true; // use all
   return false; // use none
-
-
-  // return k1 <= 2 || (k0 == 0 && k1 == 4) || (k0 == 2 && k1 == 3); 
-  //!(k0 == 0 && k1 == 3)&& !(k0 == 2 && k1 == 4);
-
-  // testing for drapeX
-  // return (k1 == 4 || k1 == 3) && (k0 == 2);
-  // return k1 >= 3 && (k0 == 2);
-  // return k1 >= 3 && (k0 == 0 || k0 == 1 || k0 == 2);
-
-  // testing for stretchX
-  // bool keep = k1 <= 2 || (k0 == 0 && k1 == 4) || (k0 == 2 && k1 == 3); //stock sy still weird
-  // bool keep = k1 <= 2 || (k0 == 2 && k1 == 3); //stock sy still weird
-  // bool keep = k1 <= 2;// || (k0 == 2 && k1 == 3); // now its fine..
-  // bool keep = (k0 == 2 && k1 == 3); // this is also fine alone ??
-  // bool keep = (k0 == 0 && k1 == 2) || (k0 == 2 && k1 == 3); // this is bad
-  // bool keep = (k0 == 0 && k1 == 2); // fine alone
-  // return keep;
 }
 
 SplineMaterial::SplineMaterial() {
