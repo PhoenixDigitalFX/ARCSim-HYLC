@@ -129,7 +129,7 @@ double hylc_local_energy(const Face *face) {
 }
 
 bool debug_print_strain_range =
-    true;  // DEBUG print out running min max strains
+    false;  // DEBUG print out running min max strains
 double strain0a = 10, strain0b = 0, strain1a = 10, strain1b = -10,
        strain2a = 10, strain2b = 0;
 double strain3a = 1e5, strain3b = -1e5, strain4a = 1e5, strain4b = -1e5,
