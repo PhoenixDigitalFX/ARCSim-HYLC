@@ -65,7 +65,76 @@ confs = ["hylc_shirt_%s.json" % s for s in [
 conffolder = os.path.join(os.getcwd(),"conf") 
 os.makedirs(os.path.join(os.getcwd(),outputfolder), exist_ok=True)
 
-try:
+
+# try:
+#     for conf in confs:
+#         if not conf.endswith(".json"):
+#             continue
+#         simname = os.path.splitext(os.path.basename(conf))[0]
+#         confpath = os.path.join(os.getcwd(),"conf",conf) 
+#         outputdir = os.path.join(os.getcwd(),outputfolder,simname) 
+#         if os.path.isdir(outputdir):
+#             continue
+
+#         subprocess.check_call([executable, op, confpath, outputdir], cwd=workdir)
+# except KeyboardInterrupt:
+#     print("PY: Aborting execution")
+
+
+# python3 run.py && gnome-session-quit --power-off --force --no-prompt
+
+
+import numpy as np
+import os
+import sys
+import shutil
+import time
+import multiprocessing
+from multiprocessing import Pool
+from multiprocessing.pool import ThreadPool
+
+# guard against accidental use of python2.x on cluster
+import platform
+assert(platform.python_version().startswith("3"))
+
+max_time = 60*60*24
+n_processes = 3
+
+def run_single_simulation(executable, op, confpath, outputdir):
+    cmd=[executable, op, confpath, outputdir]
+    #print(cmd,"\n\n")
+    # RUN THE SIM
+    print("Starting simulation..")
+    subprocess.check_call(cmd, cwd=workdir)
+    return None
+
+
+def pool_task(cmd):
+    # try running the simulation, with timeout
+
+    for i in range(10): #try 10 times
+        try:
+            p = ThreadPool(1)
+            break
+        except RuntimeError:
+            p = None
+            print("Couldn't start threadpool subthread, attempt", i)
+    if p is None:
+        print("Couldn't start threadpool subthread in all attempts, skipping")
+        return
+
+    T0 = time.time()
+    #print(cmd)
+    res = p.apply_async(run_single_simulation, cmd)
+    try:
+        res.get(max_time)  # run and wait
+    except multiprocessing.TimeoutError:
+        print("Aborting a simulation due to timeout.")
+        p.terminate()
+
+
+# combine iterated strains with output filename
+def pool_param_iterator():
     for conf in confs:
         if not conf.endswith(".json"):
             continue
@@ -75,9 +144,29 @@ try:
         if os.path.isdir(outputdir):
             continue
 
-        subprocess.check_call([executable, op, confpath, outputdir], cwd=workdir)
+        cmd = [executable, op, confpath, outputdir]
+        yield cmd
+
+
+# create worker pool
+pool = Pool(n_processes)
+# prepare paramater iterator
+params = pool_param_iterator()
+# run simulations in parallel chunks
+pool_it = pool.imap_unordered(pool_task, params, chunksize=1)
+# wait and iterate pool results, keyboard abortable
+try:
+    n_finished = 0
+    for _ in pool_it:
+        n_finished += 1
+        print("Finished simulation #%d." % n_finished)
 except KeyboardInterrupt:
-    print("PY: Aborting execution")
+    print("Caught KeyboardInterrupt, terminating workers")
+    pool.terminate()
+else:
+    print("Normal termination")
+    pool.close()
 
-
-# python3 run.py && gnome-session-quit --power-off --force --no-prompt
+# finish
+pool.join()
+print("Finished.")
