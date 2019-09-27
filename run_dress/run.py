@@ -1,4 +1,6 @@
-import os, sys, subprocess, argparse
+import os, sys, subprocess, argparse, platform
+assert(platform.python_version().startswith("3")) # cluster safety
+from multiprocessing import Pool
 # import tempfile, re
 import getpass, smtplib
 from email.mime.text import MIMEText
@@ -23,7 +25,7 @@ def try_get_password():
         signal.alarm(0)
     return pw
 
-def try_send_mail(header, content):
+def try_send_mail(header, content, pw):
     usermail = 'gsperl@ist.ac.at'
     user = 'gsperl'
     msg = MIMEText(content)
@@ -61,6 +63,8 @@ ap.add_argument("-b", "--build", default="1",
                 help="...")
 ap.add_argument("-r", "--run", default="1",
                 help="...")
+ap.add_argument("-p", "--processes", default="1",
+                help="...")
 args, unknownargs = ap.parse_known_args()
 args = vars(args)
 args['build'] = args['build'] != "0"
@@ -77,7 +81,7 @@ if args['build']:
 if not args['run']:
     exit()
 
-pw = try_get_password()
+pw = try_get_password()[::-1]
 
 # RUN
 workdir = os.path.join(os.getcwd(),"..") 
@@ -86,7 +90,6 @@ executable = os.path.join(builddir, "bin", "arcsim_0.2.1")
 # ./build-Release/bin/arcsim_0.2.1 $op $configfile ${3}
 
 op = "simulateoffline"
-
 
 confs = sorted(os.listdir("conf"))
 confs = ["hylc_dress_%s.json" % s for s in [
@@ -99,8 +102,7 @@ confs = ["hylc_dress_%s.json" % s for s in [
 conffolder = os.path.join(os.getcwd(),"conf") 
 os.makedirs(os.path.join(os.getcwd(),outputfolder), exist_ok=True)
 
-
-try:
+def tasks():
     for conf in confs:
         if not conf.endswith(".json"):
             continue
@@ -110,101 +112,33 @@ try:
         if os.path.isdir(outputdir):
             continue
 
-        subprocess.check_call([executable, op, confpath, outputdir], cwd=workdir)
+        yield [executable, op, confpath, outputdir]
+def execute_task(task):
+    subprocess.check_call(task, cwd=workdir)
+
+try:
+    if args['processes'] > 1:
+        pool = Pool(args['processes'])
+        iterator = tasks()
+        pool_it = pool.imap_unordered(execute_task, iterator, chunksize=1)
+        # wait and iterate pool results, keyboard abortable
+        try:
+            n_finished = 0
+            for _ in pool_it:
+                n_finished += 1
+                print("Finished simulation #%d." % n_finished)
+        except KeyboardInterrupt:
+            print("Caught KeyboardInterrupt, terminating workers")
+            pool.terminate() # terminating 
+        else:
+            pool.close() # normal termination
+    else:
+        for task in tasks():
+            execute_task(task)
+    
 except KeyboardInterrupt:
     print("PY: Aborting execution")
     pw = "" # avoid sending mail
 
 if not pw == "" and not pw is None:
-    try_send_mail("HYLC Finished", "The simulations have finished.")
-
-
-# # python3 run.py && gnome-session-quit --power-off --force --no-prompt
-
-
-# import numpy as np
-# import os
-# import sys
-# import shutil
-# import time
-# import multiprocessing
-# from multiprocessing import Pool
-# from multiprocessing.pool import ThreadPool
-
-# # guard against accidental use of python2.x on cluster
-# import platform
-# assert(platform.python_version().startswith("3"))
-
-# max_time = 60*60*24
-# n_processes = 3
-
-# def run_single_simulation(executable, op, confpath, outputdir):
-#     cmd=[executable, op, confpath, outputdir]
-#     #print(cmd,"\n\n")
-#     # RUN THE SIM
-#     print("Starting simulation..")
-#     subprocess.check_call(cmd, cwd=workdir)
-#     return None
-
-
-# def pool_task(cmd):
-#     # try running the simulation, with timeout
-
-#     for i in range(10): #try 10 times
-#         try:
-#             p = ThreadPool(1)
-#             break
-#         except RuntimeError:
-#             p = None
-#             print("Couldn't start threadpool subthread, attempt", i)
-#     if p is None:
-#         print("Couldn't start threadpool subthread in all attempts, skipping")
-#         return
-
-#     T0 = time.time()
-#     #print(cmd)
-#     res = p.apply_async(run_single_simulation, cmd)
-#     try:
-#         res.get(max_time)  # run and wait
-#     except multiprocessing.TimeoutError:
-#         print("Aborting a simulation due to timeout.")
-#         p.terminate()
-
-
-# # combine iterated strains with output filename
-# def pool_param_iterator():
-#     for conf in confs:
-#         if not conf.endswith(".json"):
-#             continue
-#         simname = os.path.splitext(os.path.basename(conf))[0]
-#         confpath = os.path.join(os.getcwd(),"conf",conf) 
-#         outputdir = os.path.join(os.getcwd(),outputfolder,simname) 
-#         if os.path.isdir(outputdir):
-#             continue
-
-#         cmd = [executable, op, confpath, outputdir]
-#         yield cmd
-
-
-# # create worker pool
-# pool = Pool(n_processes)
-# # prepare paramater iterator
-# params = pool_param_iterator()
-# # run simulations in parallel chunks
-# pool_it = pool.imap_unordered(pool_task, params, chunksize=1)
-# # wait and iterate pool results, keyboard abortable
-# try:
-#     n_finished = 0
-#     for _ in pool_it:
-#         n_finished += 1
-#         print("Finished simulation #%d." % n_finished)
-# except KeyboardInterrupt:
-#     print("Caught KeyboardInterrupt, terminating workers")
-#     pool.terminate()
-# else:
-#     print("Normal termination")
-#     pool.close()
-
-# # finish
-# pool.join()
-# print("Finished.")
+    try_send_mail("HYLC Finished", "The simulations have finished.", pw[::-1])
