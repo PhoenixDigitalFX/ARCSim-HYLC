@@ -117,8 +117,9 @@ def execute_task(task):
     subprocess.check_call(task, cwd=workdir)
 
 try:
-    if args['processes'] > 1:
-        pool = Pool(args['processes'])
+    n_processes = int(args['processes'])
+    if n_processes > 1:
+        pool = Pool(n_processes)
         iterator = tasks()
         pool_it = pool.imap_unordered(execute_task, iterator, chunksize=1)
         # wait and iterate pool results, keyboard abortable
