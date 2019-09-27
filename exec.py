@@ -69,12 +69,12 @@ else:
     ][int(args['conf'])]
 
 simargs = unknownargs # remaining args
-print("Executing:", executable)
 try:
     if op in ["replay","resume"]:
+        print("Executing:", [executable, op] + simargs)
         subprocess.check_call([executable, op] + simargs, cwd=workdir)
     else:
-        print([executable, op, conf] + simargs)
+        print("Executing:", [executable, op, conf] + simargs)
         subprocess.check_call([executable, op, conf] + simargs, cwd=workdir)
 except KeyboardInterrupt:
     print("PY: Aborting execution")
