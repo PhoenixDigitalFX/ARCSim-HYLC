@@ -93,8 +93,13 @@ void static_remesh (Cloth &cloth) {
     ::remeshing = &cloth.remeshing;
     Mesh &mesh = cloth.mesh;
     for (int v = 0; v < mesh.verts.size(); v++) {
+        bool boundary = is_seam_or_boundary(mesh.verts[v]);
+
+        // in the case of fixed high res mesh use size mult for min length!
         Sizing *sizing = new Sizing;
-        sizing->M = Mat2x2(1.f/sq(remeshing->size_min));
+        sizing->M = Mat2x2(1.f/sq(boundary
+            ? remeshing->size_min * remeshing->size_mult_boundary
+            : remeshing->size_min));
         mesh.verts[v]->sizing = sizing;
     }
     while (split_worst_edge(mesh));
@@ -201,7 +206,7 @@ Sizing compute_face_sizing (const Face *face, const vector<Plane> &planes) {
     for (int i = 0; i < 2; i++)
         eig.l[i] = clamp(eig.l[i],
                          1.f/sq(boundary
-                            ? remeshing->size_max_boundary
+                            ? remeshing->size_max * remeshing->size_mult_boundary
                             : remeshing->size_max),
                          1.f/sq(remeshing->size_min));
     double lmax = max(eig.l[0], eig.l[1]);

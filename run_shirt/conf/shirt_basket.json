@@ -10,15 +10,18 @@
 
     "end_time": 20,
     "cloths": [{
-        "mesh": "meshes/tshirt2_uv.obj",
-        "transform": {"translate": [0.0,0.0,0.5]},
+        "mesh": "meshes/tshirt2iso_uv.obj",
+        "transform": {"translate": [0.0,0.0,0.0]},
+        // "mesh": "meshes/tshirt2_uv.obj",
+        // "transform": {"translate": [0.0,0.0,0.5]},
         "materials": [{"data": "materials/navy-sparkle-sweat.json", "bending_mult": 0.1,
             "damping": 2e-3}], // ?
         "remeshing": {
             "refine_angle": 0.3,
             "refine_compression": 0.01,
             "refine_velocity": 0.5,
-            "size": [20e-3, 50e-3],
+            "size": [15e-3, 50e-3],
+            "boundary_detail_mult": 1.0,
             "aspect_min": 0.2
         }
     }],

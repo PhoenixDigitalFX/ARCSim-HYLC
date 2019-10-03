@@ -94,10 +94,10 @@ op = "simulateoffline"
 confs = sorted(os.listdir("conf"))
 confs = ["shirt_%s.json" % s for s in [
     "rib",
+    "basket",
+    "satin",
     "honey",
     "stock",
-    "satin",
-    "basket",
 ]] # NOTE own order
 conffolder = os.path.join(os.getcwd(),"conf") 
 os.makedirs(os.path.join(os.getcwd(),outputfolder), exist_ok=True)

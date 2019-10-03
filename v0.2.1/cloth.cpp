@@ -48,5 +48,5 @@ void compute_masses(Cloth &cloth) {
       face->v[v]->node->m += face->m / 3.;
     }
   }
-  printf("Total Mass: %.2e\n",dbg_totalMass);
+  //printf("Total Mass: %.2e\n",dbg_totalMass);
 }

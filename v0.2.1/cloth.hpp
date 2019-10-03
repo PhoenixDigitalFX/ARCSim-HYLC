@@ -43,7 +43,7 @@ struct Cloth {
     std::vector<Material*> materials;
     struct Remeshing {
         double refine_angle, refine_compression, refine_velocity;
-        double size_min, size_max, size_max_boundary; // size limits
+        double size_min, size_max, size_mult_boundary; // size limits
         double aspect_min; // aspect ratio control
     } remeshing;
 };
