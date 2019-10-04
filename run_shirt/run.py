@@ -1,4 +1,4 @@
-import os, sys, subprocess, argparse, platform
+import os, sys, subprocess, argparse, platform, time
 assert(platform.python_version().startswith("3")) # cluster safety
 from multiprocessing import Pool
 # import tempfile, re
@@ -6,6 +6,7 @@ import getpass, smtplib
 from email.mime.text import MIMEText
 
 outputfolder = "sims"
+processdelay = 60*5 # delay subprocess by n seconds to avoid initial remeshing clash
 
 def try_get_password():
     # timeoutable getpass hack ...
@@ -98,11 +99,15 @@ confs = ["shirt_%s.json" % s for s in [
     "satin",
     "honey",
     "stock",
+    "honey_small",
+    "satin_small",
 ]] # NOTE own order
 conffolder = os.path.join(os.getcwd(),"conf") 
 os.makedirs(os.path.join(os.getcwd(),outputfolder), exist_ok=True)
 
 def tasks():
+    delay = 0
+    i = 0
     for conf in confs:
         if not conf.endswith(".json"):
             continue
@@ -110,10 +115,18 @@ def tasks():
         confpath = os.path.join(os.getcwd(),"conf",conf) 
         outputdir = os.path.join(os.getcwd(),outputfolder,simname) 
         if os.path.isdir(outputdir):
+            print("Skipping existing/in-progress", conf)
             continue
 
-        yield [executable, op, confpath, outputdir]
-def execute_task(task):
+        yield (i,[executable, op, confpath, outputdir], delay)
+        delay += processdelay
+        i += 1
+def execute_task(args):
+    i,task,delay = args
+    if delay > 0:
+        print("Delaying task %d for %02dm %02ds" % (i, delay//60, delay%60))
+        time.sleep(delay)
+    print("Starting task", i)
     subprocess.check_call(task, cwd=workdir)
 
 try:
