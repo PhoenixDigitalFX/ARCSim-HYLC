@@ -1,3 +1,5 @@
+#python exec.py -o resumeoffline OUTDIR FRAMENUM
+
 import os
 import sys
 import subprocess
@@ -70,7 +72,7 @@ else:
 
 simargs = unknownargs # remaining args
 try:
-    if op in ["replay","resume"]:
+    if op in ["replay","resume", "resumeoffline"]:
         print("Executing:", [executable, op] + simargs)
         subprocess.check_call([executable, op] + simargs, cwd=workdir)
     else:
