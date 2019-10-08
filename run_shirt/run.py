@@ -8,6 +8,23 @@ from email.mime.text import MIMEText
 outputfolder = "sims"
 processdelay = 60*5 # delay subprocess by n seconds to avoid initial remeshing clash
 
+# try get email message input
+def try_prompt(prompt, T=60, default=""):
+    signal.signal(signal.SIGALRM, lambda signum, frame: 1/0)
+    signal.alarm(T)
+    ret = default
+    try:
+        ret = input(prompt)
+    except ZeroDivisionError:
+        print("Timed out.")
+        ret = ""
+    except:
+        print("Aborted.")
+        ret = ""
+    finally:
+        signal.alarm(0)
+    return ret
+
 def try_get_password():
     # timeoutable getpass hack ...
     import signal, time
@@ -62,6 +79,8 @@ def build(sourcedir, builddir, debug=False):
 ap = argparse.ArgumentParser()
 ap.add_argument("-b", "--build", default="1",
                 help="...")
+# ap.add_argument("-o", "--op", default="simulateoffline",
+#                 help="...")
 ap.add_argument("-r", "--run", default="1",
                 help="...")
 ap.add_argument("-p", "--processes", default="1",
@@ -83,6 +102,9 @@ if not args['run']:
     exit()
 
 pw = try_get_password()[::-1]
+if not pw == "" and not pw is None:
+    msg = try_prompt("Enter email message: ",T=60)
+
 
 # RUN
 workdir = os.path.join(os.getcwd(),"..") 
@@ -99,7 +121,7 @@ confs = ["shirt_%s.json" % s for s in [
     "satin",
     "honey",
     "stock",
-    "honey_small",
+    "stock_small",
     "satin_small",
 ]] # NOTE own order
 conffolder = os.path.join(os.getcwd(),"conf") 
@@ -155,4 +177,4 @@ except KeyboardInterrupt:
     pw = "" # avoid sending mail
 
 if not pw == "" and not pw is None:
-    try_send_mail("HYLC Finished", "The simulations have finished.", pw[::-1])
+    try_send_mail("HYLC Finished", "The simulations have finished.\n" + msg, pw[::-1])
