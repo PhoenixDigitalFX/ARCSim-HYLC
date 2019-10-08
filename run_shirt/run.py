@@ -10,6 +10,7 @@ processdelay = 60*5 # delay subprocess by n seconds to avoid initial remeshing c
 
 # try get email message input
 def try_prompt(prompt, T=60, default=""):
+    import signal, time
     signal.signal(signal.SIGALRM, lambda signum, frame: 1/0)
     signal.alarm(T)
     ret = default
