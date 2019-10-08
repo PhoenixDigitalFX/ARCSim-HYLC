@@ -1,7 +1,7 @@
 {
     "hylc": {
         "enabled": true,
-        "material": "hylcmaterials/honey01.json"
+        "material": "hylcmaterials/stock01.json"
     },
     "implicit": true,
 
@@ -10,8 +10,9 @@
 
     "end_time": 20,
     "cloths": [{
-        "mesh": "meshes/tshirt2iso_uv.obj",
-        "transform": {"translate": [0.0,0.0,0.0]},
+        // "mesh": "meshes/tshirtiso_uv.obj",
+        "mesh": "meshes/tshirtiso_uvS.obj",
+        "transform": {"translate": [0, 0.88329, -0.2601], "rotate": [90, 1, 0, 0]},
         // "mesh": "meshes/tshirt2_uv.obj",
         // "transform": {"translate": [0.0,0.0,0.5]},
         "materials": [{"data": "materials/navy-sparkle-sweat.json", "bending_mult": 0.1,
@@ -22,11 +23,11 @@
             "refine_velocity": 0.5,
             "size": [6e-3, 100e-3],
             // "size": [10e-3, 50e-3],
-            // "boundary_detail_mult": 0.75,
+            "boundary_detail_mult": 0.25,
             "aspect_min": 0.2
         }
     }],
-    "wind": {"density": 1e1},// ?
+    "wind": {"density": 0.3e1},// 1e1 was too high
     "obstacles": "meshes/guy_shrunk/body%04d.obj",
     "motions": {
         "motfile": "meshes/karate-smooth.mot",
@@ -40,8 +41,8 @@
     "disable": ["popfilter"],
     "obs_friction": 0.75,
     "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6
-       ,"relax_initial_state": true
-    //    ,"fixed_high_res_mesh": true
+       ,"relax_initial_state": false
+       ,"fixed_high_res_mesh": false
     }
 }
 
