@@ -38,6 +38,7 @@ struct Magic {
     bool combine_tensors;
     bool preserve_creases;
     bool relax_initial_state;
+    double display_scale;
     Magic ():
         fixed_high_res_mesh(false),
         handle_stiffness(1e3),
@@ -48,7 +49,8 @@ struct Magic {
         rib_stiffening(1),
         combine_tensors(true),
         preserve_creases(false),
-        relax_initial_state(true) {}
+        relax_initial_state(true),
+        display_scale(1.0) {}
 };
 
 extern Magic magic;

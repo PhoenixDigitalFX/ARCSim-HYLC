@@ -398,9 +398,12 @@ void parse(hylc::Config &params, const Json::Value &json) {
 
   std::string filename;
   parse(filename, json["material"]);
+  parse(params.stiffness_mult, json["stiffness_mult"], 1.0);
+  parse(params.weight_mult, json["weight_mult"], 1.0);
+  parse(params.center_grav, json["center_grav"], 0.0);
 
   params.material = load_material(filename);
-  parse(config.seam_stiffness, json["seam_stiffness"], 0.0);
+  parse(params.seam_stiffness, json["seam_stiffness"], 0.0);
 }
 
 void hylc::parse_hylc(const Json::Value &json) { parse(hylc::config, json); }

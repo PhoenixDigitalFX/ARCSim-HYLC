@@ -1,0 +1,81 @@
+{
+    "hylc": {
+        "enabled": true,
+        "material": "hylcmaterials/satin1.json",
+        "stiffness_mult": 1e4,//10e6, //1e11
+        "weight_mult": 1,//10e2, //1e6
+        "center_grav": 1e-3
+        // center gravity: F = G m1 m2 / r^2
+        // F = alpha m_obj/(x_obj-0)^2
+        // alpha := 3.9857128×10^14 m3⋅s−2
+    },
+    // "disable": ["remeshing"],
+    "implicit": true,
+    // "explicit_massdamping": 1e-1, // maybe even lower
+    // "explicit_stretchdamping": 1e-2, // stiffest term
+    "frame_time": 60,
+    "frame_steps": 1,
+    "end_time": 345600e1, // hour 3600, day 86400
+
+    "cloths": [{ // Required: List of cloth objects
+        "mesh": "meshes/hylc_moebius2.obj",
+        "transform": {
+            "translate": [-12e6, 0, 15e6],
+            "rotate": [60,0,-0.5,-1],
+            "scale": 2e7
+        },
+        // "mesh": "meshes/square.obj",
+        // "transform": {
+        //     // "translate": [-15e6, 0, 20e6],
+        //     "translate": [-15e6, 0, 2e6],
+        //     "rotate": [60,0,-0.5,-1],
+        //     "scale": 2e7
+        // },
+        "velocity": { "linear": [0.25e1,0,-1e1] },
+        // "velocity": { "linear": [0.25e2,0,-1e2] },
+        "materials": [{ // fake - just using the damping parameter
+            "data": "materials/gray-interlock.json", 
+            "thicken": 1,
+            "damping": 1e3
+        }],
+        "remeshing": { // Required: Remeshing parameters
+            "refine_angle": 0.3, // Required: Max allowed change in normals
+            "refine_compression": 0.005, // Required: Max allowed compression
+            "refine_velocity": 0.5, // Required: Max allowed change in velocity
+            "size": [10e-3, 200e-3], // Required: Bounds on size of triangles
+            "aspect_min": 0.2 // Required: Lower bound on triangle aspect ratio
+        }
+    }],
+
+    "motions": [[
+        {"time": 0, "transform": {"rotate": [0,0,0,1]}},
+        {"time": 43200, "transform": {"rotate": [180,0,0,1]}},
+        {"time": 86400, "transform": {"rotate": [360,0,0,1]}},
+        {"time": 129600, "transform": {"rotate": [540,0,0,1]}},
+        {"time": 172800, "transform": {"rotate": [720,0,0,1]}},
+        {"time": 216000, "transform": {"rotate": [900,0,0,1]}},
+        {"time": 259200, "transform": {"rotate": [1080,0,0,1]}}
+    ]],
+    "obstacles": [{
+        "mesh": "meshes/sphere.obj",
+        "transform": {"scale": 6.371e6}
+        ,"motion": 0
+    }],
+    "gravity": [0, 0, 0], // Optional, default 0: Acceleration due to gravity
+
+    "wind": {"density": 1e-8}, // fake friction-y vacuum
+
+    // "friction": <mu> // default 0.6: Cloth-cloth friction
+    "obs_friction": 0.03, // default 0.3: Cloth-obstacle friction
+
+    "disable": ["popfilter","remeshing"],
+    // List of modules to disable. choose any or all of: "proximity",
+    // "physics", "strainlimiting", "collision", "remeshing", "separation",
+    // "popfilter", "plasticity"
+
+    "magic": {"repulsion_thickness": 2e5, "collision_stiffness": 1e3//1e2
+        ,"relax_initial_state": false
+        // ,"fixed_high_res_mesh": true
+        ,"display_scale": 2.5e-8
+    }
+}

@@ -35,6 +35,7 @@
 #include "opengl.hpp"
 #include "timer.hpp"
 #include "util.hpp"
+#include "magic.hpp"
 #include <sstream>
 
 using namespace std;
@@ -78,11 +79,11 @@ void reshape (int w, int h) {
 }
 
 void vertex (const Vec2 &x) {
-    glVertex2d(x[0], x[1]);
+    glVertex2d(x[0] * ::magic.display_scale, x[1] * ::magic.display_scale);
 }
 
 void vertex (const Vec3 &x) {
-    glVertex3d(x[0], x[1], x[2]);
+    glVertex3d(x[0] * ::magic.display_scale, x[1] * ::magic.display_scale, x[2] * ::magic.display_scale);
 }
 
 void normal (const Vec3 &n) {

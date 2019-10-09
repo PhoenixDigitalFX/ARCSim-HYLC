@@ -19,7 +19,7 @@ std::shared_ptr<BaseMaterial> get_material() {
   return config.material;
 }
 
-double get_density() { return get_material()->density; }
+double get_density() { return get_material()->density * config.weight_mult; }
 
 Node *find_across(const Edge *edge, const Node *oppv1) {
   Node *found = nullptr;
@@ -122,7 +122,7 @@ double hylc_local_energy(const Face *face) {
       E += config.seam_stiffness*seamforce_val(x0, x1, L);
     }
 
-  return E;
+  return E * config.stiffness_mult;
 
   // NOTE: probably not optimal recomputing normals within mmcpp of strains
   // same goes for dihedral angle theta
@@ -323,7 +323,7 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(/* const*/ Face *face) {
   //   // A=0;
   // }
 
-  return std::make_pair(H, g);
+  return std::make_pair(H * config.stiffness_mult, g * config.stiffness_mult);
 }
 
 template <Space s>
@@ -395,7 +395,7 @@ Vec18 hylc_local_forces_nojac(const Face *face) {
       }
     }
 
-  return g;
+  return g * config.stiffness_mult;
 }
 
 template <int m, int n>
@@ -572,6 +572,36 @@ void hylc::hylc_add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
       hylc::add_subvec(-dt * (g + (dt + damping) * H * vs), ixs, b);
     }
   }
+
+  // earth gravity: F = G m1 m2 / r^2
+  // F = alpha m_obj/(x_obj-0)^2
+  // alpha := 3.9857128×10^14 m3⋅s−2  
+  if (hylc::config.center_grav != 0)
+    for (int n = 0; n < mesh.nodes.size(); n++) {
+      double alpha = 3.9857128e14 * hylc::config.center_grav;
+      Node* nn = mesh.nodes[n];
+      // Vec3 gravity = -9.81 * normalize(mesh.nodes[n]->x);
+      // Vec3 f_grav = nn->m * gravity;
+
+      double r = norm(nn->x - Vec3(0));
+      Vec3 f_grav = nn->m * -normalize(nn->x) * (alpha/(r*r));
+
+      Mat3x3 J_grav(0);
+      double x=nn->x(0),y=nn->x(1),z=nn->x(2);
+      J_grav(0,0) += -2*x*x + y*y + z*z;
+      J_grav(1,1) += + x*x -2*y*y + z*z;
+      J_grav(2,2) += + x*x + y*y -2*z*z;
+      J_grav(0,1) += -3 * x*y;
+      J_grav(0,2) += -3 * x*z;
+      J_grav(1,2) += -3 * y*z;
+      J_grav(0,1) += -3 * x*y;
+      J_grav(2,0) += -3 * x*z;
+      J_grav(2,1) += -3 * y*z;
+      J_grav *= - alpha * nn->m / (r*r*r*r*r);
+    
+      hylc::add_subvec(dt * f_grav, Vec<1, int>(nn->index), b);
+      hylc::add_submat(-J_grav, Vec<1, int>(nn->index), A);
+    }  
 }
 
 template <Space s>

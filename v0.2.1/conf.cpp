@@ -295,7 +295,6 @@ void parse(Cloth::Remeshing &remeshing, const Json::Value &json) {
   parse(remeshing.refine_velocity, json["refine_velocity"], infinity);
   parse(Range(remeshing.size_min, remeshing.size_max), json["size"],
         Vec2(-infinity, infinity));
-  double mult;
   parse(remeshing.size_mult_boundary, json["boundary_detail_mult"], 1.0);
   parse(remeshing.aspect_min, json["aspect_min"], -infinity);
 }
@@ -725,6 +724,7 @@ void parse(Magic &magic, const Json::Value &json) {
   PARSE_MAGIC(combine_tensors);
   PARSE_MAGIC(preserve_creases);
   PARSE_MAGIC(relax_initial_state);
+  PARSE_MAGIC(display_scale);
 #undef PARSE_MAGIC
 }
 
