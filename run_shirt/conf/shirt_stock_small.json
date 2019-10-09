@@ -21,9 +21,9 @@
             "refine_angle": 0.3,
             "refine_compression": 0.01,
             "refine_velocity": 0.5,
-            "size": [6e-3, 100e-3],
+            "size": [4e-3, 100e-3], // trying smaller for stock
             // "size": [10e-3, 50e-3],
-            "boundary_detail_mult": 0.25,
+            "boundary_detail_mult": 0.25, // with remeshing this affects the max size..
             "aspect_min": 0.2
         }
     }],
@@ -39,8 +39,9 @@
     },
     "gravity": [0, 0, -9.8],
     "disable": ["popfilter"],
-    "obs_friction": 0.75,
-    "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6
+    "obs_friction": 0.75, // maybe reduce?
+    "magic": {"repulsion_thickness": 2.5e-3//5e-3 
+       ,"collision_stiffness": 1e6
        ,"relax_initial_state": false
        ,"fixed_high_res_mesh": false
     }
