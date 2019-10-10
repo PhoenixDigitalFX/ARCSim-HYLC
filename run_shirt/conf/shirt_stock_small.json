@@ -22,13 +22,13 @@
             "refine_compression": 0.01,
             "refine_velocity": 0.5,
             // "size": [4e-3, 100e-3], // trying smaller for stock NOTE: too fine R suggested less fine
-            "size": [10e-3, 100e-3], // bigger smaller for stock
+            "size": [8e-3, 100e-3], // bigger smaller for stock
             // "size": [10e-3, 50e-3],
             "boundary_detail_mult": 0.25, // with remeshing this affects the max size..
             "aspect_min": 0.2
         }
     }],
-    "wind": {"density": 0.3e1},// 1e1 was too high
+    "wind": {"density": 0.2e1},// 1e1 was too high
     "obstacles": "meshes/guy_shrunk/body%04d.obj",
     "motions": {
         "motfile": "meshes/karate-smooth.mot",
@@ -41,7 +41,7 @@
     "gravity": [0, 0, -9.8],
     "disable": ["popfilter"],
     "obs_friction": 0.75, // maybe reduce?
-    "magic": {"repulsion_thickness": 5e-3//5e-3 
+    "magic": {"repulsion_thickness": 4e-3//5e-3 
        ,"collision_stiffness": 1e6
        ,"relax_initial_state": false
        ,"fixed_high_res_mesh": false
