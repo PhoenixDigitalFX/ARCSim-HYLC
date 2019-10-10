@@ -28,7 +28,7 @@
             "aspect_min": 0.2
         }
     }],
-    "wind": {"density": 0.2e1},// 1e1 was too high
+    "wind": {"density": 1}, // 1e1 was too high, even 0.2 seemed too high, so just default
     "obstacles": "meshes/guy_shrunk/body%04d.obj",
     "motions": {
         "motfile": "meshes/karate-smooth.mot",
