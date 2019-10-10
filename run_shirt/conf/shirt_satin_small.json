@@ -25,7 +25,7 @@
             "refine_angle": 0.3,
             "refine_compression": 0.01,
             "refine_velocity": 0.5,
-            "size": [8e-3, 100e-3], // TODO 8e-3 ?
+            "size": [10e-3, 100e-3], // TODO 8e-3 ?
             // "size": [10e-3, 50e-3],
             ////"boundary_detail_mult": 0.75,
             "aspect_min": 0.2
@@ -45,7 +45,7 @@
     // "disable": ["popfilter", "remeshing"],
     "disable": ["popfilter"],
     "obs_friction": 0.75,
-    "magic": {"repulsion_thickness": 4e-3, "collision_stiffness": 1e6
+    "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6
         ,"relax_initial_state": false
         ,"fixed_high_res_mesh": false
     }
