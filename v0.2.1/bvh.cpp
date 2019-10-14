@@ -187,6 +187,10 @@ void DeformBVHTree::Construct() {
   int num_vtx = _mdl->verts.size(), num_tri = _mdl->faces.size();
 
   for (unsigned int i = 0; i < num_vtx; i++) {
+    if (_mdl->verts[i]->node == nullptr) {
+      std::cout<<"Warning: (remesh bug?) null ptr vert "<< i << "\n";
+      continue;
+    }
     total += _mdl->verts[i]->node->x;
     if (_ccd)
       total += _mdl->verts[i]->node->x0;
