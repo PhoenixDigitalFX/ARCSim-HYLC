@@ -1,7 +1,7 @@
 {
     "hylc": {
         "enabled": true,
-        "material": "hylcmaterials/rib1.json"
+        "material": "hylcmaterials/honey1.json"
     },
     "implicit": true,
 
