@@ -6,7 +6,7 @@
     "implicit": true,
 
     "frame_time": 0.0333333,
-    "frame_steps": 30,
+    "frame_steps": 40,// UPDATE
     "end_time": 3,
     "cloths": [{
         "mesh": "meshes/hylc_yarnmadillo.obj",
@@ -18,7 +18,7 @@
         "materials": [{"data": "materials/gray-interlock.json",
                        "thicken": 2, "damping": 1e-2}],
         "remeshing": {
-            "refine_angle": 0.3,
+            "refine_angle": 0.2,// UPDATE
             "refine_compression": 0.005,
             "refine_velocity": 0.5,
             //"size": [10e-3, 200e-3],
