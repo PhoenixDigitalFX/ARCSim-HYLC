@@ -6,12 +6,12 @@
     "implicit": true,
 
     "frame_time": 0.0333333,
-    "frame_steps": 40,
+    "frame_steps": 50,
     "end_time": 2,
     "cloths": [{
 
         "mesh": "meshes/hylc_scarf.obj",
-        "transform": {"scale": 0.6, "translate": [-0.2,-0.1,0.4], "rotate": [90,1,-0.5,0]},
+        "transform": {"scale": 0.6, "translate": [-0.19,-0.1,0.4], "rotate": [90,1,-0.5,0]},
         
         "materials": [{"data": "materials/gray-interlock.json",
                        "thicken": 2, "damping": 1e-2}],
