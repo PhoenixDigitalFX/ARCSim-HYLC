@@ -6,11 +6,11 @@
     "implicit": true,
 
     "frame_time": 0.0333333,
-    "frame_steps": 20,
-    "end_time": 4,
+    "frame_steps": 30,
+    "end_time": 3,
     "cloths": [{
         "mesh": "meshes/hylc_yarnmadillo.obj",
-        "transform": {"scale": 0.265, "translate": [0.0,0.0,0.145], "rotate": [90,1,0,0]},
+        "transform": {"scale": 0.3, "translate": [0.0,0.0,0.175], "rotate": [180,0,1,1]},
         
         // "mesh": "meshes/hylc_dragon.obj",
         // "transform": {"scale": 0.1, "translate": [0.0,0.0,0.2], "rotate": [90,1,0,0]},
@@ -29,6 +29,8 @@
     "disable": ["popfilter"
         //,"remeshing"
     ],
+    "obs_friction": 0.6,
+    "wind": {"density": 4},
 
     "obstacles": [{
         "mesh": "meshes/square.obj",
