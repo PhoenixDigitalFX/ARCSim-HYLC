@@ -12,6 +12,7 @@ struct Config {
   bool enabled = false; // false .. use arcsim material, true .. use hylc
   std::shared_ptr<BaseMaterial> material = nullptr;
   double stiffness_mult = 1.0;
+  double bend_scale = 1.0;
   double weight_mult = 1.0;
   double seam_stiffness = 0.0;
   double center_grav = 0.0;

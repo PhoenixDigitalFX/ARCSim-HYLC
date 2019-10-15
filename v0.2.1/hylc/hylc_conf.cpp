@@ -316,7 +316,7 @@ void testmat(std::shared_ptr<SplineMaterial> mat) {
   // std::cout << "<clip>\n\n\n\n";
 }
 
-std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
+std::shared_ptr<SplineMaterial> load_material(const std::string &filename, bool only1D = false) {
   Json::Value json;
   Json::Reader reader;
   std::ifstream file(filename.c_str());
@@ -359,7 +359,8 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
   // parse(material->splines_1d, jsoncoeff["1D"]);
   // parse(material->splines_2d, jsoncoeff["2D"]); // deprecated
   // parse(material->polys_2d, jsoncoeff["2D"]);
-  parse(material->hsplines_2d, jsoncoeff["2D"]);
+  if (!only1D)
+    parse(material->hsplines_2d, jsoncoeff["2D"]);
   // parse(material->hsplines_2d1d, jsoncoeff["2D"]);
 
   // for(double a = 0.3; a <= 2.0; a+= 0.1888888888888)
@@ -386,7 +387,7 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename) {
 
   material->initialized = true;
 
-  testmat(material);
+  // testmat(material);
 
   return material;
 }
@@ -399,10 +400,12 @@ void parse(hylc::Config &params, const Json::Value &json) {
   std::string filename;
   parse(filename, json["material"]);
   parse(params.stiffness_mult, json["stiffness_mult"], 1.0);
+  parse(params.bend_scale, json["bend_scale"], 1.0);
   parse(params.weight_mult, json["weight_mult"], 1.0);
   parse(params.center_grav, json["center_grav"], 0.0);
-
-  params.material = load_material(filename);
+  bool only1D;
+  parse(only1D, json["only1D"], false);
+  params.material = load_material(filename, only1D);
   parse(params.seam_stiffness, json["seam_stiffness"], 0.0);
 }
 
