@@ -6,7 +6,7 @@
     "implicit": true,
 
     "frame_time": 0.0167,
-    "frame_steps": 20, // 10 had some explodey triangles
+    "frame_steps": 20, // 10 had some explodey triangles // changed to 40 at frame 859 because of explosion
 
     "end_time": 20,
     "cloths": [{

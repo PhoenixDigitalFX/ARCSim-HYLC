@@ -1,0 +1,47 @@
+{
+    "hylc": {
+        "enabled": true,
+        "material": "hylcmaterials/satin1.json"
+        ,"stiffness_mult": 1e2
+        ,"bend_scale": 1e2
+        ,"weight_mult": 1
+    },
+    "implicit": true,
+    "frame_time": 0.0333333,//0.167
+    "frame_steps": 4,//20
+    // "frame_time": 0.0167,
+    // "frame_steps": 1,//10
+    "end_time": 10,
+    "cloths": [{
+        // "mesh": "meshes/hylc_bunny.obj",
+        // "transform": {"translate": [0.0,0.0,0.02], "rotate": [90,1,0,0]},
+        "mesh": "meshes/hylc_dragon.obj", // about 4m high
+        "transform": {"scale": 35, "translate": [-8.0,85.0,0.2], "rotate": [90,1,0,0]},
+        "velocity": { "linear": [0,-5e1,0] },
+        "materials": [{"data": "materials/gray-interlock.json",
+                       "thicken": 2, "damping": 1e-2}], // HIGH?
+        "remeshing": {
+            "refine_angle": 0.3,
+            "refine_compression": 0.005,
+            "refine_velocity": 0.5,
+            "size": [5e0, 100e0],
+            "aspect_min": 0.2
+        }
+    }],
+    "obstacles": [{
+        "mesh": "meshes/hylc_city.obj",
+        "transform": {"rotate":[90,1,0,0], "translate": [0,0,-2e0],"scale":15}
+        // "mesh": "meshes/square.obj",
+        // "transform": {"translate": [-0.5,-0.5,-2e-3]}
+    }],
+    "gravity": [0, 0, -9.8],
+    "wind": {"density": 1e-3}, // NOTE in reality should make yarns heavier? 
+    "disable": ["remeshing"],
+    "magic": {
+      "repulsion_thickness": 1e-2, // more?
+      "collision_stiffness": 1e6
+	      , "relax_initial_state": false
+	     // ,"fixed_high_res_mesh": true
+      ,"display_scale": 1e-2
+    }
+}

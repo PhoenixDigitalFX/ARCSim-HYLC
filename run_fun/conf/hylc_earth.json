@@ -1,0 +1,188 @@
+{
+    "hylc": {
+        "enabled": true,
+        "material": "hylcmaterials/satin1.json",
+        "stiffness_mult": 1e4,//10e6, //1e11
+        "weight_mult": 1,//10e2, //1e6
+        "center_grav": 3e-3
+        // center gravity: F = G m1 m2 / r^2
+        // F = alpha m_obj/(x_obj-0)^2
+        // alpha := 3.9857128×10^14 m3⋅s−2
+    },
+    // "disable": ["remeshing"],
+    "implicit": true,
+    // "explicit_massdamping": 1e-1, // maybe even lower
+    // "explicit_stretchdamping": 1e-2, // stiffest term
+    "frame_time": 300,
+    "frame_steps": 100, //50
+    // "frame_time": 60,
+    // "frame_steps": 1,
+    "end_time": 345600, // hour 3600, day 86400
+
+    "cloths": [{ // Required: List of cloth objects
+        // "mesh": "meshes/hylc_moebius2.obj",
+        // "transform": {
+        //     "translate": [-12e6, 0, 15e6],
+        //     "rotate": [60,0,-0.5,-1],
+        //     "scale": 2e7
+        // },
+        "mesh": "meshes/square.obj",
+        "transform": {
+            // "translate": [-15e6, 0, 20e6],
+            "translate": [-1e7, -2e7, 2e7],
+            "rotate": [-10,0,-0.5,-0.5],
+            "scale": 3e7
+        },
+        "velocity": { "linear": [0,0,-2e2] },
+        // "velocity": { "linear": [0,0,-1e2] },
+        "materials": [{ // fake - just using the damping parameter
+            "data": "materials/gray-interlock.json", 
+            "thicken": 1,
+            "damping": 1e3
+        }],
+        "remeshing": { // Required: Remeshing parameters
+            "refine_angle": 0.025, //0.1 // Required: Max allowed change in normals
+            "refine_compression": 0.005, // Required: Max allowed compression
+            "refine_velocity": 0.5, // Required: Max allowed change in velocity
+            "size": [6e5, 30e5],
+            // "size": [16e5, 30e5],
+            "aspect_min": 0.2 // Required: Lower bound on triangle aspect ratio
+        }
+    }],
+    // "motions": {
+    //     "motfile": "meshes/earth.mot",
+    //     "fps": 1//0.000115741
+    //     // ,"transform": {
+    //     //     "translate": [3, -0.85, -0.7],
+    //     //     "rotate": [180, 0, 0, 1]
+    //     // }
+    // },
+    "obstacles": [{
+        "mesh": "meshes/sphere.obj",
+        "transform": {"scale": 6.371e6}
+        ,"motion": 0
+    }],
+    "gravity": [0, 0, 0], // Optional, default 0: Acceleration due to gravity
+
+    "wind": {"density": 1e-8}, // fake friction-y vacuum
+
+    // "friction": <mu> // default 0.6: Cloth-cloth friction
+    "obs_friction": 1e-4, // default 0.3: Cloth-obstacle friction
+
+    "disable": ["popfilter"],
+    // "disable": ["popfilter","remeshing"],
+    // List of modules to disable. choose any or all of: "proximity",
+    // "physics", "strainlimiting", "collision", "remeshing", "separation",
+    // "popfilter", "plasticity"
+
+    "magic": {"repulsion_thickness": 0.5e5, "collision_stiffness": 1e3//1e2
+        ,"relax_initial_state": false
+        ,"fixed_high_res_mesh": true
+        ,"display_scale": 2.5e-8
+    },
+
+
+
+    "motions": [[
+        {"time": 0, "transform": {"rotate": [0,0,0,1]}},
+        {"time": 8727, "transform": {"rotate": [36,0,0,1]}},
+        {"time": 17454, "transform": {"rotate": [72,0,0,1]}},
+        {"time": 26181, "transform": {"rotate": [109,0,0,1]}},
+        {"time": 34909, "transform": {"rotate": [145,0,0,1]}},
+        {"time": 43636, "transform": {"rotate": [181,0,0,1]}},
+        {"time": 52363, "transform": {"rotate": [218,0,0,1]}},
+        {"time": 61090, "transform": {"rotate": [254,0,0,1]}},
+        {"time": 69818, "transform": {"rotate": [290,0,0,1]}},
+        {"time": 78545, "transform": {"rotate": [327,0,0,1]}},
+        {"time": 87272, "transform": {"rotate": [363,0,0,1]}},
+        {"time": 96000, "transform": {"rotate": [400,0,0,1]}},
+        {"time": 104727, "transform": {"rotate": [436,0,0,1]}},
+        {"time": 113454, "transform": {"rotate": [472,0,0,1]}},
+        {"time": 122181, "transform": {"rotate": [509,0,0,1]}},
+        {"time": 130909, "transform": {"rotate": [545,0,0,1]}},
+        {"time": 139636, "transform": {"rotate": [581,0,0,1]}},
+        {"time": 148363, "transform": {"rotate": [618,0,0,1]}},
+        {"time": 157090, "transform": {"rotate": [654,0,0,1]}},
+        {"time": 165818, "transform": {"rotate": [690,0,0,1]}},
+        {"time": 174545, "transform": {"rotate": [727,0,0,1]}},
+        {"time": 183272, "transform": {"rotate": [763,0,0,1]}},
+        {"time": 192000, "transform": {"rotate": [800,0,0,1]}},
+        {"time": 200727, "transform": {"rotate": [836,0,0,1]}},
+        {"time": 209454, "transform": {"rotate": [872,0,0,1]}},
+        {"time": 218181, "transform": {"rotate": [909,0,0,1]}},
+        {"time": 226909, "transform": {"rotate": [945,0,0,1]}},
+        {"time": 235636, "transform": {"rotate": [981,0,0,1]}},
+        {"time": 244363, "transform": {"rotate": [1018,0,0,1]}},
+        {"time": 253090, "transform": {"rotate": [1054,0,0,1]}},
+        {"time": 261818, "transform": {"rotate": [1090,0,0,1]}},
+        {"time": 270545, "transform": {"rotate": [1127,0,0,1]}},
+        {"time": 279272, "transform": {"rotate": [1163,0,0,1]}},
+        {"time": 288000, "transform": {"rotate": [1200,0,0,1]}},
+        {"time": 296727, "transform": {"rotate": [1236,0,0,1]}},
+        {"time": 305454, "transform": {"rotate": [1272,0,0,1]}},
+        {"time": 314181, "transform": {"rotate": [1309,0,0,1]}},
+        {"time": 322909, "transform": {"rotate": [1345,0,0,1]}},
+        {"time": 331636, "transform": {"rotate": [1381,0,0,1]}},
+        {"time": 340363, "transform": {"rotate": [1418,0,0,1]}},
+        {"time": 349090, "transform": {"rotate": [1454,0,0,1]}},
+        {"time": 357818, "transform": {"rotate": [1490,0,0,1]}},
+        {"time": 366545, "transform": {"rotate": [1527,0,0,1]}},
+        {"time": 375272, "transform": {"rotate": [1563,0,0,1]}},
+        {"time": 384000, "transform": {"rotate": [1600,0,0,1]}},
+        {"time": 392727, "transform": {"rotate": [1636,0,0,1]}},
+        {"time": 401454, "transform": {"rotate": [1672,0,0,1]}},
+        {"time": 410181, "transform": {"rotate": [1709,0,0,1]}},
+        {"time": 418909, "transform": {"rotate": [1745,0,0,1]}},
+        {"time": 427636, "transform": {"rotate": [1781,0,0,1]}},
+        {"time": 436363, "transform": {"rotate": [1818,0,0,1]}},
+        {"time": 445090, "transform": {"rotate": [1854,0,0,1]}},
+        {"time": 453818, "transform": {"rotate": [1890,0,0,1]}},
+        {"time": 462545, "transform": {"rotate": [1927,0,0,1]}},
+        {"time": 471272, "transform": {"rotate": [1963,0,0,1]}},
+        {"time": 480000, "transform": {"rotate": [2000,0,0,1]}},
+        {"time": 488727, "transform": {"rotate": [2036,0,0,1]}},
+        {"time": 497454, "transform": {"rotate": [2072,0,0,1]}},
+        {"time": 506181, "transform": {"rotate": [2109,0,0,1]}},
+        {"time": 514909, "transform": {"rotate": [2145,0,0,1]}},
+        {"time": 523636, "transform": {"rotate": [2181,0,0,1]}},
+        {"time": 532363, "transform": {"rotate": [2218,0,0,1]}},
+        {"time": 541090, "transform": {"rotate": [2254,0,0,1]}},
+        {"time": 549818, "transform": {"rotate": [2290,0,0,1]}},
+        {"time": 558545, "transform": {"rotate": [2327,0,0,1]}},
+        {"time": 567272, "transform": {"rotate": [2363,0,0,1]}},
+        {"time": 576000, "transform": {"rotate": [2400,0,0,1]}},
+        {"time": 584727, "transform": {"rotate": [2436,0,0,1]}},
+        {"time": 593454, "transform": {"rotate": [2472,0,0,1]}},
+        {"time": 602181, "transform": {"rotate": [2509,0,0,1]}},
+        {"time": 610909, "transform": {"rotate": [2545,0,0,1]}},
+        {"time": 619636, "transform": {"rotate": [2581,0,0,1]}},
+        {"time": 628363, "transform": {"rotate": [2618,0,0,1]}},
+        {"time": 637090, "transform": {"rotate": [2654,0,0,1]}},
+        {"time": 645818, "transform": {"rotate": [2690,0,0,1]}},
+        {"time": 654545, "transform": {"rotate": [2727,0,0,1]}},
+        {"time": 663272, "transform": {"rotate": [2763,0,0,1]}},
+        {"time": 672000, "transform": {"rotate": [2800,0,0,1]}},
+        {"time": 680727, "transform": {"rotate": [2836,0,0,1]}},
+        {"time": 689454, "transform": {"rotate": [2872,0,0,1]}},
+        {"time": 698181, "transform": {"rotate": [2909,0,0,1]}},
+        {"time": 706909, "transform": {"rotate": [2945,0,0,1]}},
+        {"time": 715636, "transform": {"rotate": [2981,0,0,1]}},
+        {"time": 724363, "transform": {"rotate": [3018,0,0,1]}},
+        {"time": 733090, "transform": {"rotate": [3054,0,0,1]}},
+        {"time": 741818, "transform": {"rotate": [3090,0,0,1]}},
+        {"time": 750545, "transform": {"rotate": [3127,0,0,1]}},
+        {"time": 759272, "transform": {"rotate": [3163,0,0,1]}},
+        {"time": 768000, "transform": {"rotate": [3200,0,0,1]}},
+        {"time": 776727, "transform": {"rotate": [3236,0,0,1]}},
+        {"time": 785454, "transform": {"rotate": [3272,0,0,1]}},
+        {"time": 794181, "transform": {"rotate": [3309,0,0,1]}},
+        {"time": 802909, "transform": {"rotate": [3345,0,0,1]}},
+        {"time": 811636, "transform": {"rotate": [3381,0,0,1]}},
+        {"time": 820363, "transform": {"rotate": [3418,0,0,1]}},
+        {"time": 829090, "transform": {"rotate": [3454,0,0,1]}},
+        {"time": 837818, "transform": {"rotate": [3490,0,0,1]}},
+        {"time": 846545, "transform": {"rotate": [3527,0,0,1]}},
+        {"time": 855272, "transform": {"rotate": [3563,0,0,1]}},
+        {"time": 864000, "transform": {"rotate": [3600,0,0,1]}}
+    ]]
+}
