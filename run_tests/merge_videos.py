@@ -8,7 +8,7 @@ import argparse
 # folder1 = "/media/gsperl/Elements/HYLC/final_sim_copies/vids"
 # folder1 = "/media/gsperl/Elements/HYLC/2019-07-05-YLC/vids"
 folder1 = "/media/gsperl/Elements/HYLC/final_ylc_copies"
-folder1 = "/home/gsperl/Projects/arcsim-hylc/run_tests/1D/vids_merged" # YLC + 1D
+# folder1 = "/home/gsperl/Projects/arcsim-hylc/run_tests/1D/vids_merged" # YLC + 1D
 folder2 = "/home/gsperl/Projects/arcsim-hylc/run_tests/vids"
 output = "vids_merged"
 os.makedirs(output, exist_ok=True)

@@ -2,9 +2,9 @@
     "hylc": {
         "enabled": true,
         "material": "hylcmaterials/satin1.json",
-        "stiffness_mult": 1e4,//10e6, //1e11
+        "stiffness_mult": 1e3,//10e6, //1e11
         "weight_mult": 1,//10e2, //1e6
-        "center_grav": 3e-3
+        "center_grav": 1e-3
         // center gravity: F = G m1 m2 / r^2
         // F = alpha m_obj/(x_obj-0)^2
         // alpha := 3.9857128×10^14 m3⋅s−2
@@ -14,10 +14,10 @@
     // "explicit_massdamping": 1e-1, // maybe even lower
     // "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 300,
-    "frame_steps": 100, //50
+    "frame_steps": 5, //50 // 10 but with higher friction?
     // "frame_time": 60,
     // "frame_steps": 1,
-    "end_time": 345600, // hour 3600, day 86400
+    "end_time": 432000,//345600, // hour 3600, day 86400
 
     "cloths": [{ // Required: List of cloth objects
         // "mesh": "meshes/hylc_moebius2.obj",
@@ -38,14 +38,14 @@
         "materials": [{ // fake - just using the damping parameter
             "data": "materials/gray-interlock.json", 
             "thicken": 1,
-            "damping": 1e3
+            "damping": 1e4///1e3
         }],
         "remeshing": { // Required: Remeshing parameters
             "refine_angle": 0.025, //0.1 // Required: Max allowed change in normals
             "refine_compression": 0.005, // Required: Max allowed compression
             "refine_velocity": 0.5, // Required: Max allowed change in velocity
-            "size": [6e5, 30e5],
-            // "size": [16e5, 30e5],
+            // "size": [8e5, 30e5],
+            "size": [15e5, 30e5],
             "aspect_min": 0.2 // Required: Lower bound on triangle aspect ratio
         }
     }],
@@ -67,15 +67,19 @@
     "wind": {"density": 1e-8}, // fake friction-y vacuum
 
     // "friction": <mu> // default 0.6: Cloth-cloth friction
-    "obs_friction": 1e-4, // default 0.3: Cloth-obstacle friction
+    "friction": 1e-3,
+    "obs_friction": 2e-4, //1e-4 // default 0.3: Cloth-obstacle friction
 
-    "disable": ["popfilter"],
-    // "disable": ["popfilter","remeshing"],
+    "disable": [
+        "popfilter"
+        ,"separation"
+        // ,"remeshing"
+    ],
     // List of modules to disable. choose any or all of: "proximity",
     // "physics", "strainlimiting", "collision", "remeshing", "separation",
     // "popfilter", "plasticity"
 
-    "magic": {"repulsion_thickness": 0.5e5, "collision_stiffness": 1e3//1e2
+    "magic": {"repulsion_thickness": 2e5, "collision_stiffness": 1e3//1e2
         ,"relax_initial_state": false
         ,"fixed_high_res_mesh": true
         ,"display_scale": 2.5e-8
