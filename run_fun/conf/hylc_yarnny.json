@@ -5,8 +5,8 @@
     },
     "implicit": true,
 
-    "frame_time": 0.0333333,
-    "frame_steps": 30,
+    "frame_time": 0.0167,
+    "frame_steps": 25,
     "end_time": 3,
     "cloths": [{
 
@@ -28,7 +28,7 @@
         //,"remeshing"
     ],
     "obs_friction": 0.6,
-    "wind": {"density": 4},
+    "wind": {"density": 1e1},
 
     "obstacles": [{
         "mesh": "meshes/square.obj",

@@ -5,8 +5,8 @@
     },
     "implicit": true,
 
-    "frame_time": 0.0333333,
-    "frame_steps": 50,
+    "frame_time": 0.0167,
+    "frame_steps": 40,
     "end_time": 2,
     "cloths": [{
 
@@ -20,14 +20,14 @@
             "refine_compression": 0.005,
             "refine_velocity": 0.5,
             //"size": [10e-3, 200e-3],
-            "size": [8e-3, 60e-3],
+            "size": [10e-3, 60e-3],
             "aspect_min": 0.2
         }
     }],
     "disable": ["popfilter"
         // ,"remeshing"
     ],
-    "wind": {"density": 4},
+    "wind": {"density": 1e1},
 
     "obstacles": [{
         "mesh": "meshes/square.obj",
