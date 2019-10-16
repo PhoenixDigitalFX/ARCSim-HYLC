@@ -27,7 +27,8 @@
     "disable": ["popfilter"
         //,"remeshing"
     ],
-    "obs_friction": 0.6,
+    "obs_friction": 0.8,
+    "friction": 0.8,
     "wind": {"density": 1e1},
 
     "obstacles": [{
