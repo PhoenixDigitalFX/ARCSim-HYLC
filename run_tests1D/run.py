@@ -1,11 +1,10 @@
-import os
-import sys
-import subprocess
-import argparse
-
-
+import os, sys, subprocess, argparse, platform, time
+assert(platform.python_version().startswith("3")) # cluster safety
+from multiprocessing import Pool
 
 outputfolder = "sims"
+processdelay = 0 # delay subprocess by n seconds to avoid initial remeshing clash
+
 
 def build(sourcedir, builddir, debug=False):
     cfg = 'Debug' if debug else 'Release'
@@ -20,14 +19,15 @@ def build(sourcedir, builddir, debug=False):
     subprocess.check_call(['cmake', '--build', '.'] +
                           build_args, cwd=builddir)  # basically make
 
-
-
-
 # get command line arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-b", "--build", default="1",
                 help="...")
+# ap.add_argument("-o", "--op", default="simulateoffline",
+#                 help="...")
 ap.add_argument("-r", "--run", default="1",
+                help="...")
+ap.add_argument("-p", "--processes", default="1",
                 help="...")
 args, unknownargs = ap.parse_known_args()
 args = vars(args)
@@ -39,15 +39,14 @@ sourcedir = os.path.join(os.getcwd(),"..")
 builddir = os.path.join(
     os.getcwd(), "..", "build-Release")
 
-
-
 if args['build']:
     build(sourcedir=sourcedir, builddir=builddir, debug=False)
 
 if not args['run']:
     exit()
 
-# RUN
+
+
 workdir = os.path.join(os.getcwd(),"..") 
 executable = os.path.join(builddir, "bin", "arcsim_0.2.1")
 # from workdir call
@@ -55,28 +54,53 @@ executable = os.path.join(builddir, "bin", "arcsim_0.2.1")
 
 op = "simulateoffline"
 
-conffolder = os.path.join(os.getcwd(),"conf") 
+confs = sorted(os.listdir("conf"))
 os.makedirs(os.path.join(os.getcwd(),outputfolder), exist_ok=True)
 
-try:
-    for conf in sorted(os.listdir("conf")):
+def tasks():
+    delay = 0
+    i = 0
+    for conf in confs:
         if not conf.endswith(".json"):
             continue
-        if "tmp" in conf:
-            continue
-        # if not ("stock" in conf or "satin_stretch" in conf):
-        #     continue
-        # if not "basket_stretch" in conf:
-        #     continue
         simname = os.path.splitext(os.path.basename(conf))[0]
         confpath = os.path.join(os.getcwd(),"conf",conf) 
         outputdir = os.path.join(os.getcwd(),outputfolder,simname) 
         if os.path.isdir(outputdir):
+            print("Skipping existing/in-progress", conf)
             continue
 
-        subprocess.check_call([executable, op, confpath, outputdir], cwd=workdir)
+        yield (i,[executable, op, confpath, outputdir], delay)
+        delay += processdelay
+        i += 1
+def execute_task(args):
+    i,task,delay = args
+    if delay > 0:
+        print("Delaying task %d for %02dm %02ds" % (i, delay//60, delay%60))
+        time.sleep(delay)
+    print("Starting task", i)
+    subprocess.check_call(task, cwd=workdir)
+
+try:
+    n_processes = int(args['processes'])
+    if n_processes > 1:
+        pool = Pool(n_processes)
+        iterator = tasks()
+        pool_it = pool.imap_unordered(execute_task, iterator, chunksize=1)
+        # wait and iterate pool results, keyboard abortable
+        try:
+            n_finished = 0
+            for _ in pool_it:
+                n_finished += 1
+                print("Finished simulation #%d." % n_finished)
+        except KeyboardInterrupt:
+            print("Caught KeyboardInterrupt, terminating workers")
+            pool.terminate() # terminating 
+        else:
+            pool.close() # normal termination
+    else:
+        for task in tasks():
+            execute_task(task)
+    
 except KeyboardInterrupt:
     print("PY: Aborting execution")
-
-
-# python3 run.py && gnome-session-quit --power-off --force --no-prompt
