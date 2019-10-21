@@ -19,8 +19,8 @@
                            "refine_angle": 0.3,
                            "refine_compression": 0.01,
                            "refine_velocity": 0.5,
-                           "size": [3e-3, 40e-3],
-                           "boundary_detail_mult": 0.25,
+                           "size": [3e-3, 15e-3],//40
+                           "boundary_detail_mult": 0.5, //0.25
                            "aspect_min": 0.2
                        }
     }],
