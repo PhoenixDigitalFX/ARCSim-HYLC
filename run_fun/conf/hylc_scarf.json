@@ -2,16 +2,17 @@
     "hylc": {
         "enabled": true,
         "material": "hylcmaterials/rib1.json"
+        ,"stiffness_mult": 2
     },
     "implicit": true,
 
     "frame_time": 0.0167,
-    "frame_steps": 45,
+    "frame_steps": 40,
     "end_time": 2,
     "cloths": [{
 
         "mesh": "meshes/hylc_scarf.obj",
-        "transform": {"scale": 0.6, "translate": [-0.19,-0.1,0.4], "rotate": [90,1,-0.5,0]},
+        "transform": {"scale": 0.6, "translate": [-0.17,-0.14,0.42], "rotate": [90,1,-0.5,0]},
         
         "materials": [{"data": "materials/gray-interlock.json",
                        "thicken": 2, "damping": 2e-2}],
@@ -44,6 +45,6 @@
       "repulsion_thickness": 10e-3,
       "collision_stiffness": 1e6
 	      , "relax_initial_state": false
-	     // ,"fixed_high_res_mesh": true
+	     ,"fixed_high_res_mesh": true
       }
 }
