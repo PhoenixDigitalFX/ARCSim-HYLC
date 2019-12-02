@@ -75,6 +75,10 @@ def tasks():
         i += 1
 def execute_task(args):
     i,task,delay = args
+    outputdir=task[-1]
+    if os.path.isdir(outputdir): # try skip again, if tasks preallocated then overlaps can happen..?
+        print("Skipping existing/in-progress", task[-2])
+        return
     if delay > 0:
         print("Delaying task %d for %02dm %02ds" % (i, delay//60, delay%60))
         time.sleep(delay)
