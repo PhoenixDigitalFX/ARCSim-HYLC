@@ -1,5 +1,5 @@
 # offline simulation data
-offline_sims/
+TMP*
 # vscode
 .vscode*
 .VSCode*

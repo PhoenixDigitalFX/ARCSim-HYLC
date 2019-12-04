@@ -13,8 +13,8 @@
     "implicit": true,
     // "explicit_massdamping": 1e-1, // maybe even lower
     // "explicit_stretchdamping": 1e-2, // stiffest term
-    "frame_time": 300,
-    "frame_steps": 5, //50 // 10 but with higher friction?
+    "frame_time": 60, // 300 IS TOO FAST FOR A VIDEO
+    "frame_steps": 1, //5 // 10 but with higher friction?
     // "frame_time": 60,
     // "frame_steps": 1,
     "end_time": 432000,//345600, // hour 3600, day 86400
