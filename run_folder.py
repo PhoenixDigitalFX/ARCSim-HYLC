@@ -6,6 +6,7 @@ This script runs a folder full of sims expecting/creating the following structur
 import platform
 assert(platform.python_version().startswith("3")) # cluster safety
 import os, sys, subprocess, argparse, time
+import numpy as np
 from multiprocessing import Pool
 import getpass, smtplib, signal
 from email.mime.text import MIMEText
@@ -35,9 +36,11 @@ ap.add_argument("-f", "--filter", default=[], nargs="*",
                 help="filter to include")
 ap.add_argument("-F", "--filterex", default=[], nargs="*",
                 help="filter to exclude")
+ap.add_argument("-q", "--queue", default=[], nargs="*",
+                help="priority, e.g.: '-q basket 1 rib 2'")
 
 args, unknownargs = ap.parse_known_args()
-args = vars(args)
+args = vars(args) # NOTE for future: instead of this can just use args.folder etc.
 args['build'] = args['build'] != "0" and args['build'].lower() != "false"
 args['run'] = args['run'] != "0" and args['run'].lower() != "false"
 
@@ -123,7 +126,13 @@ executable = os.path.join(builddir, "bin", "arcsim_0.2.1")
 
 op = "simulateoffline"
 
-confs = sorted(os.listdir(os.path.join(args['folder'], "conf")))
+# NOTE: no input sanitization, expecting -q expr1 priority1 expr2 priority2
+confs = sorted(os.listdir(os.path.join(args['folder'], "conf"))) # default alphabetical
+if len(args['queue']) > 0:
+    priority_map = {args['queue'][2*i]: float(args['queue'][2*i+1]) for i in range(len(args['queue'])//2)}
+    weights = [-sum([fil[1] for fil in priority_map.items() if fil[0] in conf]) for conf in confs]
+    confs = np.array(confs)[np.argsort(weights)]
+
 os.makedirs(os.path.join(args['folder'],args['output']), exist_ok=True)
 
 def tasks():
