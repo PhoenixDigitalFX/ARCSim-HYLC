@@ -25,7 +25,7 @@
             "aspect_min": 0.2
         }
     }],
-    "wind": {"density": 1e1},// ?
+    "wind": {"density": 0.6e1},// ?
     "obstacles": "meshes/guy_shrunk/body%04d.obj",
     "motions": {
         "motfile": "meshes/karate-smooth.mot",
