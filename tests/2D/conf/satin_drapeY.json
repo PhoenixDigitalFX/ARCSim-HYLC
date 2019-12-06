@@ -8,7 +8,7 @@
     // "explicit_massdamping": 1e-1, // maybe even lower
     // "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
-    "frame_steps": 50,
+    "frame_steps": 80,//50
     "end_time": 2,
     "cloths": [{
         "mesh": "meshes/hylc_square.obj",
@@ -19,8 +19,8 @@
                            "refine_angle": 0.3,
                            "refine_compression": 0.01,
                            "refine_velocity": 0.5,
-                           "size": [3e-3, 40e-3],//15
-                           "boundary_detail_mult": 0.25, //0.5
+                           "size": [3e-3, 15e-3],//40
+                           "boundary_detail_mult": 0.5, //0.25
                            "aspect_min": 0.2
                        }
     }],
