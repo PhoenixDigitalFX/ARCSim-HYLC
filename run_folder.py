@@ -135,6 +135,8 @@ if len(args['queue']) > 0:
 
 os.makedirs(os.path.join(args['folder'],args['output']), exist_ok=True)
 
+print("(Sorted) Folders:\n" + "\n".join(confs))
+
 def tasks():
     delay = 0
     i = 0

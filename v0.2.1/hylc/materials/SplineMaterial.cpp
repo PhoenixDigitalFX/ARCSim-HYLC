@@ -28,6 +28,12 @@ int sgn(double x) {
 bool select_2D(int k0, int k1) {
   // return k0 == 0 && k1 == 2; // only poisson
 
+  // if (k0 == 1 || k1 == 1)
+  //   return false;
+  // if (k0 == 0 && k1 == 1)
+  //   return false;
+  // if (k0 == 0 && k1 == 2)
+  //   return false;
 
   // return k1 < 3 || ((k0==0&&k1==4)||(k0==1&&k1==3)); // only sx lyy and sa lxx (werid combo but it works....)
 

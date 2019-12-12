@@ -130,8 +130,8 @@ struct HermiteSpline2D {
         Mu = &MextL;
       else
         Mu = &MextR;
-      U[0] = 0; // u^3 -> 0
-      U[1] = 0; // u^2 -> 0
+      U[0] = 0; // u^3 -> 0 // shouldnt matter because rows of M are 0 anyway
+      U[1] = 0; // u^2 -> 0 // same
       if (ext > 0)
         U[2] = 0; // u -> 0
       if (ext > 1)
