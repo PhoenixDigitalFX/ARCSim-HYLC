@@ -29,8 +29,10 @@ ap.add_argument("-r", "--run", default="1",
                 help="...")
 ap.add_argument("-d", "--debug", action='store_true',
                 help="...")
-ap.add_argument("-c", "--conf", default="0",
-                help="...")
+# ap.add_argument("-c", "--conf",
+#                 help="...")
+# ap.add_argument("-C", "--conf",
+#                 help="...")
 ap.add_argument("-o", "--op", default="simulate",
                 help="...")
 # TODO add a  no compilation flag
@@ -58,17 +60,6 @@ executable = os.path.join(builddir, "bin", "arcsim_0.2.1")
 
 # operation: simulate, simulateoffline, replay etc.
 op = args['op']
-# configfile
-if args['conf'].endswith(".json"):
-    conf = args['conf']
-else:
-    conf = [
-        "conf/hylc_sphere_noremesh.json",
-        "conf/hylc_sphere.json",
-        "conf/hylc_stretchx.json",
-        "conf/hylc_stretchy.json",
-        "conf/hylc_shearx.json"
-    ][int(args['conf'])]
 
 simargs = unknownargs # remaining args
 try:
@@ -76,7 +67,7 @@ try:
         print("Executing:", [executable, op] + simargs)
         subprocess.check_call([executable, op] + simargs, cwd=workdir)
     else:
-        print("Executing:", [executable, op, conf] + simargs)
-        subprocess.check_call([executable, op, conf] + simargs, cwd=workdir)
+        print("Executing:", [executable, op] + simargs)
+        subprocess.check_call([executable, op] + simargs, cwd=workdir)
 except KeyboardInterrupt:
     print("PY: Aborting execution")

@@ -29,6 +29,8 @@ ap.add_argument("-o", "--output", default="sims",
                 help="...")
 ap.add_argument("-p", "--processes", default=1, type=int,
                 help="...")
+ap.add_argument("-t", "--threads", default=-1, type=int,
+                help="setting OMP_NUM_THREADS")
 ap.add_argument("-d", "--delay", default=0, type=int,
                 help="delay subprocess by n seconds to avoid initial remeshing clash")
 ap.add_argument("-e", "--email", action='store_true')
@@ -108,6 +110,8 @@ if args['build']:
 if not args['run']:
     exit()
 
+env = {"OMP_NUM_THREADS": str(args['threads'])} if args['threads'] > 0 else None
+
 if args['email']:
     email_pw = try_getpass()
     if email_pw is None or email_pw == "":
@@ -178,7 +182,7 @@ def execute_task(args):
         print("Delaying task %d for %02dm %02ds" % (i, delay//60, delay%60))
         time.sleep(delay)
     print("Starting task", i)
-    subprocess.check_call(task, cwd=workdir)
+    subprocess.check_call(task, cwd=workdir, env=env)
 
 try:
     n_processes = int(args['processes'])
