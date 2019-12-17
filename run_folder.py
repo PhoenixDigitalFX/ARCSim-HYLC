@@ -29,7 +29,7 @@ ap.add_argument("-o", "--output", default="sims",
                 help="...")
 ap.add_argument("-p", "--processes", default=1, type=int,
                 help="...")
-ap.add_argument("-t", "--threads", default=-1, type=int,
+ap.add_argument("-t", "--threads", default=0, type=int,
                 help="setting OMP_NUM_THREADS")
 ap.add_argument("-d", "--delay", default=0, type=int,
                 help="delay subprocess by n seconds to avoid initial remeshing clash")
