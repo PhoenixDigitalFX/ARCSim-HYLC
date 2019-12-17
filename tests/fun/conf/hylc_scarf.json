@@ -7,7 +7,7 @@
     "implicit": true,
 
     "frame_time": 0.0167,
-    "frame_steps": 40,
+    "frame_steps": 80,//40
     "end_time": 2,
     "cloths": [{
 
