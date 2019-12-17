@@ -15,7 +15,7 @@
         "mesh": "meshes/hylc_square.obj",
         "transform": {"scale": 0.3, "translate": [-0.15, -0.15, 0.0]},
         "materials": [{"data": "materials/gray-interlock.json",
-                       "thicken": 1, "damping": 1e-2}] // basket super jittery, increased from 3e-3
+                       "thicken": 1, "damping": 1.2e-2}]
                        ,"remeshing": {
                            "refine_angle": 0.3,
                            "refine_compression": 0.01,
@@ -25,7 +25,7 @@
                            "aspect_min": 0.2
                        }
     }],
-    "wind": {"density": 8e0}, 
+    "wind": {"density": 6.5}, 
 
     // "handles": [{"nodes": [2,3]}
     "handlespheres": [{

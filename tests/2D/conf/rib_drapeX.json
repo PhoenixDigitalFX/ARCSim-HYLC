@@ -14,18 +14,17 @@
         "mesh": "meshes/hylc_square.obj",
         "transform": {"scale": 0.3, "translate": [-0.15, -0.15, 0.0]},
         "materials": [{"data": "materials/gray-interlock.json",
-                       "thicken": 1, "damping": 3.6e-3}] // somewhere in 1e-3 to 5e-3
+                       "thicken": 1, "damping": 3.9e-3}]
                        ,"remeshing": {
                            "refine_angle": 0.3,
                            "refine_compression": 0.01,
                            "refine_velocity": 0.5,
                            "size": [3e-3, 15e-3],//40
-                           "boundary_detail_mult": 0.5, //0.25
+                           "boundary_detail_mult": 0.35, //0.5//0.25
                            "aspect_min": 0.2
                        }
     }],
-    "wind": {"density": 6e0}, // 5e0 is sweet spot currently (4e0 and 6e0 too slow/fast) // NOTE TO SELF, 5e0 seems slow in falling but still jitters, maybe go for 3e0 but increase stiffdamp to 6e-3 or more
-    // "handles": [{"nodes": [2,3]}
+    "wind": {"density": 4e0}, 
     "handlespheres": [{
         "radius": 0.01,
         "center": [-0.1, -0.1, 0]
