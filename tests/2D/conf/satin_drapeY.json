@@ -24,7 +24,7 @@
                            "aspect_min": 0.2
                        }
     }],
-    "wind": {"density": 6.5}, 
+    "wind": {"density": 5}, 
 
     // "handles": [{"nodes": [2,3]}
     "handlespheres": [{
