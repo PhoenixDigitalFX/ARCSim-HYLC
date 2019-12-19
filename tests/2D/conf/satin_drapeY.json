@@ -14,7 +14,7 @@
         "mesh": "meshes/hylc_square.obj",
         "transform": {"scale": 0.3, "translate": [-0.15, -0.15, 0.0]},
         "materials": [{"data": "materials/gray-interlock.json",
-                       "thicken": 1, "damping": 1.2e-2}]
+                       "thicken": 1, "damping": 1.35e-2}]
                        ,"remeshing": {
                            "refine_angle": 0.3,
                            "refine_compression": 0.01,
