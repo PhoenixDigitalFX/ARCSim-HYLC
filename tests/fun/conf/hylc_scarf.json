@@ -21,8 +21,8 @@
             "refine_compression": 0.005,
             "refine_velocity": 0.5,
             // "size": [10e-3, 60e-3],
-            "size": [16e-3, 60e-3],
-            "aspect_min": 0.2
+            "size": [16e-3, 24e-3],
+            "aspect_min": 0.33
         }
     }],
     "disable": ["popfilter"
