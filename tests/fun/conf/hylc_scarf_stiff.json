@@ -2,7 +2,7 @@
     "hylc": {
         "enabled": true,
         "material": "hylcmaterials/rib1.json"
-        // ,"stiffness_mult": 2
+        ,"stiffness_mult": 2
     },
     "implicit": true,
 
