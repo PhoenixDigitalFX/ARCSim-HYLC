@@ -15,7 +15,7 @@
         "transform": {"scale": 0.6, "translate": [-0.17,-0.14,0.42], "rotate": [90,1,-0.5,0]},
         
         "materials": [{"data": "materials/gray-interlock.json",
-                       "thicken": 2, "damping": 4e-2}],//2e-2
+                       "thicken": 2, "damping": 4e-2}], //2e-2
         "remeshing": {
             "refine_angle": 0.3,
             "refine_compression": 0.005,
