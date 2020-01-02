@@ -7,7 +7,7 @@
     "implicit": true,
 
     "frame_time": 0.0167,
-    "frame_steps": 100,//40
+    "frame_steps": 50,//100
     "end_time": 2,
     "cloths": [{
 
@@ -28,9 +28,9 @@
     "disable": ["popfilter"
         // ,"remeshing"
     ],
-    "obs_friction": 0.5,
+    "obs_friction": 2.0, //0.5
     "friction": 0.8,
-    "wind": {"density": 2e1},
+    "wind": {"density": 8}, //20
 
     "obstacles": [{
         "mesh": "meshes/square.obj",
@@ -41,8 +41,8 @@
     }],
     "gravity": [0, 0, -9.8],
     "magic": {
-      "repulsion_thickness": 9e-3, //10e-3
-      "collision_stiffness": 1.2e6 // 1e-6
+      "repulsion_thickness": 7e-3, //9e-3
+      "collision_stiffness": 1e-6
 	      , "relax_initial_state": false
 	     ,"fixed_high_res_mesh": true
       }
