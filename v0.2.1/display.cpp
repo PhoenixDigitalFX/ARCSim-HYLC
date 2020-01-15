@@ -28,6 +28,9 @@
 
 #ifndef NO_OPENGL
 
+#define TEXTURED
+#define TEXTURESCALE 20
+
 #include "bvh.hpp"
 #include "geometry.hpp"
 #include "io.hpp"
@@ -37,6 +40,9 @@
 #include "util.hpp"
 #include "magic.hpp"
 #include <sstream>
+
+GLuint tex;
+
 
 using namespace std;
 
@@ -76,6 +82,12 @@ void reshape (int w, int h) {
         if (pane_enabled[i])
             j = j + 1;
     }
+}
+
+void uv(const Vec2 &x) {
+    #ifdef TEXTURED
+    glTexCoord2f(x[0] * ::magic.display_scale * TEXTURESCALE, x[1] * ::magic.display_scale * TEXTURESCALE);
+    #endif
 }
 
 void vertex (const Vec2 &x) {
@@ -151,6 +163,7 @@ void draw_mesh_ms (const Mesh &mesh, bool set_color=false) {
         if (set_color)
             color(origami_color(face));
         for (int v = 0; v < 3; v++) {
+            uv(face->v[v]->u);
             vertex(face->v[v]->u);
         }
     }
@@ -185,8 +198,10 @@ void draw_meshes_ms_fancy () {
         glColor3f(0.5,0.5,0.5);
         for (int f = 0; f < mesh.faces.size(); f++) {
             const Face *face = mesh.faces[f];
-            for (int v = 0; v < 3; v++)
+            for (int v = 0; v < 3; v++) {
+                uv(face->v[v]->u);
                 vertex(face->v[v]->u);
+            }
         }
         glEnd();
         glBegin(GL_TRIANGLES);
@@ -196,8 +211,10 @@ void draw_meshes_ms_fancy () {
             glColor3f(0.9,0.9,0.9);
             Vec2 u[3];
             shrink_face(face, shrink_factor, shrink_max, u);
-            for (int v = 0; v < 3; v++)
+            for (int v = 0; v < 3; v++) {
+                uv(u[v]);
                 vertex(u[v]);
+            }
         }
         glEnd();
     }
@@ -212,8 +229,10 @@ void draw_mesh_ps (const Mesh &mesh, bool set_color=false) {
             glBegin(GL_TRIANGLES);
         }
         normal(nor<PS>(face));
-        for (int v = 0; v < 3; v++)
+        for (int v = 0; v < 3; v++) {
+            uv(face->v[v]->u);
             vertex(face->v[v]->node->y);
+        }
     }
     glEnd();
 }
@@ -278,8 +297,10 @@ void draw_mesh (const Mesh &mesh, bool set_color=false) {
             // color(area_color(face));
         }
         normal(nor<s>(face));
-        for (int v = 0; v < 3; v++)
+        for (int v = 0; v < 3; v++) {
+            uv(face->v[v]->u);
             vertex(pos<s>(face->v[v]->node));
+        }
     }
     glEnd();
     if (set_color)
@@ -498,9 +519,12 @@ void display_world () {
     draw_meshes<WS>(true);
     glEnable(GL_CULL_FACE);
     glColor3f(0.8,0.8,0.8);
+    glDisable(GL_TEXTURE_2D);
     for(int o = 0; o < sim.obstacles.size(); o++)
         draw_mesh<WS>(sim.obstacles[o].get_mesh());
     glDisable(GL_CULL_FACE);
+    glEnable(GL_TEXTURE_2D);
+
     glColor4d(0,0,0, 0.2);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     draw_meshes<WS>();
@@ -581,6 +605,7 @@ void motion (int x, int y) {
 
 void nop () {} // apparently needed by GLUT 3.0
 
+
 void run_glut (const GlutCallbacks &cb) {
     int argc = 1;
     char argv0[] = "";
@@ -605,6 +630,25 @@ void run_glut (const GlutCallbacks &cb) {
         glutMotionFunc(motion);
     }
     ::pane_enabled[PlasticPane] = sim.enabled[Simulation::Plasticity];
+    
+    #ifdef TEXTURED
+    GLubyte textureData[] = { 
+     255, 255, 255, 255,
+     150, 150, 150, 255,
+     150, 150, 150, 255,
+     255, 255, 255, 255
+    };
+    GLsizei width = 2;
+    GLsizei height = 2;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)textureData);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    #endif
+
     glutMainLoop();
 }
 

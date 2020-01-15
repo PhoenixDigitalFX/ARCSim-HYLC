@@ -113,8 +113,8 @@ void load_json(const string &configFilename, Simulation &sim) {
   parse(sim.cloths, json["cloths"]);
   parse_motions(sim.motions, json["motions"]);
   parse_handles(sim.handles, json["handles"], sim.cloths, sim.motions);
-  parse_handlebars(sim.handles, json["handlebars"], sim.cloths, sim.motions);
-  parse_handlespheres(sim.handles, json["handlespheres"], sim.cloths, sim.motions);
+  parse_handlebars(sim.handles, json["handlebars"], sim.cloths, sim.motions); // NOTE does not work with resume
+  parse_handlespheres(sim.handles, json["handlespheres"], sim.cloths, sim.motions); // NOTE does not work with resume
   parse_obstacles(sim.obstacles, json["obstacles"], sim.motions);
   parse_morphs(sim.morphs, json["morphs"], sim.cloths);
   parse(sim.gravity, json["gravity"], Vec3(0));
