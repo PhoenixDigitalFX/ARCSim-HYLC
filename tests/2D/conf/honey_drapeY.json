@@ -8,13 +8,13 @@
     // "explicit_massdamping": 1e-1, // maybe even lower
     // "explicit_stretchdamping": 1e-2, // stiffest term
     "frame_time": 0.0167,
-    "frame_steps": 100,//80//50
+    "frame_steps": 130,//110//80//50
     "end_time": 2,
     "cloths": [{
         "mesh": "meshes/hylc_square.obj",
         "transform": {"scale": 0.3, "translate": [-0.15, -0.15, 0.0]},
         "materials": [{"data": "materials/gray-interlock.json",
-                       "thicken": 1, "damping": 2.5e-3}] 
+                       "thicken": 1, "damping": 4e-3}] 
                        ,"remeshing": {
                            "refine_angle": 0.3,
                            "refine_compression": 0.01,
@@ -24,7 +24,7 @@
                            "aspect_min": 0.2
                        }
     }],
-    "wind": {"density": 1e1}, // 5e0 was underdamped
+    "wind": {"density": 7.8}, 
 
     // "handles": [{"nodes": [2,3]}
     "handlespheres": [{

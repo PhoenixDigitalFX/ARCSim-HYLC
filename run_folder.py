@@ -5,7 +5,7 @@ This script runs a folder full of sims expecting/creating the following structur
 """
 import platform
 assert(platform.python_version().startswith("3")) # cluster safety
-import os, sys, subprocess, argparse, time
+import os, sys, subprocess, argparse, time, datetime
 import numpy as np
 from multiprocessing import Pool
 import getpass, smtplib, signal
@@ -29,6 +29,8 @@ ap.add_argument("-o", "--output", default="sims",
                 help="...")
 ap.add_argument("-p", "--processes", default=1, type=int,
                 help="...")
+ap.add_argument("-t", "--threads", default=0, type=int,
+                help="setting OMP_NUM_THREADS")
 ap.add_argument("-d", "--delay", default=0, type=int,
                 help="delay subprocess by n seconds to avoid initial remeshing clash")
 ap.add_argument("-e", "--email", action='store_true')
@@ -108,6 +110,8 @@ if args['build']:
 if not args['run']:
     exit()
 
+env = {"OMP_NUM_THREADS": str(args['threads'])} if args['threads'] > 0 else None
+
 if args['email']:
     email_pw = try_getpass()
     if email_pw is None or email_pw == "":
@@ -131,24 +135,30 @@ confs = sorted(os.listdir(os.path.join(args['folder'], "conf"))) # default alpha
 if len(args['queue']) > 0:
     priority_map = {args['queue'][2*i]: float(args['queue'][2*i+1]) for i in range(len(args['queue'])//2)}
     weights = [-sum([fil[1] for fil in priority_map.items() if fil[0] in conf]) for conf in confs]
-    confs = np.array(confs)[np.argsort(weights)]
+    confs = np.array(confs)[np.argsort(weights, kind='mergesort')]
 
 os.makedirs(os.path.join(args['folder'],args['output']), exist_ok=True)
 
-print("(Sorted) Folders:\n" + "\n".join(confs))
+confs_filtered = []
+for i in range(len(confs)):
+    # exclusive filter
+    if any([fil in confs[i] for fil in args['filterex']]):
+        continue
+    # inclusive filter
+    if not all([fil in confs[i] for fil in args['filter']]):
+        continue
+    confs_filtered.append(confs[i])
+confs = confs_filtered
+
+print("(Sorted/Filtered) Folders:\n" + "\n".join(confs))
+
+t0 = datetime.datetime.now()
 
 def tasks():
     delay = 0
     i = 0
     for conf in confs:
         if not conf.endswith(".json"):
-            continue
-
-        # exclusive filter
-        if any([fil in conf for fil in args['filterex']]):
-            continue
-        # inclusive filter
-        if not all([fil in conf for fil in args['filter']]):
             continue
 
         simname = os.path.splitext(os.path.basename(conf))[0]
@@ -172,7 +182,7 @@ def execute_task(args):
         print("Delaying task %d for %02dm %02ds" % (i, delay//60, delay%60))
         time.sleep(delay)
     print("Starting task", i)
-    subprocess.check_call(task, cwd=workdir)
+    subprocess.check_call(task, cwd=workdir, env=env)
 
 try:
     n_processes = int(args['processes'])
@@ -200,6 +210,14 @@ except KeyboardInterrupt:
 
     if args['email']:
         print("Email message was:\n", email_msg)
+        print("Elapsed:", datetime.datetime.now()-t0)
+
 else:
+    t1 = datetime.datetime.now()
+    startstr   = "Started:  %d/%02d/%02d-%02d:%02d" % (t0.year, t0.month, t0.day, t0.hour, t0.minute)
+    endstr     = "Finished: %d/%02d/%02d-%02d:%02d" % (t1.year, t1.month, t1.day, t1.hour, t1.minute)
+    elapsedstr = "Elapsed:  %s" % (str(t1-t0))
+    print(startstr, endstr, elapsedstr)
+
     if args['email']:
-        try_send_mail("HYLC Finished", "The simulations have finished.\n" + email_msg, email_server, email_user, email_pw[::-1])
+        try_send_mail("HYLC Finished", "The simulations have finished.\n" + email_msg + "\n\n%s\n%s\n%s" % (startstr,endstr,elapsedstr), email_server, email_user, email_pw[::-1])
