@@ -219,7 +219,8 @@ void testmat(std::shared_ptr<SplineMaterial> mat) {
   //   // x(5) = 0;
   //   double psi0 = mat->psi(x);
 
-  //   printf("%.4e, %.4e, %.4e, %.4e, %.4e, %.4e, %.15e,", x(0), x(1), x(2), x(3),
+  //   printf("%.4e, %.4e, %.4e, %.4e, %.4e, %.4e, %.15e,", x(0), x(1), x(2),
+  //   x(3),
   //          x(4), x(5), psi0);
   // }
   // std::cout << "<clip>\n\n\n\n";
@@ -316,7 +317,8 @@ void testmat(std::shared_ptr<SplineMaterial> mat) {
   // std::cout << "<clip>\n\n\n\n";
 }
 
-std::shared_ptr<SplineMaterial> load_material(const std::string &filename, bool only1D = false) {
+std::shared_ptr<SplineMaterial> load_material(const std::string &filename,
+                                              bool only1D = false) {
   Json::Value json;
   Json::Reader reader;
   std::ifstream file(filename.c_str());
@@ -335,7 +337,8 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename, bool 
   // TODO damping (mass,stretch for expl and stiffness for impl)
 
   parse(material->strainscale, json["strain scale"]);
-  parse(material->strainshift, json["strain shift"]);
+  // parse(material->strainshift, json["strain shift"]);
+  material->strainshift = {1, 0, 1, 0, 0, 0};
   // parse(material->strain_min, json["strain min"]);
   // parse(material->strain_max, json["strain max"]);
 
@@ -394,7 +397,7 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename, bool 
 
 void parse(hylc::Config &params, const Json::Value &json) {
   if (json.isNull())
-    return;  
+    return;
   parse_optional(params.enabled, json["enabled"]);
 
   std::string filename;
