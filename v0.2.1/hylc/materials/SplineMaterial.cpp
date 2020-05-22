@@ -95,7 +95,7 @@ double SplineMaterial::psi(const Vec6 &strain) {
   // PC
   Vec3 S;
   for (int i = 0; i < 3; i++)
-    S(i) = (strain(i) - this->strainshift[i]) / this->strainscale[i];
+    S(i) = (strain(i)) / this->strainscale[i];
 
   // const
   val += C0;
@@ -210,7 +210,7 @@ Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
 
   Vec3 S;
   for (int i = 0; i < 3; i++)
-    S(i) = (strain(i) - this->strainshift[i]) / this->strainscale[i];
+    S(i) = (strain(i)) / this->strainscale[i];
 
   // 1D
   #ifndef NO1D
@@ -354,7 +354,7 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
 
   Vec3 S;
   for (int i = 0; i < 3; i++)
-    S(i) = (strain(i) - this->strainshift[i]) / this->strainscale[i];
+    S(i) = (strain(i)) / this->strainscale[i];
 
   // 1D
   #ifndef NO1D

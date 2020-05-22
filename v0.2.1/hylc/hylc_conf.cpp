@@ -337,8 +337,12 @@ std::shared_ptr<SplineMaterial> load_material(const std::string &filename,
   // TODO damping (mass,stretch for expl and stiffness for impl)
 
   parse(material->strainscale, json["strain scale"]);
-  // parse(material->strainshift, json["strain shift"]);
-  material->strainshift = {1, 0, 1, 0, 0, 0};
+  // if (!json["strain shift"].isNull()) { 
+  //   // check for deprecated material
+  //   std::vector<double> deprc;
+  //   parse(deprc, json["strain shift"]);
+  // }
+
   // parse(material->strain_min, json["strain min"]);
   // parse(material->strain_max, json["strain max"]);
 

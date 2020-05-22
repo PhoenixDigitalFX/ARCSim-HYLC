@@ -52,7 +52,6 @@ class SplineMaterial : public BaseMaterial {
   std::vector<Poly1D> polys_1d;
   std::vector<Poly2D> polys_2d;
 
-  std::vector<double> strainshift;
   std::vector<double> strainscale;
   // Vec6 strain_min, strain_max;
 
