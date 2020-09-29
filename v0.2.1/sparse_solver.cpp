@@ -280,7 +280,7 @@ void eigen_linear_solve(SparseMatrix<double> &A, const Map<VectorXd const> &b,
     printf("Eigen: Solve failed\n");
   }
 
-  // printf("xTb=xTAx=%.2e,  res=%.2e\n", x.dot(b), (A * x - b).norm() / b.norm());
+  printf("xTb=xTAx=%.2e,  res=%.2e\n", x.dot(b), (A * x - b).norm() / b.norm());
 }
 
 vector<double> eigen_linear_solve(const SpMat<double> &A,
