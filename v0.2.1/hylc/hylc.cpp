@@ -94,6 +94,8 @@ double hylc_local_energy(const Face *face) {
   // 1. mmcpp compute epsilon(x),kappa(x) as vec6
   Vec6 strain;
   strain = mm::strain(xlocal, invDm, Vec3(nn0_exists, nn1_exists, nn2_exists));
+  strain[0] -= 1;
+  strain[2] -= 1;
   for (int i = 3; i < 6; i++)
     strain(i) *= config.bend_scale;
 
@@ -157,6 +159,8 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(/* const*/ Face *face) {
   strain_hgv = mm::strain_valdrv(xlocal, invDm, Vec3(nn0_exists, nn1_exists, nn2_exists));
 
   Vec6 &strain                       = std::get<2>(strain_hgv);
+  strain[0] -= 1;
+  strain[2] -= 1;
   Mat6x18 &strain_grad               = std::get<1>(strain_hgv);
   std::vector<Mat18x18> &strain_hess = std::get<0>(strain_hgv);
   for (int i = 3; i < 6; i++)
@@ -350,6 +354,8 @@ Vec18 hylc_local_forces_nojac(const Face *face) {
   strain_gv = mm::strain_valgrad(xlocal, invDm, Vec3(nn0_exists, nn1_exists, nn2_exists));
 
   Vec6 &strain         = std::get<1>(strain_gv);
+  strain[0] -= 1;
+  strain[2] -= 1;
   Mat6x18 &strain_grad = std::get<0>(strain_gv);
   for (int i = 3; i < 6; i++)
     strain(i) *= config.bend_scale;
@@ -743,6 +749,8 @@ void hylc::hylc_write_strains(const std::string & filename, const Cloth &cloth) 
 
     // 1. mmcpp compute epsilon(x),kappa(x) as vec6
     strains[i] = mm::strain(xlocal, invDm, Vec3(nn0_exists, nn1_exists, nn2_exists));
+    strains[i][0] -= 1;
+    strains[i][2] -= 1;
     for (int j = 3; j < 6; j++)
       strains[i](j) *= config.bend_scale;
 
