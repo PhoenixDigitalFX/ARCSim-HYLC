@@ -13,8 +13,6 @@
 #include "../sparse.hpp"
 
 #include "hylc_conf.hpp"
-// #include "materials/AnalyticMaterial.hpp"
-#include "materials/FittedMaterial.hpp"
 #include "strain/strain.hpp"
 
 #include <iostream>

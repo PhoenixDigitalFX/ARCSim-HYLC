@@ -1,23 +1,19 @@
-#define PC_CURVATURE
-#ifdef PC_CURVATURE
-
 #include "SplineMaterial.hpp"
 #include <memory>
 #include <vector>
 
 using namespace hylc;
-using namespace fitpackpp;
+// using namespace fitpackpp;
 
+// NOTE: various debugging definitions for playing with energy model
 // #define BENDBARRIER
-#define BENDPOWER 1e0 // 1e3 too stiff, 1e2 also died with limit 400
-#define BENDLIMIT 200
-#define BENDPERCENT 0.25
+// #define BENDPOWER 1e0 // 1e3 too stiff, 1e2 also died with limit 400
+// #define BENDLIMIT 200
+// #define BENDPERCENT 0.25
 // #define BENDCLAMPING
 // #define BENDCLAMPINGPC
-#define BENDCLAMPLIMIT 230
-
+// #define BENDCLAMPLIMIT 230
 // #define DOUBLECURVEPENALTY 1e-6
-
 // #define NO1D
 
 int sgn(double x) {
@@ -27,21 +23,6 @@ int sgn(double x) {
 
 bool select_2D(int k0, int k1) {
   // return k0 == 0 && k1 == 2; // only poisson
-
-  // if (k0 == 1 || k1 == 1)
-  //   return false;
-  // if (k0 == 0 && k1 == 1)
-  //   return false;
-  // if (k0 == 0 && k1 == 2)
-  //   return false;
-
-  // return k1 < 3 || ((k0==0&&k1==4)||(k0==1&&k1==3)); // only sx lyy and sa lxx (werid combo but it works....)
-
-  // return k1 < 3 || ((k0==0&&k1==4)||(k0==2&&k1==3)); // only sx lyy and sy lxx //  also weird.. idk
-  // return !(k0==1 && k1 >= 3); // not sa lxx, sa lyy // slightly bumpy but not sheared, i think all sa,lam make sheared boundary and all sx,lam make bumps?
-  // return !((k0==0&&k1==3)||(k0==2&&k1==4)); // not sx lxx and not sy lyy  // not completely bad but still weird boundary shape
-  // return k1 < 3; // no bending 2D terms
-
   return true; // use all
   return false; // use none
 }
@@ -120,20 +101,7 @@ double SplineMaterial::psi(const Vec6 &strain) {
   for (auto &s : hsplines_2d) {
     if (!select_2D(s.k0,s.k1))
       continue;
-    // // double x = X(s.k0);
-    // // double y = X(s.k1);
-    // // if (!(s.k0 == 0 && s.k0 == 2)) {
-    // //   if (s.k0 == 0 || s.k0 == 2)
-    // //     if (x < 0)
-    // //       continue;
 
-    // //   if (s.k1 == 0 || s.k1 == 2)
-    // //     if (y < 0)
-    // //       continue;
-    // // }
-
-    // if(s.k1 > 2)
-    //   continue;
     // assume sorted, k1 > k0
     assert(s.k1 > s.k0 && s.k0 < 3);
     if (s.k1 < 3) {  // in plane
@@ -173,7 +141,6 @@ double SplineMaterial::psi(const Vec6 &strain) {
   return val;
 }
 
-// TODO DEBUG redo this after fixing psi_drv, because it seems like this is doing even weirder things..
 Vec6 SplineMaterial::psi_grad(const Vec6 &strain) {
   Vec6 grad(0);
   if (!initialized)
@@ -327,10 +294,6 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
 
   auto PC = pc_valdrv(sbend[0],sbend[1],sbend[2]);
 
-  // double ss = 1;
-  // double ss=0.25;
-  // auto PC = pc_valdrv(ss * strain[3], ss * strain[4], ss * strain[5]);
-  // auto PC                      = pc_valdrv(strain[3], strain[4], strain[5]);
   std::vector<Mat3x3> &PC_hess = std::get<0>(PC);
   Mat3x3 &PC_grad              = std::get<1>(PC);
   Vec3 &PC_val                 = std::get<2>(PC);
@@ -345,12 +308,6 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
   if (std::abs(l2) > BENDCLAMPLIMIT)
     l2 = sgn(l2) * BENDCLAMPLIMIT;
 #endif //BENDCLAMPINGPC
-
-  // printf(" From %.2f %.2f %.2f\n",strain[3], strain[4], strain[5]);
-  // printf("   To %.2f %.2f %.2f\n", l1, l2, cc);
-  // printf(" From (%.2f %.2f %.2f) to (%.2f %.2f %.2f)\n", strain[3],
-  // strain[4],
-  //        strain[5], l1, l2, cc);
 
   Vec3 S;
   for (int i = 0; i < 3; i++)
@@ -367,22 +324,6 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
     } else {
       double dxl1 = s.dx(l1 * invsc);
       double dxl2 = s.dx(l2 * invsc);
-
-      // DEBUG
-      // gradpc(0) += (1-cc) * l2;
-      // gradpc(1) += (1-cc) * l1;
-      // gradpc(2) += -l1*l2;
-      // hesspc(0, 0) += 0;
-      // hesspc(0, 1) += (1-cc);
-      // hesspc(0, 2) += -l2;
-      // hesspc(1, 1) += 0;
-      // hesspc(1, 2) += -l1;
-      // hesspc(2, 2) += 0;
-
-      // // hesspc(1, 0) += 0;
-      // // hesspc(2, 0) += 0;
-      // // hesspc(2, 1) += 0;
-      // continue;
 
       if (s.k == 3) {  // x-bending
         // d(l1,l2,cc)
@@ -432,56 +373,6 @@ std::pair<Mat6x6, Vec6> SplineMaterial::psi_drv(const Vec6 &strain) {
     } else {  // since we dont have double curve, k0 has to be in plane
 
       double x    = S(s.k0);
-
-    //DEBUG FAKE ENERGY
-      // grad(s.k0) += s.dx(x, l1) * invsc0; // s(x,l1)
-      // gradpc(0) += s.dy(x, l1);
-      // gradpc(1) += 0;
-      // gradpc(2) += 0;
-      // hess(s.k0, s.k0) += s.dxdx(x, l1) * invsc0 * invsc0;
-      // hessmixed(s.k0, 0) += s.dxdy(x, l1) * invsc0;
-      // hessmixed(s.k0, 1) += 0;
-      // hessmixed(s.k0, 2) += 0;
-      // hesspc(0, 0) += s.dydy(x, l1);
-      // hesspc(0, 1) += 0;
-      // hesspc(0, 2) += 0;
-      // hesspc(1, 1) += 0;
-      // hesspc(1, 2) += 0;
-      // hesspc(2, 2) += 0;
-
-      // // s(x,l1) -> (x+l1)^2; dx = 2(x+l1) * insvc0; dy = 2(x+l1); dxdy = 2 * invsc0
-      // grad(s.k0) += 2*(x+l1) * invsc0; // s(x,l1)
-      // gradpc(0) += 2*(x+l1);
-      // gradpc(1) += 0;
-      // gradpc(2) += 0;
-      // hess(s.k0, s.k0) += 2 * invsc0 * invsc0;
-      // hessmixed(s.k0, 0) += 2 * invsc0;
-      // hessmixed(s.k0, 1) += 0;
-      // hessmixed(s.k0, 2) += 0;
-      // hesspc(0, 0) += 2;
-      // hesspc(0, 1) += 0;
-      // hesspc(0, 2) += 0;
-      // hesspc(1, 1) += 0;
-      // hesspc(1, 2) += 0;
-      // hesspc(2, 2) += 0;
-      
-      // // x l1 -> dx = l1 insvc0, dy = x
-      // grad(s.k0) += l1 * invsc0; // s(x,l1)
-      // gradpc(0) += x;
-      // gradpc(1) += 0;
-      // gradpc(2) += 0;
-      // hess(s.k0, s.k0) += 0;
-      // hessmixed(s.k0, 0) += invsc0;
-      // hessmixed(s.k0, 1) += 0;
-      // hessmixed(s.k0, 2) += 0;
-      // hesspc(0, 0) += 0;
-      // hesspc(0, 1) += 0;
-      // hesspc(0, 2) += 0;
-      // hesspc(1, 1) += 0;
-      // hesspc(1, 2) += 0;
-      // hesspc(2, 2) += 0;
-
-      // continue; 
 
       double dxl1 = s.dx(x, l1 * invsc1);
       double dxl2 = s.dx(x, l2 * invsc1);
@@ -934,5 +825,3 @@ std::tuple<std::vector<Mat3x3>, Mat3x3, Vec3> SplineMaterial::pc_valdrv(
 
   return std::make_tuple(hess, grad, val);
 }
-
-#endif  // PC_CURVATURE

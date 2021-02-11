@@ -1,25 +1,22 @@
 #include "hylc.hpp"
+
 #include "../blockvectors.hpp"
+#include "materials/SplineMaterial.hpp"
 #include "seamforce.hpp"
 
 namespace hylc {
 
 bool hylc_enabled() { return config.enabled; }
 
-// bad design? store somewhere locally, but rest of arccsim is so global
-std::shared_ptr<BaseMaterial> get_material() {
-  if (config.material == nullptr) {
-    // if (config.material_type < 0)
-    //   global_material = std::make_shared<AnalyticMaterial>(
-    //       config.a0, config.a1, config.b0, config.b1);
-    // else
-    // OLD CODE
-    config.material = std::make_shared<FittedMaterial>(0);
-  }
-  return config.material;
-}
+// NOTE bad design - should store somewhere locally..
+std::shared_ptr<BaseMaterial> get_material() { return config.material; }
 
-double get_density() { return get_material()->density * config.weight_mult; }
+double get_density() {
+  if (config.material == nullptr)
+    return 0;
+  else
+    return config.material->density *config.weight_mult;
+}
 
 Node *find_across(const Edge *edge, const Node *oppv1) {
   Node *found = nullptr;
@@ -33,7 +30,8 @@ Node *find_across(const Edge *edge, const Node *oppv1) {
 }
 
 template <Space s>
-void compute_local_information(const Face *face, Vec18 &xlocal, bool &nn0_exists, bool &nn1_exists,
+void compute_local_information(const Face *face, Vec18 &xlocal,
+                               bool &nn0_exists, bool &nn1_exists,
                                bool &nn2_exists) {
   xlocal         = Vec18(0);
   const Node *n0 = face->v[0]->node, *n1 = face->v[1]->node,
@@ -79,6 +77,9 @@ void compute_local_information(const Face *face, Vec18 &xlocal, bool &nn0_exists
 
 template <Space s>
 double hylc_local_energy(const Face *face) {
+  if (config.material == nullptr)
+    return 0;
+
   namespace mm = hylc::mathematica;
   // 0. compute local primitive values
   Vec18 xlocal;
@@ -96,13 +97,8 @@ double hylc_local_energy(const Face *face) {
   strain = mm::strain(xlocal, invDm, Vec3(nn0_exists, nn1_exists, nn2_exists));
   strain[0] -= 1;
   strain[2] -= 1;
-  for (int i = 3; i < 6; i++)
-    strain(i) *= config.bend_scale;
+  for (int i = 3; i < 6; i++) strain(i) *= config.bend_scale;
 
-  // std::cout<<"strain\n"<<strain<<"\n\n";
-  // std::cout<<"t\n"<<t0<<"\n"<<t1<<"\n"<<t2<<"\n\n";
-  // std::cout<<"l\n"<<l0<<"\n"<<l1<<"\n"<<l2<<"\n\n";
-  // std::cout<<"A\n"<<A<<"\n";
   // 2. mmcpp compute psi(epskappa)
   double E = get_material()->psi(strain);
   // psi is energy density, constant over triangle
@@ -111,10 +107,6 @@ double hylc_local_energy(const Face *face) {
   // SEAM FORCES
   // spring for each boundary/seam-edge in a face
   // (seams shared by two faces will get two forces!)
-  // TODO
-  // for each edge
-  // if edge is seam
-  // get L matspace, get x0 x1, compute and add
   if (config.seam_stiffness > 0)
     for (int i = 0; i < 3; i++) {
       Edge *e = face->adje[i];
@@ -123,7 +115,7 @@ double hylc_local_energy(const Face *face) {
       Vec3 x0  = e->n[0]->x;
       Vec3 x1  = e->n[1]->x;
       double L = e->l;
-      E += config.seam_stiffness*seamforce_val(x0, x1, L);
+      E += config.seam_stiffness * seamforce_val(x0, x1, L);
     }
 
   return E * config.stiffness_mult;
@@ -132,14 +124,11 @@ double hylc_local_energy(const Face *face) {
   // same goes for dihedral angle theta
 }
 
-bool debug_print_strain_range =
-    false;  // DEBUG print out running min max strains
-double strain0a = 10, strain0b = 0, strain1a = 10, strain1b = -10,
-       strain2a = 10, strain2b = 0;
-double strain3a = 1e5, strain3b = -1e5, strain4a = 1e5, strain4b = -1e5,
-       strain5a = 1e5, strain5b = -1e5;
 template <Space s>
 std::pair<Mat18x18, Vec18> hylc_local_forces(/* const*/ Face *face) {
+  if (config.material == nullptr)
+    return std::make_pair(Mat18x18(), Vec18());
+
   namespace mm = hylc::mathematica;
   using namespace hylc::mathematica;
   // 0. compute local primitive values
@@ -152,45 +141,19 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(/* const*/ Face *face) {
 
   double A     = face->a;      // material space / reference config area
   Mat2x2 invDm = face->invDm;  // shape matrix
- 
+
   // 1. mmcpp compute epsilon, kappa as vec6 strain, and simulatenous grad and
   // hess
   std::tuple<std::vector<Mat18x18>, Mat6x18, Vec6> strain_hgv;
-  strain_hgv = mm::strain_valdrv(xlocal, invDm, Vec3(nn0_exists, nn1_exists, nn2_exists));
+  strain_hgv = mm::strain_valdrv(xlocal, invDm,
+                                 Vec3(nn0_exists, nn1_exists, nn2_exists));
 
-  Vec6 &strain                       = std::get<2>(strain_hgv);
+  Vec6 &strain = std::get<2>(strain_hgv);
   strain[0] -= 1;
   strain[2] -= 1;
   Mat6x18 &strain_grad               = std::get<1>(strain_hgv);
   std::vector<Mat18x18> &strain_hess = std::get<0>(strain_hgv);
-  for (int i = 3; i < 6; i++)
-    strain(i) *= config.bend_scale;
-
-  // DEBUG not threadsafe but good enough for testing
-  if (debug_print_strain_range) {
-    strain0a = std::min(strain0a, strain[0]);
-    strain0b = std::max(strain0b, strain[0]);
-    strain1a = std::min(strain1a, strain[1]);
-    strain1b = std::max(strain1b, strain[1]);
-    strain2a = std::min(strain2a, strain[2]);
-    strain2b = std::max(strain2b, strain[2]);
-    strain3a = std::min(strain3a, strain[3]);
-    strain3b = std::max(strain3b, strain[3]);
-    strain4a = std::min(strain4a, strain[4]);
-    strain4b = std::max(strain4b, strain[4]);
-    strain5a = std::min(strain5a, strain[5]);
-    strain5b = std::max(strain5b, strain[5]);
-  }
-
-  // for (int i = 0; i < 6; ++i)
-  // std::cout<<"  "<<strain[i];
-  // std::cout<<"\n\n";
-
-  //   for (int i = 0; i < 6; ++i)
-  //   for (int k = 0; k < 18; ++i)
-  // std::cout<<"  "<<strain_grad(i,k);
-  // std::cout<<"\n\n";
-
+  for (int i = 3; i < 6; i++) strain(i) *= config.bend_scale;
 
   // 2. mmcpp compute dpsidek(ek),d2psidekdek(ek) at the same time
   std::pair<Mat6x6, Vec6> psidrv = get_material()->psi_drv(strain);
@@ -202,30 +165,23 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(/* const*/ Face *face) {
   // first part 1x6 * 6x18x18
   for (int i = 0; i < 6; ++i) H += psidrv.second[i] * strain_hess[i];
 
-
-  // DEBUG face color strain in range
-  // face->hylc_in_range(0) = strain(0) > 0.5 && strain(0) < 1.8
-  //                         && strain(2) > 0.5 && strain(2) < 1.8
-  //                         && strain(1) > -0.7 && strain(1) < 0.7;
-
-  // float lam1 = (strain(3)+strain(5))*0.5 + std::sqrt((strain(3)-strain(5))*(strain(3)-strain(5))*0.25 + strain(4)*strain(4));
-  // float lam2 = (strain(3)+strain(5))*0.5 - std::sqrt((strain(3)-strain(5))*(strain(3)-strain(5))*0.25 + strain(4)*strain(4));
-  // face->hylc_in_range(1) = lam1 > -200 && lam1 < 200 && lam2 > -200 && lam2 < 200;
-  // // if (std::abs(lam1) > 200 || std::abs(lam2)>200)
-  // // printf("%.2e %.2e\n",lam1,lam2);
-  // bool special_range = (strain(2) < 1.8*0.9*0.9 && std::abs(lam1) < 200*0.9*0.9 && std::abs(lam2) < 200*0.9*0.9);
-  // face->hylc_in_range(2) = special_range;
-
+  // DEBUG color by strain
   if (debug.debug_color != 0) {
-    std::vector<int> shifts = {1,0,1,0,0};
-    std::vector<double> norms = {1.0,1.0,1.0,200.0,200.0};
-    int i = debug.debug_color-1;
+    std::vector<int> shifts   = {1, 0, 1, 0, 0};
+    std::vector<double> norms = {1.0, 1.0, 1.0, 200.0, 200.0};
+    int i                     = debug.debug_color - 1;
     double x;
     if (i < 3)
-      x = (strain(i) - shifts[i])/norms[i];
+      x = (strain(i) - shifts[i]) / norms[i];
     else {
-      double lam1 = (strain(3)+strain(5))*0.5 + std::sqrt((strain(3)-strain(5))*(strain(3)-strain(5))*0.25 + strain(4)*strain(4));
-      double lam2 = (strain(3)+strain(5))*0.5 - std::sqrt((strain(3)-strain(5))*(strain(3)-strain(5))*0.25 + strain(4)*strain(4));
+      double lam1 =
+          (strain(3) + strain(5)) * 0.5 +
+          std::sqrt((strain(3) - strain(5)) * (strain(3) - strain(5)) * 0.25 +
+                    strain(4) * strain(4));
+      double lam2 =
+          (strain(3) + strain(5)) * 0.5 -
+          std::sqrt((strain(3) - strain(5)) * (strain(3) - strain(5)) * 0.25 +
+                    strain(4) * strain(4));
       double l1, l2;
       if (std::abs(lam1) > std::abs(lam2)) {
         l1 = lam1;
@@ -234,13 +190,11 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(/* const*/ Face *face) {
         l1 = lam2;
         l2 = lam1;
       }
-      x = std::vector<double>{l1,l2}[i-3] / norms[3];
+      x = std::vector<double>{l1, l2}[i - 3] / norms[3];
     }
 
     face->hylc_in_range(0) = x;
   }
-
-
 
   g = g * A;
   H = H * A;
@@ -265,21 +219,22 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(/* const*/ Face *face) {
       int i1 = getIndexInFace(e->n[1]);
 
       for (int j = 0; j < 3; j++) {
-        g(i0*3 + j) += config.seam_stiffness*drv.second(j);
-        g(i1*3 + j) += config.seam_stiffness*drv.second(3+j);
+        g(i0 * 3 + j) += config.seam_stiffness * drv.second(j);
+        g(i1 * 3 + j) += config.seam_stiffness * drv.second(3 + j);
         for (int k = 0; k < 3; k++) {
-          H(i0*3 + j, i0*3 + k) += config.seam_stiffness*drv.first(j,k);
-          H(i1*3 + j, i0*3 + k) += config.seam_stiffness*drv.first(3+j,k);
-          H(i0*3 + j, i1*3 + k) += config.seam_stiffness*drv.first(j,3+k);
-          H(i1*3 + j, i1*3 + k) += config.seam_stiffness*drv.first(3+j,3+k);
+          H(i0 * 3 + j, i0 * 3 + k) += config.seam_stiffness * drv.first(j, k);
+          H(i1 * 3 + j, i0 * 3 + k) +=
+              config.seam_stiffness * drv.first(3 + j, k);
+          H(i0 * 3 + j, i1 * 3 + k) +=
+              config.seam_stiffness * drv.first(j, 3 + k);
+          H(i1 * 3 + j, i1 * 3 + k) +=
+              config.seam_stiffness * drv.first(3 + j, 3 + k);
         }
       }
     }
-  // TODO PUT IN LOCALNOJAC ALSO A thingie refactor
 
-  // DEBUG SPDify 18x18 matrix
-  // TODO maybe deal with the boundary triangles with < 18 dof
-  // make Eigen map to H.. cant, need to copy...
+  // SVD clamp eigenvalues of local matrix
+
   typedef Eigen::Matrix<double, 18, 18> emat18;
   typedef Eigen::Matrix<double, 18, 1> evec18;
   emat18 eH;
@@ -289,21 +244,9 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(/* const*/ Face *face) {
     }
   }
 
-  // construct SVD
-  // compare time eigendecomp
-  // BDCSVD "one of the fastest SVD algorithms"
-  // Eigen::BDCSVD	<emat18> svd(eH, Eigen::ComputeThinU |
-  // Eigen::ComputeThinV); JacobiSVD "slow but fast for small matrices" "<16"
-  // Eigen::JacobiSVD<emat18, Eigen::NoQRPreconditioner> svd(
-  //     eH, Eigen::ComputeThinU | Eigen::ComputeThinV);
-  // SelfAdjointEigenSolver is much faster apparently, robustness idk
   Eigen::SelfAdjointEigenSolver<emat18> slv;
-  slv.compute(eH);  // 2x2 and 3x3 use computeDirect()
+  slv.compute(eH);
 
-  // compute V and D
-  // double emax = slv.eigenvalues().cwiseAbs().maxCoeff();
-  // double emin = slv.eigenvalues().cwiseAbs().minCoeff();
-  // printf("%.2e %.2e\n", emin, emax);
   double mineig = 1e-8;
   if (slv.eigenvalues()(0) < mineig) {
     evec18 D = slv.eigenvalues().cwiseMax(mineig);
@@ -316,26 +259,15 @@ std::pair<Mat18x18, Vec18> hylc_local_forces(/* const*/ Face *face) {
       }
     }
   }
-  // END DEBUG
-
-  // bool check_me = norm(A*g) > 5e-1;
-  // if (check_me) {
-  //   printf("  strain= [%.2f, %.2f, %.2f, %.2f, %.2f,
-  //   %.2f]\n",strain(0),strain(1),strain(2),strain(3),strain(4),strain(5));
-  //   printf("  |A*g| = %.2e\n",norm(A*g));
-  //   printf("\n");
-  //   // strain(1)=0;
-  //   // strain(3)=0;
-  //   // strain(4)=0;
-  //   // strain(5)=0;
-  //   // A=0;
-  // }
 
   return std::make_pair(H * config.stiffness_mult, g * config.stiffness_mult);
 }
 
 template <Space s>
 Vec18 hylc_local_forces_nojac(const Face *face) {
+  if (config.material == nullptr)
+    return Vec18();
+
   namespace mm = hylc::mathematica;
   using namespace hylc::mathematica;
   // 0. compute local primitive values
@@ -351,36 +283,20 @@ Vec18 hylc_local_forces_nojac(const Face *face) {
 
   // 1. mmcpp compute epsilon, kappa as vec6 ek, and simulatenous grad and hess
   std::tuple<Mat6x18, Vec6> strain_gv;
-  strain_gv = mm::strain_valgrad(xlocal, invDm, Vec3(nn0_exists, nn1_exists, nn2_exists));
+  strain_gv = mm::strain_valgrad(xlocal, invDm,
+                                 Vec3(nn0_exists, nn1_exists, nn2_exists));
 
-  Vec6 &strain         = std::get<1>(strain_gv);
+  Vec6 &strain = std::get<1>(strain_gv);
   strain[0] -= 1;
   strain[2] -= 1;
   Mat6x18 &strain_grad = std::get<0>(strain_gv);
-  for (int i = 3; i < 6; i++)
-    strain(i) *= config.bend_scale;
-
-  // DEBUG not threadsafe but good enough for testing
-  if (debug_print_strain_range) {
-    strain0a = std::min(strain0a, strain[0]);
-    strain0b = std::max(strain0b, strain[0]);
-    strain1a = std::min(strain1a, strain[1]);
-    strain1b = std::max(strain1b, strain[1]);
-    strain2a = std::min(strain2a, strain[2]);
-    strain2b = std::max(strain2b, strain[2]);
-    strain3a = std::min(strain3a, strain[3]);
-    strain3b = std::max(strain3b, strain[3]);
-    strain4a = std::min(strain4a, strain[4]);
-    strain4b = std::max(strain4b, strain[4]);
-    strain5a = std::min(strain5a, strain[5]);
-    strain5b = std::max(strain5b, strain[5]);
-  }
+  for (int i = 3; i < 6; i++) strain(i) *= config.bend_scale;
 
   Vec6 psi_grad = get_material()->psi_grad(strain);
   Vec18 g       = transpose(strain_grad) * psi_grad;
 
-
   g = g * A;
+
   // SEAM FORCES
   // spring for each boundary/seam-edge in a face
   // (seams shared by two faces will get two forces!)
@@ -402,8 +318,8 @@ Vec18 hylc_local_forces_nojac(const Face *face) {
       int i1 = getIndexInFace(e->n[1]);
 
       for (int j = 0; j < 3; j++) {
-        g(i0*3 + j) += config.seam_stiffness*drv(j);
-        g(i1*3 + j) += config.seam_stiffness*drv(3+j);
+        g(i0 * 3 + j) += config.seam_stiffness * drv(j);
+        g(i1 * 3 + j) += config.seam_stiffness * drv(3 + j);
       }
     }
 
@@ -510,38 +426,10 @@ void hylc::hylc_add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
   int n_triangles  = mesh.faces.size();
   std::vector<std::pair<Mat18x18, Vec18>> local_Hg(n_triangles);
 
-  // std::chrono::high_resolution_clock::time_point t0 =
-  //     std::chrono::high_resolution_clock::now();
-
-  strain0a = 1e2;
-  strain0b = -1e2;
-  strain1a = 1e2;
-  strain1b = -1e2;
-  strain2a = 1e2;
-  strain2b = -1e2;
-  strain3a = 1e5;
-  strain3b = -1e5;
-  strain4a = 1e5;
-  strain4b = -1e5;
-  strain5a = 1e5;
-  strain5b = -1e5;
-
 #pragma omp parallel for
   for (int i = 0; i < n_triangles; ++i) {
     local_Hg[i] = hylc_local_forces<s>(mesh.faces[i]);
   }
-
-  if (debug_print_strain_range) {
-    printf(
-        "strain: [%.2f, %.2f] [%.2f, %.2f] [%.2f, %.2f] [%.2f, %.2f] [%.2f, "
-        "%.2f] [%.2f, %.2f]\n",
-        strain0a, strain0b, strain1a, strain1b, strain2a, strain2b, strain3a,
-        strain3b, strain4a, strain4b, strain5a, strain5b);
-  }
-  // int nt = std::chrono::duration_cast<std::chrono::milliseconds>(
-  //              std::chrono::high_resolution_clock::now() - t0)
-  //              .count();
-  // printf("Time (ms): %d\n", nt);
 
   // global sequential assembly
   // sum force and hess with correct indexing
@@ -584,36 +472,6 @@ void hylc::hylc_add_internal_forces(const Cloth &cloth, SpMat<Mat3x3> &A,
       hylc::add_subvec(-dt * (g + (dt + damping) * H * vs), ixs, b);
     }
   }
-
-  // earth gravity: F = G m1 m2 / r^2
-  // F = alpha m_obj/(x_obj-0)^2
-  // alpha := 3.9857128×10^14 m3⋅s−2  
-  if (hylc::config.center_grav != 0)
-    for (int n = 0; n < mesh.nodes.size(); n++) {
-      double alpha = 3.9857128e14 * hylc::config.center_grav;
-      Node* nn = mesh.nodes[n];
-      // Vec3 gravity = -9.81 * normalize(mesh.nodes[n]->x);
-      // Vec3 f_grav = nn->m * gravity;
-
-      double r = norm(nn->x - Vec3(0));
-      Vec3 f_grav = nn->m * -normalize(nn->x) * (alpha/(r*r));
-
-      Mat3x3 J_grav(0);
-      double x=nn->x(0),y=nn->x(1),z=nn->x(2);
-      J_grav(0,0) += -2*x*x + y*y + z*z;
-      J_grav(1,1) += + x*x -2*y*y + z*z;
-      J_grav(2,2) += + x*x + y*y -2*z*z;
-      J_grav(0,1) += -3 * x*y;
-      J_grav(0,2) += -3 * x*z;
-      J_grav(1,2) += -3 * y*z;
-      J_grav(0,1) += -3 * x*y;
-      J_grav(2,0) += -3 * x*z;
-      J_grav(2,1) += -3 * y*z;
-      J_grav *= - alpha * nn->m / (r*r*r*r*r);
-    
-      hylc::add_subvec(dt * f_grav, Vec<1, int>(nn->index), b);
-      hylc::add_submat(-J_grav, Vec<1, int>(nn->index), A);
-    }  
 }
 
 template <Space s>
@@ -631,14 +489,6 @@ void hylc::hylc_add_internal_forces(const Cloth &cloth, std::vector<Vec3> &b,
 #pragma omp parallel for
   for (int i = 0; i < n_triangles; ++i) {
     local_g[i] = hylc_local_forces_nojac<s>(mesh.faces[i]);
-  }
-
-  if (debug_print_strain_range) {
-    printf(
-        "strain: [%.2f, %.2f] [%.2f, %.2f] [%.2f, %.2f] [%.2f, %.2f] [%.2f, "
-        "%.2f] [%.2f, %.2f]\n",
-        strain0a, strain0b, strain1a, strain1b, strain2a, strain2b, strain3a,
-        strain3b, strain4a, strain4b, strain5a, strain5b);
   }
 
 #pragma omp parallel for
@@ -670,14 +520,6 @@ void hylc::hylc_add_internal_forces(const Cloth &cloth, std::vector<Vec3> &b,
     Vec9 vs           = mat_to_vec(Mat3x3(n0->v, n1->v, n2->v));
     local_Jfake_vs[i] = -face->a * hess_e * vs;
   }
-
-  // if (debug_print_strain_range) {
-  //   printf("strain: [%.2f, %.2f] [%.2f, %.2f] [%.2f, %.2f] [%.2f, %.2f]
-  //   [%.2f, "
-  //          "%.2f] [%.2f, %.2f]\n",
-  //          strain0a, strain0b, strain1a, strain1b, strain2a, strain2b,
-  //          strain3a, strain3b, strain4a, strain4b, strain5a, strain5b);
-  // }
 
   // global sequential assembly
   // sum force and hess with correct indexing
@@ -721,7 +563,7 @@ template void hylc::hylc_add_internal_forces<PS>(const Cloth &,
                                                  double);
 
 #include <fstream>
-void hylc::hylc_write_strains(const std::string & filename, const Cloth &cloth) {
+void hylc::hylc_write_strains(const std::string &filename, const Cloth &cloth) {
   namespace mm = hylc::mathematica;
 
   const Mesh &mesh = cloth.mesh;
@@ -737,7 +579,7 @@ void hylc::hylc_write_strains(const std::string & filename, const Cloth &cloth) 
     // double theta_rest0, theta_rest1, theta_rest2;
     bool nn0_exists, nn1_exists, nn2_exists;
     compute_local_information<WS>(face, xlocal, nn0_exists, nn1_exists,
-                                nn2_exists);
+                                  nn2_exists);
 
     // double A     = face->a;      // material space / reference config area
     Mat2x2 invDm = face->invDm;  // shape matrix
@@ -748,27 +590,23 @@ void hylc::hylc_write_strains(const std::string & filename, const Cloth &cloth) 
     // t2 *= (double)nn2_exists;
 
     // 1. mmcpp compute epsilon(x),kappa(x) as vec6
-    strains[i] = mm::strain(xlocal, invDm, Vec3(nn0_exists, nn1_exists, nn2_exists));
+    strains[i] =
+        mm::strain(xlocal, invDm, Vec3(nn0_exists, nn1_exists, nn2_exists));
     strains[i][0] -= 1;
     strains[i][2] -= 1;
-    for (int j = 3; j < 6; j++)
-      strains[i](j) *= config.bend_scale;
+    for (int j = 3; j < 6; j++) strains[i](j) *= config.bend_scale;
 
     // centroid in uv for filtering
-    const Vert *v0 = face->v[0], *v1 = face->v[1],
-              *v2 = face->v[2];
-    uvs[i] = 1.0/3.0 * (v0->u + v1->u + v2->u);
+    const Vert *v0 = face->v[0], *v1 = face->v[1], *v2 = face->v[2];
+    uvs[i] = 1.0 / 3.0 * (v0->u + v1->u + v2->u);
   }
 
   std::ofstream myfile;
-  myfile.open (filename);
+  myfile.open(filename);
   for (int i = 0; i < n_triangles; ++i) {
-    for  (int j = 0; j < 6; ++j)
-      myfile << strains[i][j] << " ";
-    for  (int j = 0; j < 2; ++j)
-      myfile << uvs[i][j] << " ";
+    for (int j = 0; j < 6; ++j) myfile << strains[i][j] << " ";
+    for (int j = 0; j < 2; ++j) myfile << uvs[i][j] << " ";
     myfile << "\n";
   }
   myfile.close();
-
 }

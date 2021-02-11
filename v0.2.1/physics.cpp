@@ -588,9 +588,8 @@ void add_external_forces(const Cloth &cloth, const Vec3 &gravity,
                          const Wind &wind, vector<Vec3> &fext,
                          vector<Mat3x3> &Jext) {
   const Mesh &mesh = cloth.mesh;
-  if (hylc::config.center_grav == 0)
-    for (int n = 0; n < mesh.nodes.size(); n++)
-      fext[n] += mesh.nodes[n]->m * gravity;
+  for (int n = 0; n < mesh.nodes.size(); n++)
+    fext[n] += mesh.nodes[n]->m * gravity;
   for (int f = 0; f < mesh.faces.size(); f++) {
     const Face *face = mesh.faces[f];
     Vec3 fw = wind_force(face, wind);

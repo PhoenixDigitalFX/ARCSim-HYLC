@@ -1,6 +1,0 @@
-Real copt1 = ek(0);
-Real copt5 = ek(2);
-Real copt18 = copt1*copt5;
-Real copt23 = Ccompr1 + copt18;
-Real copt26 = 1/copt23;
-out(0) = Ccompr0*copt26;

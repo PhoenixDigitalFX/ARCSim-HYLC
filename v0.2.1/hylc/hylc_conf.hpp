@@ -15,12 +15,10 @@ struct Config {
   double bend_scale = 1.0;
   double weight_mult = 1.0;
   double seam_stiffness = 0.0;
-  double center_grav = 0.0;
+  // double center_grav = 0.0;
 };
 
-extern Config config; // global struct, defined in cpp, meh.. should try and use arcsim stuff instead.
-// like actually make my material a replacement for arcsim material
-
+extern Config config; // global struct, defined in cpp
 
 struct Debug {
   int debug_color = 0; // cycle through colorcoded strain rendering (0 = none) 

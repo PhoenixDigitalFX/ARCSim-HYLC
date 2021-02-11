@@ -1,5 +1,3 @@
-# offline simulation data
-TMP*
 # vscode
 .vscode*
 .VSCode*
@@ -17,5 +15,5 @@ __pycache__
 *tags*
 
 *XDG_CACHE_HOME*
-# run_tests/*/*
-# rib_no*
+
+backup_local/*

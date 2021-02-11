@@ -1,5 +1,0 @@
-Real c1 = ekdof(0);
-Real c7 = ekdof(2);
-Real c16 = ekdof(3);
-Real c17 = ekdof(5);
-out(0) = b0*Power(c16 + c17,2) + a0*Power(-2 + c1 + c7,2) + a1*(Power(-1 + c1,2) + Power(-1 + c7,2) + 2*Power(ekdof(1),2)) + b1*Power(-(c16*c17) + Power(ekdof(4),2),2);

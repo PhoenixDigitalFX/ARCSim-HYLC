@@ -11,10 +11,8 @@ from multiprocessing import Pool
 import getpass, smtplib, signal
 from email.mime.text import MIMEText
 
-# HARDCODED ###################################################################
-email_user = 'gsperl'
-email_server = 'owa.ist.ac.at'
-
+email_user = ''
+email_server = ''
 
 # ARGS ########################################################################
 
