@@ -124,7 +124,7 @@ if (WIN32)
 include_directories( SYSTEM # system to avoid warnings in libraries
     ../dependencies/alglib/cpp/src
     ../dependencies/jsoncpp/include
-    ../dependencies/fitpackpp/fitpackpp
+    # ../dependencies/fitpackpp/fitpackpp
     ../dependencies/eigen
     ../dependencies/freeglut/include
     ../dependencies/zlib
@@ -135,7 +135,7 @@ else(WIN32)
 include_directories( SYSTEM # system to avoid warnings in libraries
     ../dependencies/alglib/cpp/src
     ../dependencies/jsoncpp/include
-    ../dependencies/fitpackpp/fitpackpp
+    # ../dependencies/fitpackpp/fitpackpp
     ../dependencies/eigen
     ${Boost_INCLUDE_DIRS}
     ${OPENGL_INCLUDE_DIR}
@@ -168,7 +168,7 @@ if (WIN32)
 add_dependencies(arcsim_0.2.1
     alglib
     json
-    fitpackpp
+    # fitpackpp
     freeglut_static
     zlibstatic
 )
@@ -176,7 +176,7 @@ add_dependencies(arcsim_0.2.1
 target_link_libraries(arcsim_0.2.1
    alglib
    json
-   fitpackpp
+#    fitpackpp
    freeglut_static
    zlibstatic
    ${Boost_LIBRARIES}
@@ -187,13 +187,13 @@ else(WIN32)
 add_dependencies(arcsim_0.2.1
     alglib
     json
-    fitpackpp
+    # fitpackpp
 )
 # Set link libraries.
 target_link_libraries(arcsim_0.2.1
    alglib
    json
-   fitpackpp
+#    fitpackpp
    ${Boost_LIBRARIES}
    ${OPENGL_LIBRARIES}
    ${GLUT_LIBRARIES}
