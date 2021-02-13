@@ -1,6 +1,10 @@
 # Homogenized Yarn-Level Cloth - ARCSim
 
-This repository contains the macro-scale/cloth-simulation part of 'Homogenized Yarn-Level Cloth' (Siggraph 2020). [Project Page](https://visualcomputing.ist.ac.at/publications/2020/HYLC/)
+This repository contains the macro-scale/cloth-simulation part of 'Homogenized Yarn-Level Cloth' (Siggraph 2020).
+
+[Project Page: https://visualcomputing.ist.ac.at/publications/2020/HYLC/](https://visualcomputing.ist.ac.at/publications/2020/HYLC/)
+
+For the micro-scale/pattern-optimization part, see the separate repository [TODO HYLC REPO](.).
 
 This is a fork / modified version of [ARCSim](http://graphics.berkeley.edu/resources/ARCSim/). The original readme file can be found [here](README_arcsim).
 
