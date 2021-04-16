@@ -4,7 +4,7 @@ This repository contains the macro-scale/cloth-simulation part of 'Homogenized Y
 
 [Project Page: https://visualcomputing.ist.ac.at/publications/2020/HYLC/](https://visualcomputing.ist.ac.at/publications/2020/HYLC/)
 
-For the micro-scale/pattern-optimization part, see the separate repository [TODO HYLC REPO](.).
+For the micro-scale/pattern-optimization part, see the separate repository ["HYLC"]([.](https://git.ist.ac.at/gsperl/HYLC/)).
 
 This is a fork / modified version of [ARCSim](http://graphics.berkeley.edu/resources/ARCSim/). The original readme file can be found [here](README_arcsim).
 
